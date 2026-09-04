@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { Search, User, ShoppingBag, Menu, X } from "lucide-react";
+import { Link } from "react-router";
+import { Search, User, ShoppingBag, Menu, X, SlidersHorizontal } from "lucide-react";
+import { useStore } from "../context/StoreContext";
 
 const navLinks = [
   { label: "Inicio", href: "#inicio" },
@@ -13,7 +15,7 @@ const navLinks = [
 
 export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [cartCount] = useState(2);
+  const { cartCount, setIsCartOpen } = useStore();
 
   return (
     <header
@@ -84,34 +86,28 @@ export function Header() {
         </nav>
 
         {/* Center logo */}
-        <a href="#inicio" style={{ textDecoration: "none", textAlign: "center" }}>
-          <div>
-            <div
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.6rem",
-                fontWeight: 600,
-                letterSpacing: "0.04em",
-                color: "var(--foreground)",
-                lineHeight: 1,
-              }}
-            >
-              Bloom <em style={{ color: "var(--gold)", fontWeight: 400 }}>Eterno</em>
-            </div>
-            <div
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: "0.58rem",
-                letterSpacing: "0.22em",
-                color: "var(--muted-foreground)",
-                fontWeight: 400,
-                marginTop: "0.2rem",
-                textTransform: "uppercase" as const,
-              }}
-            >
-              Bisutería &amp; Materiales
-            </div>
-          </div>
+        <a
+          href="#inicio"
+          style={{
+            textDecoration: "none",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "opacity 0.2s, transform 0.2s",
+          }}
+          className="hover:opacity-85"
+        >
+          <img
+            src="/logos/bloom-logo-full.png"
+            alt="Bloom Eterno - Hecho a mano. Hecho para siempre"
+            style={{
+              height: "46px",
+              width: "auto",
+              objectFit: "contain",
+              display: "block",
+            }}
+          />
         </a>
 
         {/* Right nav + icons */}
@@ -145,47 +141,77 @@ export function Header() {
             }}
           />
 
-          {[Search, User].map((Icon, i) => (
-            <button
-              key={i}
-              style={{ color: "var(--foreground)", background: "none", border: "none", cursor: "pointer", opacity: 0.6 }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-              onMouseLeave={e => (e.currentTarget.style.opacity = "0.6")}
-            >
-              <Icon size={16} strokeWidth={1.5} />
-            </button>
-          ))}
+          {/* Admin Backoffice Button */}
+          <Link
+            to="/admin"
+            title="Panel de Administración (Inventario & Pedidos)"
+            style={{
+              color: "var(--foreground)",
+              background: "none",
+              border: "1px solid var(--border)",
+              borderRadius: "1rem",
+              padding: "0.25rem 0.65rem",
+              cursor: "pointer",
+              fontSize: "0.68rem",
+              fontFamily: "var(--font-body)",
+              fontWeight: 500,
+              display: "flex",
+              alignItems: "center",
+              gap: "0.35rem",
+              opacity: 0.85,
+              textDecoration: "none",
+              transition: "all 0.2s",
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.opacity = "1";
+              e.currentTarget.style.backgroundColor = "var(--cream-deep)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.opacity = "0.85";
+              e.currentTarget.style.backgroundColor = "transparent";
+            }}
+          >
+            <SlidersHorizontal size={13} strokeWidth={1.5} />
+            <span>Admin</span>
+          </Link>
 
+          {/* Cart button */}
           <button
+            onClick={() => setIsCartOpen(true)}
+            title="Ver Bolsa de Compras"
             style={{
               position: "relative",
               color: "var(--foreground)",
               background: "none",
               border: "none",
               cursor: "pointer",
-              opacity: 0.6,
+              opacity: 0.85,
+              padding: "0.4rem",
+              display: "flex",
+              alignItems: "center",
             }}
             onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-            onMouseLeave={e => (e.currentTarget.style.opacity = "0.6")}
+            onMouseLeave={e => (e.currentTarget.style.opacity = "0.85")}
           >
-            <ShoppingBag size={16} strokeWidth={1.5} />
+            <ShoppingBag size={18} strokeWidth={1.5} />
             {cartCount > 0 && (
               <span
                 style={{
                   position: "absolute",
-                  top: "-4px",
-                  right: "-6px",
-                  width: "14px",
-                  height: "14px",
+                  top: "-2px",
+                  right: "-4px",
+                  width: "16px",
+                  height: "16px",
                   borderRadius: "50%",
-                  backgroundColor: "var(--gold)",
-                  color: "#fff",
-                  fontSize: "0.55rem",
+                  backgroundColor: "var(--primary)",
+                  color: "var(--primary-foreground)",
+                  fontSize: "0.6rem",
                   fontFamily: "var(--font-body)",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
+                  boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
                 }}
               >
                 {cartCount}
@@ -217,8 +243,41 @@ export function Header() {
 
         {/* Mobile icons */}
         <div className="flex lg:hidden items-center justify-end gap-3">
-          <button style={{ color: "var(--foreground)", background: "none", border: "none", cursor: "pointer" }}>
-            <ShoppingBag size={18} strokeWidth={1.5} />
+          <Link
+            to="/admin"
+            title="Administración"
+            style={{ color: "var(--foreground)", background: "none", border: "none", cursor: "pointer", padding: "0.3rem", display: "flex", alignItems: "center" }}
+          >
+            <SlidersHorizontal size={17} strokeWidth={1.5} />
+          </Link>
+          <button
+            onClick={() => setIsCartOpen(true)}
+            title="Bolsa de Compras"
+            style={{ position: "relative", color: "var(--foreground)", background: "none", border: "none", cursor: "pointer", padding: "0.3rem" }}
+          >
+            <ShoppingBag size={19} strokeWidth={1.5} />
+            {cartCount > 0 && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "-2px",
+                  right: "-2px",
+                  width: "15px",
+                  height: "15px",
+                  borderRadius: "50%",
+                  backgroundColor: "var(--primary)",
+                  color: "#fff",
+                  fontSize: "0.55rem",
+                  fontFamily: "var(--font-body)",
+                  fontWeight: 700,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {cartCount}
+              </span>
+            )}
           </button>
           <button
             onClick={() => setMenuOpen(!menuOpen)}
@@ -238,6 +297,13 @@ export function Header() {
             padding: "1.5rem 2rem 2rem",
           }}
         >
+          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
+            <img
+              src="/logos/bloom-monogram.png"
+              alt="Bloom Eterno"
+              style={{ height: "38px", width: "auto", opacity: 0.8 }}
+            />
+          </div>
           {navLinks.map((link) => (
             <a
               key={link.label}

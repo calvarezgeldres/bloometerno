@@ -1,0 +1,17 @@
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || "";
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || "";
+
+// Detectar si Supabase tiene credenciales válidas
+export const isSupabaseConfigured = Boolean(
+  supabaseUrl && 
+  supabaseAnonKey && 
+  supabaseUrl.startsWith("http") &&
+  !supabaseUrl.includes("tu-proyecto")
+);
+
+// Cliente de Supabase (o cliente mock/deshabilitado si no hay claves)
+export const supabase = isSupabaseConfigured
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;

@@ -96,14 +96,14 @@ export function BrandStory() {
             />
           </div>
 
-          {/* Sticker overlay */}
+          {/* Seal / Sticker overlay */}
           <div
             style={{
               position: "absolute",
               bottom: "-1.5rem",
               right: "-1.5rem",
-              width: "7rem",
-              height: "7rem",
+              width: "7.5rem",
+              height: "7.5rem",
               borderRadius: "50%",
               backgroundColor: "var(--gold)",
               display: "flex",
@@ -112,31 +112,30 @@ export function BrandStory() {
               justifyContent: "center",
               textAlign: "center",
               border: "3px solid var(--olive-dark)",
+              boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
             }}
           >
-            <p
+            <img
+              src="/logos/bloom-monogram.png"
+              alt="Bloom Eterno"
               style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.5rem",
-                fontWeight: 700,
-                color: "var(--olive-dark)",
-                lineHeight: 1,
-                margin: 0,
+                height: "2.2rem",
+                width: "auto",
+                marginBottom: "0.15rem",
               }}
-            >
-              100%
-            </p>
+            />
             <p
               style={{
                 fontFamily: "var(--font-body)",
                 fontSize: "0.55rem",
-                letterSpacing: "0.1em",
+                letterSpacing: "0.12em",
                 color: "var(--olive-dark)",
-                margin: "0.15rem 0 0",
+                margin: 0,
+                fontWeight: 600,
                 textTransform: "uppercase" as const,
               }}
             >
-              Natural
+              100% Natural
             </p>
           </div>
         </div>

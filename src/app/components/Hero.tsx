@@ -38,23 +38,23 @@ export function Hero() {
           }}
         />
 
-        {/* Large decorative letter */}
+        {/* Decorative monogram watermark */}
         <div
           style={{
             position: "absolute",
-            top: "-2rem",
-            right: "-1.5rem",
-            fontFamily: "var(--font-display)",
-            fontSize: "clamp(14rem, 25vw, 22rem)",
-            fontWeight: 700,
-            color: "rgba(246,240,227,0.04)",
-            lineHeight: 1,
+            top: "-1rem",
+            right: "-2rem",
+            width: "clamp(260px, 35vw, 440px)",
+            opacity: 0.06,
             userSelect: "none",
             pointerEvents: "none",
-            letterSpacing: "-0.05em",
           }}
         >
-          B
+          <img
+            src="/logos/bloom-monogram-light.png"
+            alt=""
+            style={{ width: "100%", height: "auto", display: "block" }}
+          />
         </div>
 
         {/* Content */}

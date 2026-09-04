@@ -1,108 +1,9 @@
 import { useState } from "react";
-import { Heart, ShoppingBag } from "lucide-react";
+import { Heart, ShoppingBag, Check, AlertCircle } from "lucide-react";
+import { useStore } from "../context/StoreContext";
+import { Product } from "../types/store";
 
-type Product = {
-  id: number;
-  num: string;
-  name: string;
-  price: number;
-  badge?: string;
-  badgeType?: "new" | "hot" | "limited";
-  image: string;
-  alt: string;
-  category: string;
-};
-
-const products: Product[] = [
-  {
-    id: 1,
-    num: "01",
-    name: "Mostacilla rosado pálido 2mm",
-    price: 1490,
-    badge: "Más vendido",
-    badgeType: "hot",
-    image: "https://images.unsplash.com/photo-1560847133-e6f64dc352ea?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Mostacillas rosadas ensartadas",
-    category: "Mostacillas",
-  },
-  {
-    id: 2,
-    num: "02",
-    name: "Piedra ojo de tigre natural",
-    price: 3900,
-    badge: "Nuevo",
-    badgeType: "new",
-    image: "https://images.unsplash.com/photo-1766038844075-d997429c85ef?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Piedra ojo de tigre pulida natural",
-    category: "Piedras",
-  },
-  {
-    id: 3,
-    num: "03",
-    name: "Cristal facetado verde oliva",
-    price: 2200,
-    badge: "Nuevo",
-    badgeType: "new",
-    image: "https://images.unsplash.com/photo-1556376752-19770d78207f?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Cristales facetados color verde",
-    category: "Cristales",
-  },
-  {
-    id: 4,
-    num: "04",
-    name: "Kit pulsera floral completo",
-    price: 8990,
-    badge: "Ed. Limitada",
-    badgeType: "limited",
-    image: "https://images.unsplash.com/photo-1660911866937-9399bf71af1e?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Kit completo para pulsera floral",
-    category: "Kits",
-  },
-  {
-    id: 5,
-    num: "05",
-    name: "Separadores dorado suave x20",
-    price: 2490,
-    badge: "Más vendido",
-    badgeType: "hot",
-    image: "https://images.unsplash.com/photo-1658915250017-bee8f8f0d9a6?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Separadores dorados para bisutería artesanal",
-    category: "Herramientas",
-  },
-  {
-    id: 6,
-    num: "06",
-    name: "Mix mostacillas crema y beige",
-    price: 3200,
-    image: "https://images.unsplash.com/photo-1510229955695-588e1612a69b?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Mix de mostacillas en tonos crema",
-    category: "Mostacillas",
-  },
-  {
-    id: 7,
-    num: "07",
-    name: "Cuarzo rosa rodado natural",
-    price: 4500,
-    badge: "Nuevo",
-    badgeType: "new",
-    image: "https://images.unsplash.com/photo-1568551732226-3ad05aac9a76?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Cuarzo rosa rodado sobre superficie natural",
-    category: "Piedras",
-  },
-  {
-    id: 8,
-    num: "08",
-    name: "Set iniciación bisutería natural",
-    price: 12900,
-    badge: "Ed. Limitada",
-    badgeType: "limited",
-    image: "https://images.unsplash.com/photo-1560847133-95f64e08e02a?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Set completo de iniciación en bisutería natural",
-    category: "Kits",
-  },
-];
-
-const badgeConfig = {
+const badgeConfig: Record<string, { label: string; bg: string; color: string }> = {
   new: { label: "Nuevo", bg: "var(--secondary)", color: "#fff" },
   hot: { label: "Más vendido", bg: "var(--gold)", color: "#fff" },
   limited: { label: "Ed. Limitada", bg: "var(--pale-pink)", color: "var(--foreground)" },
@@ -113,20 +14,40 @@ function formatCLP(n: number) {
 }
 
 export function Products() {
-  const [wishlist, setWishlist] = useState<Set<number>>(new Set());
-  const [added, setAdded] = useState<Set<number>>(new Set());
+  const { products, addToCart } = useStore();
+  const [wishlist, setWishlist] = useState<Set<string | number>>(new Set());
+  const [added, setAdded] = useState<Set<string | number>>(new Set());
+  const [activeCategory, setActiveCategory] = useState("Todos");
 
-  const toggleWishlist = (id: number) =>
-    setWishlist(prev => {
+  const toggleWishlist = (id: string | number) =>
+    setWishlist((prev) => {
       const s = new Set(prev);
       s.has(id) ? s.delete(id) : s.add(id);
       return s;
     });
 
-  const addToCart = (id: number) => {
-    setAdded(prev => new Set(prev).add(id));
-    setTimeout(() => setAdded(prev => { const s = new Set(prev); s.delete(id); return s; }), 2000);
+  const handleAddToCart = (product: Product) => {
+    if (product.stock <= 0) return;
+    const ok = addToCart(product, 1);
+    if (ok) {
+      setAdded((prev) => new Set(prev).add(product.id));
+      setTimeout(() => {
+        setAdded((prev) => {
+          const s = new Set(prev);
+          s.delete(product.id);
+          return s;
+        });
+      }, 1500);
+    }
   };
+
+  // Extraer categorías dinámicas únicas del catálogo
+  const categories = ["Todos", ...Array.from(new Set(products.map((p) => p.category)))];
+
+  const filteredProducts =
+    activeCategory === "Todos"
+      ? products
+      : products.filter((p) => p.category.toLowerCase() === activeCategory.toLowerCase());
 
   return (
     <section
@@ -134,7 +55,6 @@ export function Products() {
       style={{ backgroundColor: "var(--cream-deep)", paddingTop: "5rem", paddingBottom: "5rem" }}
     >
       <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 2rem" }}>
-
         {/* Section header */}
         <div
           style={{
@@ -144,6 +64,8 @@ export function Products() {
             marginBottom: "3rem",
             paddingBottom: "2rem",
             borderBottom: "1px solid var(--border)",
+            flexWrap: "wrap",
+            gap: "1.5rem",
           }}
         >
           <div>
@@ -175,54 +97,66 @@ export function Products() {
           </div>
 
           {/* Filter pills */}
-          <div className="hidden md:flex items-center gap-2">
-            {["Todos", "Piedras", "Mostacillas", "Kits"].map((f, i) => (
-              <button
-                key={f}
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "0.7rem",
-                  letterSpacing: "0.08em",
-                  fontWeight: i === 0 ? 500 : 400,
-                  color: i === 0 ? "var(--primary-foreground)" : "var(--muted-foreground)",
-                  backgroundColor: i === 0 ? "var(--primary)" : "transparent",
-                  border: i === 0 ? "none" : "1px solid var(--border)",
-                  padding: "0.4rem 1rem",
-                  borderRadius: "2rem",
-                  cursor: "pointer",
-                }}
-              >
-                {f}
-              </button>
-            ))}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+            {categories.map((cat) => {
+              const isSelected = activeCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "0.72rem",
+                    letterSpacing: "0.08em",
+                    fontWeight: isSelected ? 600 : 400,
+                    color: isSelected ? "var(--primary-foreground)" : "var(--muted-foreground)",
+                    backgroundColor: isSelected ? "var(--primary)" : "transparent",
+                    border: isSelected ? "none" : "1px solid var(--border)",
+                    padding: "0.4rem 1.1rem",
+                    borderRadius: "2rem",
+                    cursor: "pointer",
+                    transition: "all 0.2s ease",
+                  }}
+                >
+                  {cat}
+                </button>
+              );
+            })}
           </div>
         </div>
 
         {/* Product grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: "1.5rem",
-          }}
-          className="max-lg:grid-cols-2 max-sm:grid-cols-2"
-        >
-          {products.map(product => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              inWishlist={wishlist.has(product.id)}
-              wasAdded={added.has(product.id)}
-              onWishlist={() => toggleWishlist(product.id)}
-              onAddToCart={() => addToCart(product.id)}
-            />
-          ))}
-        </div>
+        {filteredProducts.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "4rem 1rem", color: "var(--muted-foreground)" }}>
+            <p>No hay productos en esta categoría en este momento.</p>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(4, 1fr)",
+              gap: "1.5rem",
+            }}
+            className="max-lg:grid-cols-2 max-sm:grid-cols-2"
+          >
+            {filteredProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                inWishlist={wishlist.has(product.id)}
+                wasAdded={added.has(product.id)}
+                onWishlist={() => toggleWishlist(product.id)}
+                onAddToCart={() => handleAddToCart(product)}
+              />
+            ))}
+          </div>
+        )}
 
         {/* Bottom CTA */}
         <div style={{ textAlign: "center", marginTop: "3rem", paddingTop: "2.5rem", borderTop: "1px solid var(--border)" }}>
           <a
             href="#productos"
+            onClick={() => setActiveCategory("Todos")}
             style={{
               fontFamily: "var(--font-body)",
               fontSize: "0.72rem",
@@ -235,9 +169,18 @@ export function Products() {
               borderRadius: "2rem",
               textDecoration: "none",
               display: "inline-block",
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = "var(--primary)";
+              e.currentTarget.style.color = "var(--primary-foreground)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = "transparent";
+              e.currentTarget.style.color = "var(--primary)";
             }}
           >
-            Ver catálogo completo
+            Ver catálogo completo ({products.length} productos)
           </a>
         </div>
       </div>
@@ -258,7 +201,13 @@ function ProductCard({
   onWishlist: () => void;
   onAddToCart: () => void;
 }) {
-  const badge = product.badgeType ? badgeConfig[product.badgeType] : null;
+  const isOutOfStock = product.stock <= 0;
+  const isLowStock = product.stock > 0 && product.stock <= 3;
+
+  const defaultBadge = product.badgeType ? badgeConfig[product.badgeType] : null;
+  const badge = isOutOfStock
+    ? { label: "Agotado", bg: "var(--destructive)", color: "#fff" }
+    : defaultBadge || (product.badge ? { label: product.badge, bg: "var(--gold)", color: "#fff" } : null);
 
   return (
     <div
@@ -269,6 +218,8 @@ function ProductCard({
         border: "1px solid var(--border)",
         display: "flex",
         flexDirection: "column",
+        transition: "box-shadow 0.3s ease",
+        opacity: isOutOfStock ? 0.78 : 1,
       }}
     >
       {/* Image */}
@@ -282,16 +233,21 @@ function ProductCard({
       >
         <img
           src={product.image}
-          alt={product.alt}
+          alt={product.alt || product.name}
           style={{
             width: "100%",
             height: "100%",
             objectFit: "cover",
             transition: "transform 0.6s ease",
             display: "block",
+            filter: isOutOfStock ? "grayscale(40%)" : "none",
           }}
-          onMouseEnter={e => (e.currentTarget.style.transform = "scale(1.04)")}
-          onMouseLeave={e => (e.currentTarget.style.transform = "scale(1)")}
+          onMouseEnter={(e) => {
+            if (!isOutOfStock) e.currentTarget.style.transform = "scale(1.04)";
+          }}
+          onMouseLeave={(e) => {
+            if (!isOutOfStock) e.currentTarget.style.transform = "scale(1)";
+          }}
         />
 
         {/* Number tag */}
@@ -303,8 +259,8 @@ function ProductCard({
             fontFamily: "var(--font-body)",
             fontSize: "0.6rem",
             letterSpacing: "0.08em",
-            color: "rgba(246,240,227,0.7)",
-            backgroundColor: "rgba(33,28,18,0.45)",
+            color: "rgba(246,240,227,0.85)",
+            backgroundColor: "rgba(33,28,18,0.55)",
             backdropFilter: "blur(4px)",
             padding: "0.25rem 0.5rem",
             borderRadius: "0.25rem",
@@ -324,11 +280,12 @@ function ProductCard({
               color: badge.color,
               fontFamily: "var(--font-body)",
               fontSize: "0.58rem",
-              fontWeight: 500,
-              letterSpacing: "0.1em",
+              fontWeight: 600,
+              letterSpacing: "0.08em",
               textTransform: "uppercase" as const,
               padding: "0.25rem 0.65rem",
               borderRadius: "2rem",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
             }}
           >
             {badge.label}
@@ -352,6 +309,7 @@ function ProductCard({
             alignItems: "center",
             justifyContent: "center",
             color: inWishlist ? "#C1455A" : "var(--muted-foreground)",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
           }}
         >
           <Heart size={12} fill={inWishlist ? "#C1455A" : "none"} strokeWidth={1.5} />
@@ -367,7 +325,7 @@ function ProductCard({
               fontSize: "0.6rem",
               letterSpacing: "0.14em",
               color: "var(--gold)",
-              fontWeight: 500,
+              fontWeight: 600,
               textTransform: "uppercase" as const,
               margin: "0 0 0.3rem",
             }}
@@ -388,37 +346,58 @@ function ProductCard({
           </h3>
         </div>
 
+        {/* Price & Stock info */}
         <div
           style={{
             display: "flex",
-            alignItems: "center",
+            alignItems: "baseline",
             justifyContent: "space-between",
             marginTop: "auto",
           }}
         >
-          <span
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "1.15rem",
-              fontWeight: 600,
-              color: "var(--primary)",
-            }}
-          >
-            {formatCLP(product.price)}
-          </span>
-          <span
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "0.6rem",
-              color: "var(--muted-foreground)",
-              letterSpacing: "0.08em",
-            }}
-          >
-            CLP
-          </span>
+          <div>
+            <span
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "1.15rem",
+                fontWeight: 600,
+                color: "var(--primary)",
+              }}
+            >
+              {formatCLP(product.price)}
+            </span>
+            <span
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "0.6rem",
+                color: "var(--muted-foreground)",
+                letterSpacing: "0.08em",
+                marginLeft: "0.3rem",
+              }}
+            >
+              CLP
+            </span>
+          </div>
+
+          {/* Stock badge */}
+          {isOutOfStock ? (
+            <span style={{ fontSize: "0.65rem", color: "var(--destructive)", fontWeight: 600 }}>
+              Sin stock
+            </span>
+          ) : isLowStock ? (
+            <span style={{ fontSize: "0.65rem", color: "var(--gold)", fontWeight: 600 }}>
+              ¡Solo {product.stock} un!
+            </span>
+          ) : (
+            <span style={{ fontSize: "0.62rem", color: "var(--muted-foreground)" }}>
+              {product.stock} un. disp.
+            </span>
+          )}
         </div>
 
+        {/* Add button */}
         <button
+          disabled={isOutOfStock}
           onClick={onAddToCart}
           style={{
             width: "100%",
@@ -426,22 +405,37 @@ function ProductCard({
             alignItems: "center",
             justifyContent: "center",
             gap: "0.4rem",
-            backgroundColor: wasAdded ? "var(--secondary)" : "var(--primary)",
-            color: "var(--primary-foreground)",
+            backgroundColor: isOutOfStock
+              ? "var(--muted)"
+              : wasAdded
+              ? "var(--secondary)"
+              : "var(--primary)",
+            color: isOutOfStock ? "var(--muted-foreground)" : "var(--primary-foreground)",
             border: "none",
             borderRadius: "2rem",
             padding: "0.65rem",
             fontFamily: "var(--font-body)",
             fontSize: "0.68rem",
-            fontWeight: 500,
+            fontWeight: 600,
             letterSpacing: "0.08em",
             textTransform: "uppercase" as const,
-            cursor: "pointer",
+            cursor: isOutOfStock ? "not-allowed" : "pointer",
             transition: "background-color 0.25s ease",
           }}
         >
-          <ShoppingBag size={12} strokeWidth={1.5} />
-          {wasAdded ? "¡Agregado!" : "Agregar"}
+          {isOutOfStock ? (
+            "Agotado"
+          ) : wasAdded ? (
+            <>
+              <Check size={13} strokeWidth={2} />
+              ¡Agregado a la bolsa!
+            </>
+          ) : (
+            <>
+              <ShoppingBag size={13} strokeWidth={1.5} />
+              Agregar a la bolsa
+            </>
+          )}
         </button>
       </div>
     </div>

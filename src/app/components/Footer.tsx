@@ -51,27 +51,18 @@ export function Footer() {
       >
         {/* Brand column */}
         <div>
-          {/* Large italic wordmark */}
-          <div style={{ marginBottom: "1.5rem" }}>
-            <p
+          {/* Official brand logo */}
+          <div style={{ marginBottom: "1.75rem" }}>
+            <img
+              src="/logos/bloom-logo-full-light.png"
+              alt="Bloom Eterno"
               style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "2.2rem",
-                fontWeight: 300,
-                fontStyle: "italic",
-                color: "var(--background)",
-                margin: 0,
-                lineHeight: 1,
-                letterSpacing: "-0.01em",
+                height: "54px",
+                width: "auto",
+                objectFit: "contain",
+                display: "block",
               }}
-            >
-              Bloom{" "}
-              <em
-                style={{ color: "var(--gold)", fontStyle: "italic" }}
-              >
-                Eterno
-              </em>
-            </p>
+            />
           </div>
 
           <p
