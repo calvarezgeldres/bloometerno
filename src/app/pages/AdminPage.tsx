@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router";
 import {
   Package,
@@ -12,9 +12,12 @@ import {
   ExternalLink,
   CheckCircle2,
   SlidersHorizontal,
+  Lock,
+  LogOut,
 } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { Product } from "../types/store";
+import { db } from "../../lib/db";
 
 function formatCLP(amount: number): string {
   return `$${amount.toLocaleString("es-CL")}`;
@@ -41,7 +44,45 @@ export const AdminPage: React.FC = () => {
     updateOrderStatus,
     updateSettings,
     resetCatalog,
+    refreshOrders,
   } = useStore();
+
+  // Autenticación del panel de administración
+  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loginUsername, setLoginUsername] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  useEffect(() => {
+    db.auth
+      .me()
+      .then((res) => setIsAuthenticated(res.authenticated))
+      .catch(() => setIsAuthenticated(false))
+      .finally(() => setAuthChecked(true));
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoggingIn(true);
+    setLoginError("");
+    try {
+      await db.auth.login(loginUsername, loginPassword);
+      setIsAuthenticated(true);
+      setLoginPassword("");
+      refreshOrders();
+    } catch (err: any) {
+      setLoginError(err.message || "Usuario o contraseña incorrectos");
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await db.auth.logout().catch(() => {});
+    setIsAuthenticated(false);
+  };
 
   const [activeTab, setActiveTab] = useState<"inventory" | "orders" | "settings">("inventory");
   const [searchTerm, setSearchTerm] = useState("");
@@ -157,6 +198,101 @@ export const AdminPage: React.FC = () => {
     setTimeout(() => setSavedSettingsMsg(false), 2500);
   };
 
+  if (!authChecked) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "var(--background)" }}>
+        <span style={{ color: "var(--muted-foreground)", fontSize: "0.9rem" }}>Cargando…</span>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", backgroundColor: "var(--olive-dark)", padding: "1.5rem" }}>
+        <form
+          onSubmit={handleLogin}
+          style={{
+            backgroundColor: "var(--card)",
+            padding: "2.5rem",
+            borderRadius: "1rem",
+            width: "100%",
+            maxWidth: "380px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.25rem",
+            boxShadow: "0 20px 60px rgba(0,0,0,0.35)",
+            boxSizing: "border-box",
+          }}
+        >
+          <div style={{ textAlign: "center" }}>
+            <Lock size={30} style={{ color: "var(--primary)", marginBottom: "0.5rem" }} />
+            <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.4rem", margin: 0 }}>
+              Acceso Administrador
+            </h2>
+            <p style={{ fontSize: "0.8rem", color: "var(--muted-foreground)", margin: "0.4rem 0 0" }}>
+              Bloom Eterno · Panel de Gestión
+            </p>
+          </div>
+
+          <div>
+            <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, marginBottom: "0.3rem" }}>
+              Usuario
+            </label>
+            <input
+              required
+              type="text"
+              value={loginUsername}
+              onChange={(e) => setLoginUsername(e.target.value)}
+              autoFocus
+              style={{ width: "100%", padding: "0.65rem 0.8rem", borderRadius: "0.4rem", border: "1px solid var(--border)", fontSize: "0.9rem", boxSizing: "border-box" }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: "block", fontSize: "0.78rem", fontWeight: 600, marginBottom: "0.3rem" }}>
+              Contraseña
+            </label>
+            <input
+              required
+              type="password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              style={{ width: "100%", padding: "0.65rem 0.8rem", borderRadius: "0.4rem", border: "1px solid var(--border)", fontSize: "0.9rem", boxSizing: "border-box" }}
+            />
+          </div>
+
+          {loginError && (
+            <div style={{ fontSize: "0.8rem", color: "var(--destructive)", backgroundColor: "rgba(220,38,38,0.08)", padding: "0.6rem 0.8rem", borderRadius: "0.4rem" }}>
+              {loginError}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isLoggingIn}
+            style={{
+              backgroundColor: "var(--primary)",
+              color: "var(--primary-foreground)",
+              border: "none",
+              padding: "0.75rem",
+              borderRadius: "2rem",
+              fontWeight: 600,
+              fontSize: "0.9rem",
+              cursor: isLoggingIn ? "default" : "pointer",
+              opacity: isLoggingIn ? 0.7 : 1,
+            }}
+          >
+            {isLoggingIn ? "Verificando…" : "Iniciar Sesión"}
+          </button>
+
+          <Link to="/" style={{ textAlign: "center", fontSize: "0.78rem", color: "var(--muted-foreground)", textDecoration: "none" }}>
+            ← Volver a la tienda
+          </Link>
+        </form>
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "var(--background)", display: "flex", flexDirection: "column" }}>
       {/* Top Header Bar */}
@@ -220,27 +356,50 @@ export const AdminPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Action button to return to store */}
-          <Link
-            to="/"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "0.45rem",
-              color: "var(--primary-foreground)",
-              textDecoration: "none",
-              backgroundColor: "rgba(246, 240, 227, 0.12)",
-              padding: "0.5rem 1.1rem",
-              borderRadius: "2rem",
-              fontSize: "0.78rem",
-              fontFamily: "var(--font-body)",
-              fontWeight: 500,
-              transition: "background-color 0.2s",
-            }}
-          >
-            <ArrowLeft size={16} />
-            Volver a la Tienda
-          </Link>
+          {/* Action buttons */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+            <Link
+              to="/"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.45rem",
+                color: "var(--primary-foreground)",
+                textDecoration: "none",
+                backgroundColor: "rgba(246, 240, 227, 0.12)",
+                padding: "0.5rem 1.1rem",
+                borderRadius: "2rem",
+                fontSize: "0.78rem",
+                fontFamily: "var(--font-body)",
+                fontWeight: 500,
+                transition: "background-color 0.2s",
+              }}
+            >
+              <ArrowLeft size={16} />
+              Volver a la Tienda
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.45rem",
+                color: "var(--primary-foreground)",
+                background: "transparent",
+                border: "1px solid rgba(246, 240, 227, 0.3)",
+                cursor: "pointer",
+                padding: "0.5rem 1.1rem",
+                borderRadius: "2rem",
+                fontSize: "0.78rem",
+                fontFamily: "var(--font-body)",
+                fontWeight: 500,
+              }}
+            >
+              <LogOut size={16} />
+              Cerrar Sesión
+            </button>
+          </div>
         </div>
       </header>
 

@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { neon } from "@neondatabase/serverless";
+import { requireAuth } from "./_lib/auth";
 
 function getDb() {
   const url = process.env.DATABASE_URL;
@@ -30,6 +31,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // POST /api/products — crear producto
     if (req.method === "POST") {
+      if (!requireAuth(req, res)) return;
+
       const { num, name, category, price, stock, badge, badge_type, image, alt, description } =
         req.body as Record<string, any>;
 
@@ -59,6 +62,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // PATCH /api/products — actualizar campos de un producto (id requerido en body)
     if (req.method === "PATCH") {
+      if (!requireAuth(req, res)) return;
+
       const { id, ...updates } = req.body as Record<string, any>;
 
       if (!id) return res.status(400).json({ error: "Falta el campo id" });
@@ -95,6 +100,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // DELETE /api/products — eliminar producto (id en query string)
     if (req.method === "DELETE") {
+      if (!requireAuth(req, res)) return;
+
       const { id } = req.query;
       if (!id) return res.status(400).json({ error: "Falta el parámetro id" });
 

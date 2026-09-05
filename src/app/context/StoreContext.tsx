@@ -154,6 +154,7 @@ interface StoreContextType {
   updateOrderStatus: (orderId: string, newStatus: Order["status"]) => Promise<void>;
   updateSettings: (newSettings: Partial<StoreSettings>) => void;
   resetCatalog: () => void;
+  refreshOrders: () => Promise<void>;
 }
 
 const StoreContext = createContext<StoreContextType | null>(null);
@@ -608,6 +609,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateOrderStatus,
         updateSettings,
         resetCatalog,
+        refreshOrders: fetchNeonOrders,
       }}
     >
       {children}

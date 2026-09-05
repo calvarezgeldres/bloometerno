@@ -83,6 +83,14 @@ VALUES (
     35000
 ) ON CONFLICT (id) DO NOTHING;
 
+-- 5. Tabla de Usuarios Administradores (login del panel /admin)
+CREATE TABLE IF NOT EXISTS admin_users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    username VARCHAR(100) NOT NULL UNIQUE,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
 -- Catálogo Semilla Inicial (Seed Data)
 INSERT INTO products (num, name, price, stock, category, badge, badge_type, image, alt)
 VALUES 

@@ -9,6 +9,7 @@ const BASE = typeof window !== "undefined" ? "" : "http://localhost:3000";
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     headers: { "Content-Type": "application/json" },
+    credentials: "same-origin",
     ...options,
   });
 
@@ -91,6 +92,22 @@ export const db = {
         method: "PATCH",
         body: JSON.stringify(data),
       }),
+  },
+
+  // ─── Autenticación de Administrador ─────────────────────────────────────────
+
+  auth: {
+    me: (): Promise<{ authenticated: boolean; username: string | null }> =>
+      apiFetch("/api/auth"),
+
+    login: (username: string, password: string): Promise<{ ok: boolean; username: string }> =>
+      apiFetch("/api/auth", {
+        method: "POST",
+        body: JSON.stringify({ username, password }),
+      }),
+
+    logout: (): Promise<{ ok: boolean }> =>
+      apiFetch("/api/auth", { method: "DELETE" }),
   },
 };
 

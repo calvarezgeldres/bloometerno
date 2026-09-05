@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { neon } from "@neondatabase/serverless";
+import { requireAuth } from "./_lib/auth";
 
 function getDb() {
   const url = process.env.DATABASE_URL;
@@ -38,6 +39,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // PATCH /api/settings — actualizar configuración
     if (req.method === "PATCH") {
+      if (!requireAuth(req, res)) return;
+
       const {
         bank_name,
         account_type,

@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { neon } from "@neondatabase/serverless";
+import { requireAuth } from "./_lib/auth";
 
 function getDb() {
   const url = process.env.DATABASE_URL;
@@ -17,8 +18,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const sql = getDb();
 
-    // GET /api/orders — listar todos los pedidos con sus ítems
+    // GET /api/orders — listar todos los pedidos con sus ítems (solo admin: contiene datos de clientes)
     if (req.method === "GET") {
+      if (!requireAuth(req, res)) return;
+
       const orders = await sql`
         SELECT * FROM orders ORDER BY created_at DESC
       `;
@@ -122,6 +125,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // PATCH /api/orders — actualizar estado de un pedido
     if (req.method === "PATCH") {
+      if (!requireAuth(req, res)) return;
+
       const { id, status } = req.body as Record<string, any>;
 
       if (!id || !status) {
