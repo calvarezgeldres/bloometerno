@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { neon } from "@neondatabase/serverless";
-import { verifyPassword, createSessionCookie, clearSessionCookie, getSessionUser } from "./_lib/auth";
+import { verifyPassword, createSessionCookie, clearSessionCookie, getSessionUser } from "../src/lib/authServer";
 
 function getDb() {
   const url = process.env.DATABASE_URL;
