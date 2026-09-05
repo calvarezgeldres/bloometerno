@@ -215,7 +215,7 @@ export const AdminPage: React.FC = () => {
                 }}
               />
               <span style={{ opacity: 0.9 }}>
-                {isCloudConnected ? "Supabase PostgreSQL (Cloud)" : "Modo Local (Navegador Activo)"}
+                {isCloudConnected ? "Neon PostgreSQL (Cloud)" : "Modo Local (Navegador Activo)"}
               </span>
             </div>
           </div>

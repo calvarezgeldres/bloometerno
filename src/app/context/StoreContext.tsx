@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { Product, CartItem, Order, StoreSettings } from "../types/store";
-import { supabase, isSupabaseConfigured } from "../../lib/supabase";
+import { db, checkApiConnection } from "../../lib/db";
 
 export const DEFAULT_PRODUCTS: Product[] = [
   {
@@ -165,6 +165,56 @@ const STORAGE_KEYS = {
   SETTINGS: "bloom_settings_v2",
 };
 
+/** Convierte una fila de la API (snake_case) al tipo Product (camelCase) */
+function mapDbProduct(row: any): Product {
+  return {
+    id: row.id,
+    num: row.num ?? "00",
+    name: row.name,
+    price: row.price,
+    stock: row.stock ?? 0,
+    category: row.category,
+    badge: row.badge ?? null,
+    badgeType: row.badge_type ?? null,
+    image: row.image,
+    alt: row.alt ?? row.name,
+    description: row.description ?? null,
+    isActive: row.is_active ?? true,
+  };
+}
+
+/** Convierte una fila de la API al tipo Order (camelCase) */
+function mapDbOrder(o: any): Order {
+  return {
+    id: o.id,
+    orderNumber: o.order_number,
+    customer: {
+      name: o.customer_name,
+      rut: o.customer_rut,
+      email: o.customer_email,
+      phone: o.customer_phone,
+      region: o.region,
+      comuna: o.comuna,
+      address: o.address,
+      notes: o.notes,
+    },
+    shippingMethod: o.shipping_method,
+    shippingCost: o.shipping_cost,
+    subtotal: o.subtotal,
+    total: o.total,
+    paymentMethod: o.payment_method,
+    status: o.status,
+    items: (o.order_items ?? []).map((item: any) => ({
+      productId: item.product_id,
+      productName: item.product_name,
+      price: item.price,
+      quantity: item.quantity,
+      image: item.image,
+    })),
+    createdAt: o.created_at,
+  };
+}
+
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>(() => {
     try {
@@ -205,144 +255,83 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [isCloudConnected, setIsCloudConnected] = useState(isSupabaseConfigured);
+  const [isCloudConnected, setIsCloudConnected] = useState(false);
 
-  // Guardar en localStorage
+  // Persistencia en localStorage
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-    } catch (e) {
-      console.error("Error guardando productos en storage", e);
-    }
+    try { localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products)); } catch { /* noop */ }
   }, [products]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart));
-    } catch (e) {
-      console.error("Error guardando carrito en storage", e);
-    }
+    try { localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart)); } catch { /* noop */ }
   }, [cart]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders));
-    } catch (e) {
-      console.error("Error guardando pedidos en storage", e);
-    }
+    try { localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders)); } catch { /* noop */ }
   }, [orders]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
-    } catch (e) {
-      console.error("Error guardando configuración en storage", e);
-    }
+    try { localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings)); } catch { /* noop */ }
   }, [settings]);
 
-  // Carga inicial desde Supabase si está configurado
-  const fetchSupabaseProducts = useCallback(async () => {
-    if (!supabase || !isSupabaseConfigured) return;
+  // Carga inicial desde la API de Neon
+  const fetchNeonProducts = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: true });
-
-      if (!error && data && data.length > 0) {
-        const mapped: Product[] = data.map((row: any) => ({
-          id: row.id,
-          num: row.num || "00",
-          name: row.name,
-          price: row.price,
-          stock: row.stock ?? 0,
-          category: row.category,
-          badge: row.badge,
-          badgeType: row.badge_type,
-          image: row.image,
-          alt: row.alt || row.name,
-          description: row.description,
-          isActive: row.is_active ?? true,
-        }));
-        setProducts(mapped);
+      const rows = await db.products.list();
+      if (rows && rows.length > 0) {
+        setProducts(rows.map(mapDbProduct));
         setIsCloudConnected(true);
       }
     } catch (e) {
-      console.warn("Supabase no disponible, usando almacenamiento local:", e);
+      console.warn("API Neon no disponible, usando almacenamiento local:", e);
       setIsCloudConnected(false);
     }
   }, []);
 
-  const fetchSupabaseOrders = useCallback(async () => {
-    if (!supabase || !isSupabaseConfigured) return;
+  const fetchNeonOrders = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*, order_items(*)")
-        .order("created_at", { ascending: false });
+      const rows = await db.orders.list();
+      if (rows) setOrders(rows.map(mapDbOrder));
+    } catch (e) {
+      console.warn("Error cargando pedidos de Neon:", e);
+    }
+  }, []);
 
-      if (!error && data) {
-        const mappedOrders: Order[] = data.map((o: any) => ({
-          id: o.id,
-          orderNumber: o.order_number,
-          customer: {
-            name: o.customer_name,
-            rut: o.customer_rut,
-            email: o.customer_email,
-            phone: o.customer_phone,
-            region: o.region,
-            comuna: o.comuna,
-            address: o.address,
-            notes: o.notes,
-          },
-          shippingMethod: o.shipping_method,
-          shippingCost: o.shipping_cost,
-          subtotal: o.subtotal,
-          total: o.total,
-          paymentMethod: o.payment_method,
-          status: o.status,
-          items: (o.order_items || []).map((item: any) => ({
-            productId: item.product_id,
-            productName: item.product_name,
-            price: item.price,
-            quantity: item.quantity,
-            image: item.image,
-          })),
-          createdAt: o.created_at,
-        }));
-        setOrders(mappedOrders);
+  const fetchNeonSettings = useCallback(async () => {
+    try {
+      const row = await db.settings.get();
+      if (row) {
+        setSettings({
+          bankName: row.bank_name,
+          accountType: row.account_type,
+          accountNumber: row.account_number,
+          accountRut: row.account_rut,
+          accountHolder: row.account_holder,
+          contactEmail: row.contact_email,
+          whatsappNumber: row.whatsapp_number,
+          freeShippingThreshold: row.free_shipping_threshold,
+        });
       }
     } catch (e) {
-      console.warn("Error cargando pedidos de Supabase:", e);
+      console.warn("Error cargando configuración de Neon:", e);
     }
   }, []);
 
   useEffect(() => {
-    if (isSupabaseConfigured) {
-      fetchSupabaseProducts();
-      fetchSupabaseOrders();
-
-      // Suscripción Realtime para actualizar stock entre clientes
-      if (supabase) {
-        const channel = supabase
-          .channel("realtime_products")
-          .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => {
-            fetchSupabaseProducts();
-          })
-          .subscribe();
-
-        return () => {
-          supabase.removeChannel(channel);
-        };
+    // Verificar conexión y cargar datos al montar
+    checkApiConnection().then((connected) => {
+      if (connected) {
+        fetchNeonProducts();
+        fetchNeonOrders();
+        fetchNeonSettings();
       }
-    }
-  }, [fetchSupabaseProducts, fetchSupabaseOrders]);
+    });
+  }, [fetchNeonProducts, fetchNeonOrders, fetchNeonSettings]);
 
   // Cálculos de carrito
   const cartTotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
   const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
 
-  // Agregar al carrito con validación de stock
   const addToCart = (product: Product, quantity = 1): boolean => {
     const currentStock = product.stock;
     if (currentStock <= 0) return false;
@@ -381,7 +370,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       removeFromCart(productId);
       return;
     }
-
     setCart((prev) =>
       prev.map((item) => {
         if (String(item.product.id) === String(productId)) {
@@ -393,106 +381,74 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
   };
 
-  const clearCart = () => {
-    setCart([]);
-  };
+  const clearCart = () => setCart([]);
 
-  // Crear pedido y descontar stock
+  // Crear pedido — Neon descuenta el stock en el servidor
   const createOrder = async (
     orderData: Omit<Order, "id" | "orderNumber" | "createdAt" | "status">
   ): Promise<Order> => {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const orderNumber = `BLOOM-${randomSuffix}`;
-    const newId = crypto.randomUUID ? crypto.randomUUID() : `order-${Date.now()}`;
     const now = new Date().toISOString();
 
-    const newOrder: Order = {
-      ...orderData,
-      id: newId,
-      orderNumber,
-      status: "Pendiente de transferencia",
-      createdAt: now,
-    };
-
-    // 1. Descontar stock localmente
+    // Descontar stock localmente (optimistic update)
     setProducts((prev) =>
       prev.map((prod) => {
         const orderedItem = orderData.items.find((i) => String(i.productId) === String(prod.id));
         if (orderedItem) {
-          const updatedStock = Math.max(0, prod.stock - orderedItem.quantity);
-          return { ...prod, stock: updatedStock };
+          return { ...prod, stock: Math.max(0, prod.stock - orderedItem.quantity) };
         }
         return prod;
       })
     );
 
-    // 2. Descontar stock en Supabase si está disponible
-    if (supabase && isSupabaseConfigured) {
+    const newOrder: Order = {
+      ...orderData,
+      id: `local-${Date.now()}`,
+      orderNumber,
+      status: "Pendiente de transferencia",
+      createdAt: now,
+    };
+
+    // Sincronizar con Neon
+    if (isCloudConnected) {
       try {
-        // Insertar orden
-        const { data: orderRow, error: orderErr } = await supabase
-          .from("orders")
-          .insert({
-            order_number: orderNumber,
-            customer_name: orderData.customer.name,
-            customer_rut: orderData.customer.rut,
-            customer_email: orderData.customer.email,
-            customer_phone: orderData.customer.phone,
-            region: orderData.customer.region,
-            comuna: orderData.customer.comuna,
-            address: orderData.customer.address,
-            notes: orderData.customer.notes || "",
-            shipping_method: orderData.shippingMethod,
-            shipping_cost: orderData.shippingCost,
-            subtotal: orderData.subtotal,
-            total: orderData.total,
-            payment_method: orderData.paymentMethod,
-            status: "Pendiente de transferencia",
-          })
-          .select()
-          .single();
-
-        if (!orderErr && orderRow) {
-          newOrder.id = orderRow.id;
-
-          // Insertar items
-          const itemsToInsert = orderData.items.map((i) => ({
-            order_id: orderRow.id,
+        const apiPayload = {
+          order_number: orderNumber,
+          customer_name: orderData.customer.name,
+          customer_rut: orderData.customer.rut,
+          customer_email: orderData.customer.email,
+          customer_phone: orderData.customer.phone,
+          region: orderData.customer.region,
+          comuna: orderData.customer.comuna,
+          address: orderData.customer.address,
+          notes: orderData.customer.notes ?? "",
+          shipping_method: orderData.shippingMethod,
+          shipping_cost: orderData.shippingCost,
+          subtotal: orderData.subtotal,
+          total: orderData.total,
+          payment_method: orderData.paymentMethod,
+          items: orderData.items.map((i) => ({
             product_id: typeof i.productId === "string" && i.productId.includes("-") ? i.productId : null,
             product_name: i.productName,
             price: i.price,
             quantity: i.quantity,
             image: i.image,
-          }));
-          await supabase.from("order_items").insert(itemsToInsert);
+          })),
+        };
 
-          // Actualizar stock en Supabase para cada producto
-          for (const item of orderData.items) {
-            const current = products.find((p) => String(p.id) === String(item.productId));
-            if (current) {
-              const nextStock = Math.max(0, current.stock - item.quantity);
-              await supabase
-                .from("products")
-                .update({ stock: nextStock })
-                .eq("id", item.productId);
-            }
-          }
-        }
+        const created = await db.orders.create(apiPayload);
+        newOrder.id = created.id;
       } catch (err) {
-        console.warn("Fallo al sincronizar orden con Supabase:", err);
+        console.warn("Fallo al sincronizar orden con Neon:", err);
       }
     }
 
-    // 3. Registrar orden en estado local
     setOrders((prev) => [newOrder, ...prev]);
-
-    // 4. Vaciar carrito
     clearCart();
-
     return newOrder;
   };
 
-  // Cargar nuevo producto
   const addProduct = async (productData: Omit<Product, "id">): Promise<Product> => {
     const nextNum = String(products.length + 1).padStart(2, "0");
     const localId = `prod-${Date.now()}`;
@@ -504,31 +460,23 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       isActive: true,
     };
 
-    if (supabase && isSupabaseConfigured) {
+    if (isCloudConnected) {
       try {
-        const { data, error } = await supabase
-          .from("products")
-          .insert({
-            num: newProd.num,
-            name: newProd.name,
-            category: newProd.category,
-            price: newProd.price,
-            stock: newProd.stock,
-            badge: newProd.badge || null,
-            badge_type: newProd.badgeType || null,
-            image: newProd.image,
-            alt: newProd.alt || newProd.name,
-            description: newProd.description || "",
-            is_active: true,
-          })
-          .select()
-          .single();
-
-        if (!error && data) {
-          newProd.id = data.id;
-        }
+        const created = await db.products.create({
+          num: newProd.num ?? nextNum,
+          name: newProd.name,
+          category: newProd.category,
+          price: newProd.price,
+          stock: newProd.stock,
+          badge: newProd.badge ?? null,
+          badge_type: newProd.badgeType ?? null,
+          image: newProd.image,
+          alt: newProd.alt ?? newProd.name,
+          description: newProd.description ?? null,
+        });
+        newProd.id = created.id;
       } catch (e) {
-        console.warn("Error guardando producto en Supabase, guardado local:", e);
+        console.warn("Error guardando producto en Neon, guardado local:", e);
       }
     }
 
@@ -536,83 +484,89 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return newProd;
   };
 
-  // Actualizar stock
   const updateStock = async (id: string | number, newStock: number) => {
     const validStock = Math.max(0, newStock);
     setProducts((prev) =>
       prev.map((p) => (String(p.id) === String(id) ? { ...p, stock: validStock } : p))
     );
 
-    if (supabase && isSupabaseConfigured) {
+    if (isCloudConnected) {
       try {
-        await supabase
-          .from("products")
-          .update({ stock: validStock })
-          .eq("id", id);
+        await db.products.update(String(id), { stock: validStock });
       } catch (e) {
-        console.warn("Error actualizando stock en Supabase:", e);
+        console.warn("Error actualizando stock en Neon:", e);
       }
     }
   };
 
-  // Actualizar detalles de producto
   const updateProduct = async (id: string | number, updates: Partial<Product>) => {
     setProducts((prev) =>
       prev.map((p) => (String(p.id) === String(id) ? { ...p, ...updates } : p))
     );
 
-    if (supabase && isSupabaseConfigured) {
+    if (isCloudConnected) {
       try {
-        const sbUpdates: any = {};
-        if (updates.name !== undefined) sbUpdates.name = updates.name;
-        if (updates.price !== undefined) sbUpdates.price = updates.price;
-        if (updates.stock !== undefined) sbUpdates.stock = updates.stock;
-        if (updates.category !== undefined) sbUpdates.category = updates.category;
-        if (updates.badge !== undefined) sbUpdates.badge = updates.badge;
-        if (updates.badgeType !== undefined) sbUpdates.badge_type = updates.badgeType;
-        if (updates.image !== undefined) sbUpdates.image = updates.image;
-        if (updates.description !== undefined) sbUpdates.description = updates.description;
+        const dbUpdates: Record<string, any> = {};
+        if (updates.name !== undefined)        dbUpdates.name        = updates.name;
+        if (updates.price !== undefined)       dbUpdates.price       = updates.price;
+        if (updates.stock !== undefined)       dbUpdates.stock       = updates.stock;
+        if (updates.category !== undefined)    dbUpdates.category    = updates.category;
+        if (updates.badge !== undefined)       dbUpdates.badge       = updates.badge;
+        if (updates.badgeType !== undefined)   dbUpdates.badge_type  = updates.badgeType;
+        if (updates.image !== undefined)       dbUpdates.image       = updates.image;
+        if (updates.description !== undefined) dbUpdates.description = updates.description;
 
-        await supabase.from("products").update(sbUpdates).eq("id", id);
+        await db.products.update(String(id), dbUpdates);
       } catch (e) {
-        console.warn("Error editando producto en Supabase:", e);
+        console.warn("Error editando producto en Neon:", e);
       }
     }
   };
 
-  // Eliminar producto
   const deleteProduct = async (id: string | number) => {
     setProducts((prev) => prev.filter((p) => String(p.id) !== String(id)));
 
-    if (supabase && isSupabaseConfigured) {
+    if (isCloudConnected) {
       try {
-        await supabase.from("products").delete().eq("id", id);
+        await db.products.delete(String(id));
       } catch (e) {
-        console.warn("Error eliminando producto de Supabase:", e);
+        console.warn("Error eliminando producto de Neon:", e);
       }
     }
   };
 
-  // Cambiar estado de pedido
   const updateOrderStatus = async (orderId: string, newStatus: Order["status"]) => {
     setOrders((prev) =>
       prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
     );
 
-    if (supabase && isSupabaseConfigured) {
+    if (isCloudConnected) {
       try {
-        await supabase
-          .from("orders")
-          .update({ status: newStatus })
-          .eq("id", orderId);
+        await db.orders.updateStatus(orderId, newStatus);
       } catch (e) {
-        console.warn("Error actualizando estado en Supabase:", e);
+        console.warn("Error actualizando estado en Neon:", e);
       }
     }
   };
 
   const updateSettings = (newSettings: Partial<StoreSettings>) => {
     setSettings((prev) => ({ ...prev, ...newSettings }));
+
+    if (isCloudConnected) {
+      const dbSettings: Record<string, any> = {};
+      if (newSettings.bankName !== undefined)              dbSettings.bank_name               = newSettings.bankName;
+      if (newSettings.accountType !== undefined)           dbSettings.account_type            = newSettings.accountType;
+      if (newSettings.accountNumber !== undefined)         dbSettings.account_number          = newSettings.accountNumber;
+      if (newSettings.accountRut !== undefined)            dbSettings.account_rut             = newSettings.accountRut;
+      if (newSettings.accountHolder !== undefined)         dbSettings.account_holder          = newSettings.accountHolder;
+      if (newSettings.contactEmail !== undefined)          dbSettings.contact_email           = newSettings.contactEmail;
+      if (newSettings.whatsappNumber !== undefined)        dbSettings.whatsapp_number         = newSettings.whatsappNumber;
+      if (newSettings.freeShippingThreshold !== undefined) dbSettings.free_shipping_threshold = newSettings.freeShippingThreshold;
+
+      db.settings.update(dbSettings).catch((e) =>
+        console.warn("Error guardando configuración en Neon:", e)
+      );
+    }
   };
 
   const resetCatalog = () => {

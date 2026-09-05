@@ -13,6 +13,7 @@
     "@emotion/styled": "11.14.1",
     "@mui/icons-material": "7.3.5",
     "@mui/material": "7.3.5",
+    "@neondatabase/serverless": "^1.1.0",
     "@popperjs/core": "2.11.8",
     "@radix-ui/react-accordion": "1.2.3",
     "@radix-ui/react-alert-dialog": "1.1.6",
@@ -40,7 +41,6 @@
     "@radix-ui/react-toggle": "1.1.2",
     "@radix-ui/react-toggle-group": "1.1.2",
     "@radix-ui/react-tooltip": "1.1.8",
-    "@supabase/supabase-js": "^2.109.0",
     "canvas-confetti": "1.9.4",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
@@ -70,6 +70,8 @@
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
+    "@types/node": "^20.19.43",
+    "@vercel/node": "^5.10.2",
     "@vitejs/plugin-react": "4.7.0",
     "tailwindcss": "4.1.12",
     "vite": "6.3.5"
