@@ -1,11 +1,56 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { neon } from "@neondatabase/serverless";
-import { requireAuth } from "../src/lib/authServer";
+import crypto from "node:crypto";
 
 function getDb() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error("DATABASE_URL no está configurada");
   return neon(url);
+}
+
+function parseCookies(header?: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!header) return out;
+  for (const part of header.split(";")) {
+    const idx = part.indexOf("=");
+    if (idx === -1) continue;
+    out[part.slice(0, idx).trim()] = decodeURIComponent(part.slice(idx + 1).trim());
+  }
+  return out;
+}
+
+function getSessionUser(req: VercelRequest): string | null {
+  const token = parseCookies(req.headers.cookie)["bloom_admin_session"];
+  if (!token) return null;
+
+  const [payload, signature] = token.split(".");
+  if (!payload || !signature) return null;
+
+  const secret = process.env.SESSION_SECRET;
+  if (!secret) return null;
+
+  const expectedSig = Buffer.from(crypto.createHmac("sha256", secret).update(payload).digest("hex"), "hex");
+  const gotSig = Buffer.from(signature, "hex");
+  if (gotSig.length !== expectedSig.length || !crypto.timingSafeEqual(gotSig, expectedSig)) {
+    return null;
+  }
+
+  try {
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+    if (!data.u || !data.exp || Date.now() > data.exp) return null;
+    return data.u as string;
+  } catch {
+    return null;
+  }
+}
+
+function requireAuth(req: VercelRequest, res: VercelResponse): string | null {
+  const user = getSessionUser(req);
+  if (!user) {
+    res.status(401).json({ error: "No autorizado. Debes iniciar sesión." });
+    return null;
+  }
+  return user;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
