@@ -137,33 +137,17 @@ export const CHILE_REGIONS: Region[] = [
 
 export const SHIPPING_METHODS = [
   {
-    id: "blue_express",
-    name: "Blue Express a Domicilio",
-    description: "Despacho directo a tu puerta con seguimiento en línea",
-    costRM: 3490,
-    costRegions: 4990,
+    id: "private_courier",
+    name: "Despacho a Domicilio",
+    description: "Despachador privado con entrega directa a tu puerta. Solo disponible en Santiago (RM); otras regiones se coordinan por WhatsApp.",
+    costRM: 3990,
+    costRegions: null as number | null,
     estimatedDays: "24 a 48 hrs hábiles"
   },
   {
-    id: "starken",
-    name: "Starken (Envío Por Pagar)",
-    description: "Pagas el valor del envío al retirar en sucursal o recibir",
-    costRM: 0,
-    costRegions: 0,
-    estimatedDays: "2 a 4 días hábiles"
-  },
-  {
-    id: "chilexpress",
-    name: "Chilexpress Prioritario",
-    description: "Entrega exprés a sucursal o domicilio",
-    costRM: 4490,
-    costRegions: 6490,
-    estimatedDays: "1 a 2 días hábiles"
-  },
-  {
     id: "pickup",
-    name: "Retiro en Taller (Providencia, RM)",
-    description: "Coordina retiro sin costo en nuestro taller en Santiago",
+    name: "Retiro en Taller (Vitacura, RM)",
+    description: "Coordina retiro sin costo en nuestro taller en Vitacura",
     costRM: 0,
     costRegions: 0,
     estimatedDays: "Previo aviso (Lun a Vie)"

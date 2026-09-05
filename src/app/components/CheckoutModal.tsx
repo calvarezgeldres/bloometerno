@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { X, CheckCircle2, Copy, Send, Truck, CreditCard, ShieldCheck, AlertCircle } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { CHILE_REGIONS, SHIPPING_METHODS } from "../data/chileData";
+import { formatRut, isValidRut } from "../../lib/rut";
 
 function formatCLP(amount: number): string {
   return `$${amount.toLocaleString("es-CL")}`;
@@ -25,7 +26,8 @@ export const CheckoutModal: React.FC = () => {
   const [comuna, setComuna] = useState("Providencia");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
-  const [shippingMethodId, setShippingMethodId] = useState("blue_express");
+  const [shippingMethodId, setShippingMethodId] = useState("private_courier");
+  const [rutError, setRutError] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"Transferencia Bancaria" | "Coordinar por WhatsApp">("Transferencia Bancaria");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,8 +43,10 @@ export const CheckoutModal: React.FC = () => {
 
   // Calcular costo de envío
   const selectedMethod = SHIPPING_METHODS.find((m) => m.id === shippingMethodId) || SHIPPING_METHODS[0];
-  let calculatedShippingCost = isRM ? selectedMethod.costRM : selectedMethod.costRegions;
-  if (isFreeShipping && selectedMethod.id !== "pickup") {
+  const rawShippingCost = isRM ? selectedMethod.costRM : selectedMethod.costRegions;
+  const needsShippingCoordination = rawShippingCost === null;
+  let calculatedShippingCost = rawShippingCost ?? 0;
+  if (isFreeShipping && selectedMethod.id !== "pickup" && !needsShippingCoordination) {
     calculatedShippingCost = 0;
   }
 
@@ -63,8 +67,18 @@ export const CheckoutModal: React.FC = () => {
       return;
     }
 
+    if (!isValidRut(rut)) {
+      setRutError("El RUT ingresado no es válido. Verifica el dígito verificador.");
+      return;
+    }
+    setRutError("");
+
     setIsSubmitting(true);
     try {
+      const shippingLabel = needsShippingCoordination
+        ? `${selectedMethod.name} (a coordinar por WhatsApp)`
+        : `${selectedMethod.name} (${selectedMethod.estimatedDays})`;
+
       const order = await createOrder({
         customer: {
           name,
@@ -76,7 +90,7 @@ export const CheckoutModal: React.FC = () => {
           address,
           notes,
         },
-        shippingMethod: `${selectedMethod.name} (${selectedMethod.estimatedDays})`,
+        shippingMethod: shippingLabel,
         shippingCost: calculatedShippingCost,
         subtotal: cartTotal,
         total: grandTotal,
@@ -477,18 +491,32 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                       required
                       type="text"
                       value={rut}
-                      onChange={(e) => setRut(e.target.value)}
+                      onChange={(e) => {
+                        setRut(formatRut(e.target.value));
+                        if (rutError) setRutError("");
+                      }}
+                      onBlur={() => {
+                        if (rut && !isValidRut(rut)) {
+                          setRutError("RUT inválido. Verifica el dígito verificador.");
+                        }
+                      }}
                       placeholder="Ej: 18.234.567-8"
+                      maxLength={12}
                       style={{
                         width: "100%",
                         padding: "0.6rem 0.8rem",
                         borderRadius: "0.4rem",
-                        border: "1px solid var(--border)",
+                        border: rutError ? "1px solid var(--destructive)" : "1px solid var(--border)",
                         backgroundColor: "var(--input-background)",
                         fontSize: "0.85rem",
                         boxSizing: "border-box",
                       }}
                     />
+                    {rutError && (
+                      <span style={{ display: "block", fontSize: "0.68rem", color: "var(--destructive)", marginTop: "0.25rem" }}>
+                        {rutError}
+                      </span>
+                    )}
                   </div>
 
                   <div>
@@ -668,8 +696,10 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
                   {SHIPPING_METHODS.map((method) => {
                     const isSelected = shippingMethodId === method.id;
-                    let cost = isRM ? method.costRM : method.costRegions;
-                    if (isFreeShipping && method.id !== "pickup") cost = 0;
+                    const rawCost = isRM ? method.costRM : method.costRegions;
+                    const isCoordinated = rawCost === null;
+                    let cost = rawCost ?? 0;
+                    if (isFreeShipping && method.id !== "pickup" && !isCoordinated) cost = 0;
 
                     return (
                       <label
@@ -708,16 +738,32 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                             style={{
                               fontSize: "0.85rem",
                               fontWeight: 600,
-                              color: cost === 0 ? "var(--primary)" : "var(--foreground)",
+                              color: isCoordinated ? "var(--gold)" : cost === 0 ? "var(--primary)" : "var(--foreground)",
                             }}
                           >
-                            {cost === 0 ? (method.id === "starken" ? "Por Pagar" : "¡Gratis!") : formatCLP(cost)}
+                            {isCoordinated ? "A coordinar" : cost === 0 ? "¡Gratis!" : formatCLP(cost)}
                           </span>
                         </div>
                       </label>
                     );
                   })}
                 </div>
+
+                {needsShippingCoordination && (
+                  <div
+                    style={{
+                      marginTop: "0.75rem",
+                      padding: "0.85rem 1rem",
+                      borderRadius: "0.5rem",
+                      backgroundColor: "rgba(184, 144, 78, 0.12)",
+                      border: "1px solid var(--gold)",
+                      fontSize: "0.78rem",
+                      color: "var(--foreground)",
+                    }}
+                  >
+                    El despacho fuera de la Región Metropolitana se coordina directamente por WhatsApp (el costo no está incluido en el total). Podrás coordinarlo apenas confirmes tu pedido.
+                  </div>
+                )}
               </div>
 
               {/* Resumen de Totales y Envío */}
@@ -735,8 +781,8 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.82rem", marginBottom: "0.6rem" }}>
                   <span style={{ color: "var(--muted-foreground)" }}>Costo de Despacho:</span>
-                  <span style={{ fontWeight: 600, color: calculatedShippingCost === 0 ? "var(--primary)" : "inherit" }}>
-                    {calculatedShippingCost === 0 ? "¡Gratis!" : `${formatCLP(calculatedShippingCost)} CLP`}
+                  <span style={{ fontWeight: 600, color: needsShippingCoordination ? "var(--gold)" : calculatedShippingCost === 0 ? "var(--primary)" : "inherit" }}>
+                    {needsShippingCoordination ? "A coordinar" : calculatedShippingCost === 0 ? "¡Gratis!" : `${formatCLP(calculatedShippingCost)} CLP`}
                   </span>
                 </div>
                 <div
