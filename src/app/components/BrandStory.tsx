@@ -90,8 +90,8 @@ export function BrandStory() {
             }}
           >
             <img
-              src="https://images.unsplash.com/photo-1613634127284-af02d62cb752?w=800&h=600&fit=crop&auto=format&q=80"
-              alt="Artesana trabajando con materiales naturales"
+              src="/gallery/suculentas-manos.webp"
+              alt="Macetero artesanal de suculentas sostenido en las manos"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
           </div>

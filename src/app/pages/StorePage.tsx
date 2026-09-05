@@ -1,5 +1,6 @@
 import React from "react";
 import { Hero } from "../components/Hero";
+import { RealCreations } from "../components/RealCreations";
 import { Marquee } from "../components/Marquee";
 import { Categories } from "../components/Categories";
 import { Products } from "../components/Products";
@@ -12,6 +13,7 @@ export const StorePage: React.FC = () => {
   return (
     <main>
       <Hero />
+      <RealCreations />
       <Marquee />
       <Categories />
       <Products />

@@ -202,8 +202,8 @@ export function Hero() {
         }}
       >
         <img
-          src="https://images.unsplash.com/photo-1546450657-b65d526f07d3?w=1200&h=1400&fit=crop&auto=format&q=80"
-          alt="Artesana trabajando con materiales naturales"
+          src="/gallery/ramo-mixto.webp"
+          alt="Ramo mixto de flores en mostacillas hecho a mano"
           style={{
             width: "100%",
             height: "100%",

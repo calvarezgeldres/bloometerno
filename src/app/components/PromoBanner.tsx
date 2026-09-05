@@ -29,8 +29,8 @@ export function PromoBanner() {
             }}
           >
             <img
-              src="https://images.unsplash.com/photo-1577742535461-e4041b07f269?w=800&h=600&fit=crop&auto=format&q=80"
-              alt="Materiales naturales seleccionados para kits creativos"
+              src="/gallery/lilium-azul-lazo.webp"
+              alt="Ramo de lirios azules en mostacillas con lazo de regalo"
               style={{ width: "100%", height: "100%", objectFit: "cover", position: "absolute", inset: 0 }}
             />
             <div
