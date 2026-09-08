@@ -91,6 +91,22 @@ CREATE TABLE IF NOT EXISTS admin_users (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
+-- 6. Puente de pagos con Mercado Pago: guarda el intento de compra ANTES de que
+-- se confirme el pago. El pedido real (orders/order_items) y el descuento de
+-- stock recién se crean cuando el webhook confirma el pago aprobado — así un
+-- pago abandonado o rechazado no deja pedidos fantasma ni stock descontado.
+CREATE TABLE IF NOT EXISTS mp_pending_orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    order_number VARCHAR(50) NOT NULL UNIQUE,
+    payload JSONB NOT NULL,
+    estado VARCHAR(20) NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente','aprobado','rechazado')),
+    mp_preference_id TEXT,
+    mp_payment_id TEXT,
+    order_id UUID REFERENCES orders(id),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
 -- Catálogo Semilla Inicial (Seed Data)
 INSERT INTO products (num, name, price, stock, category, badge, badge_type, image, alt)
 VALUES 

@@ -180,6 +180,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
       const validStatuses = [
         "Pendiente de transferencia",
+        "Pagado con Mercado Pago",
         "Comprobante recibido",
         "En preparación",
         "Enviado",

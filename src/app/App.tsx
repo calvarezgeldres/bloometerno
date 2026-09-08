@@ -6,6 +6,8 @@ import { StorePage } from "./pages/StorePage";
 import { AdminPage } from "./pages/AdminPage";
 import { CartDrawer } from "./components/CartDrawer";
 import { CheckoutModal } from "./components/CheckoutModal";
+import { PagoResultadoPage } from "./pages/PagoResultadoPage";
+import { PagoErrorPage } from "./pages/PagoErrorPage";
 
 function StoreLayout() {
   return (
@@ -74,6 +76,8 @@ export default function App() {
           <Routes>
             <Route path="/" element={<StoreLayout />} />
             <Route path="/admin" element={<AdminPage />} />
+            <Route path="/pago-resultado" element={<PagoResultadoPage />} />
+            <Route path="/pago-error" element={<PagoErrorPage />} />
             <Route path="*" element={<StoreLayout />} />
           </Routes>
         </div>

@@ -81,6 +81,19 @@ export const db = {
       }),
   },
 
+  // ─── Mercado Pago ───────────────────────────────────────────────────────────
+
+  mercadopago: {
+    createPreference: (data: Record<string, any>): Promise<{ init_point: string; pending_id: string }> =>
+      apiFetch("/api/mercadopago", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+
+    getStatus: (pendingId: string): Promise<{ estado: "pendiente" | "aprobado" | "rechazado"; order: any | null }> =>
+      apiFetch(`/api/mercadopago?pending=${encodeURIComponent(pendingId)}`),
+  },
+
   // ─── Configuración ──────────────────────────────────────────────────────────
 
   settings: {

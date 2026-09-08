@@ -185,7 +185,7 @@ function mapDbProduct(row: any): Product {
 }
 
 /** Convierte una fila de la API al tipo Order (camelCase) */
-function mapDbOrder(o: any): Order {
+export function mapDbOrder(o: any): Order {
   return {
     id: o.id,
     orderNumber: o.order_number,

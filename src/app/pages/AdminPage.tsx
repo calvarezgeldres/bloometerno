@@ -982,6 +982,23 @@ export const AdminPage: React.FC = () => {
 
                       {/* Status Selector */}
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        {(o.status === "Pendiente de transferencia" || o.status === "Pagado con Mercado Pago") && (
+                          <button
+                            onClick={() => updateOrderStatus(o.id, "En preparación")}
+                            style={{
+                              padding: "0.4rem 0.9rem",
+                              borderRadius: "0.4rem",
+                              border: "none",
+                              fontSize: "0.78rem",
+                              fontWeight: 700,
+                              color: "var(--primary-foreground)",
+                              backgroundColor: "var(--primary)",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Confirmar pago e iniciar despacho
+                          </button>
+                        )}
                         <span style={{ fontSize: "0.78rem", color: "var(--muted-foreground)" }}>Estado del Pedido:</span>
                         <select
                           value={o.status}
@@ -997,10 +1014,13 @@ export const AdminPage: React.FC = () => {
                                 ? "rgba(74, 92, 46, 0.15)"
                                 : o.status === "Comprobante recibido"
                                 ? "rgba(184, 144, 78, 0.2)"
+                                : o.status === "Pagado con Mercado Pago"
+                                ? "rgba(59, 130, 246, 0.18)"
                                 : "var(--background)",
                           }}
                         >
                           <option value="Pendiente de transferencia">Pendiente de transferencia</option>
+                          <option value="Pagado con Mercado Pago">Pagado con Mercado Pago</option>
                           <option value="Comprobante recibido">Comprobante recibido</option>
                           <option value="En preparación">En preparación</option>
                           <option value="Enviado">Enviado</option>

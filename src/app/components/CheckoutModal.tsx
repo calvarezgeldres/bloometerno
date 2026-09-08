@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { X, CheckCircle2, Copy, Send, Truck, CreditCard, ShieldCheck, AlertCircle } from "lucide-react";
+import { X, CheckCircle2, Copy, Send, Truck, CreditCard, ShieldCheck, AlertCircle, Wallet } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { CHILE_REGIONS, SHIPPING_METHODS } from "../data/chileData";
 import { formatRut, isValidRut } from "../../lib/rut";
+import { db } from "../../lib/db";
 
 function formatCLP(amount: number): string {
   return `$${amount.toLocaleString("es-CL")}`;
@@ -28,7 +29,7 @@ export const CheckoutModal: React.FC = () => {
   const [notes, setNotes] = useState("");
   const [shippingMethodId, setShippingMethodId] = useState("private_courier");
   const [rutError, setRutError] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState<"Transferencia Bancaria" | "Coordinar por WhatsApp">("Transferencia Bancaria");
+  const [paymentMethod, setPaymentMethod] = useState<"Transferencia Bancaria" | "Mercado Pago">("Transferencia Bancaria");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<any>(null);
@@ -79,6 +80,38 @@ export const CheckoutModal: React.FC = () => {
         ? `${selectedMethod.name} (a coordinar por WhatsApp)`
         : `${selectedMethod.name} (${selectedMethod.estimatedDays})`;
 
+      if (paymentMethod === "Mercado Pago") {
+        // El pedido real (y el descuento de stock) se crea recién cuando el
+        // webhook de Mercado Pago confirma el pago aprobado — acá solo se
+        // guarda el intento y se redirige al checkout.
+        const orderNumber = `BLOOM-${Math.floor(1000 + Math.random() * 9000)}`;
+        const { init_point } = await db.mercadopago.createPreference({
+          order_number: orderNumber,
+          customer_name: name,
+          customer_rut: rut,
+          customer_email: email,
+          customer_phone: phone,
+          region: currentRegion.name,
+          comuna,
+          address,
+          notes,
+          shipping_method: shippingLabel,
+          shipping_cost: calculatedShippingCost,
+          subtotal: cartTotal,
+          total: grandTotal,
+          payment_method: "Mercado Pago",
+          items: cart.map((i) => ({
+            product_id: typeof i.product.id === "string" && i.product.id.includes("-") ? i.product.id : null,
+            product_name: i.product.name,
+            price: i.product.price,
+            quantity: i.quantity,
+            image: i.product.image,
+          })),
+        });
+        window.location.href = init_point;
+        return;
+      }
+
       const order = await createOrder({
         customer: {
           name,
@@ -108,7 +141,6 @@ export const CheckoutModal: React.FC = () => {
     } catch (err) {
       console.error("Error al crear el pedido:", err);
       alert("Hubo un problema al procesar el pedido. Por favor intenta de nuevo.");
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -766,6 +798,65 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                 )}
               </div>
 
+              {/* Sección 4: Método de Pago */}
+              <div>
+                <h4
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "1.05rem",
+                    margin: "0 0 0.8rem",
+                    color: "var(--foreground)",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                  }}
+                >
+                  4. Método de Pago
+                </h4>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                  {(
+                    [
+                      { id: "Transferencia Bancaria" as const, label: "Transferencia Bancaria", desc: "Recibirás los datos y coordinas el envío del comprobante por WhatsApp.", icon: CreditCard },
+                      { id: "Mercado Pago" as const, label: "Mercado Pago", desc: "Tarjeta de crédito, débito u otros medios. Confirmación de pago inmediata.", icon: Wallet },
+                    ]
+                  ).map((option) => {
+                    const isSelected = paymentMethod === option.id;
+                    const Icon = option.icon;
+                    return (
+                      <label
+                        key={option.id}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.75rem",
+                          padding: "0.75rem 1rem",
+                          borderRadius: "0.5rem",
+                          border: isSelected ? "2px solid var(--primary)" : "1px solid var(--border)",
+                          backgroundColor: isSelected ? "rgba(74, 92, 46, 0.05)" : "var(--card)",
+                          cursor: "pointer",
+                        }}
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          checked={isSelected}
+                          onChange={() => setPaymentMethod(option.id)}
+                          style={{ accentColor: "var(--primary)" }}
+                        />
+                        <Icon size={18} color={isSelected ? "var(--primary)" : "var(--muted-foreground)"} />
+                        <div>
+                          <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--foreground)" }}>
+                            {option.label}
+                          </div>
+                          <div style={{ fontSize: "0.7rem", color: "var(--muted-foreground)" }}>{option.desc}</div>
+                        </div>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+
               {/* Resumen de Totales y Envío */}
               <div
                 style={{
@@ -827,7 +918,13 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                 }}
               >
                 <ShieldCheck size={18} />
-                {isSubmitting ? "Generando Pedido..." : `Confirmar Pedido · ${formatCLP(grandTotal)} CLP`}
+                {isSubmitting
+                  ? paymentMethod === "Mercado Pago"
+                    ? "Redirigiendo a Mercado Pago..."
+                    : "Generando Pedido..."
+                  : paymentMethod === "Mercado Pago"
+                  ? `Pagar con Mercado Pago · ${formatCLP(grandTotal)} CLP`
+                  : `Confirmar Pedido · ${formatCLP(grandTotal)} CLP`}
               </button>
             </form>
           )}
