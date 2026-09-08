@@ -11,6 +11,10 @@ function formatCLP(amount: number): string {
 export const PagoResultadoPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const pendingId = searchParams.get("pending");
+  // Mercado Pago agrega estos parámetros solos a la URL de retorno — nos
+  // sirven para verificar el pago al toque, sin esperar al webhook (que según
+  // su propia documentación puede demorar varios minutos en llegar).
+  const paymentId = searchParams.get("payment_id") || searchParams.get("collection_id");
   const { settings, clearCart, refreshOrders } = useStore();
 
   const [estado, setEstado] = useState<"pendiente" | "aprobado" | "rechazado" | null>(null);
@@ -26,7 +30,7 @@ export const PagoResultadoPage: React.FC = () => {
 
     const tick = async () => {
       try {
-        const data = await db.mercadopago.getStatus(pendingId);
+        const data = await db.mercadopago.getStatus(pendingId, paymentId);
         if (cancelled) return;
         if (data.estado !== "pendiente") {
           setEstado(data.estado);
@@ -48,7 +52,7 @@ export const PagoResultadoPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [pendingId]);
+  }, [pendingId, paymentId]);
 
   useEffect(() => {
     if (estado === "aprobado" && !didFinalize.current) {

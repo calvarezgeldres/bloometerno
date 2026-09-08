@@ -46,7 +46,7 @@ export type Order = {
   subtotal: number;
   total: number;
   paymentMethod: string;
-  status: "Pendiente de transferencia" | "Pagado con Mercado Pago" | "Comprobante recibido" | "En preparación" | "Enviado";
+  status: "Pendiente de transferencia" | "Pagado con Mercado Pago" | "Comprobante recibido" | "En preparación" | "Enviado" | "Anulado";
   items: {
     productId: string | number;
     productName: string;

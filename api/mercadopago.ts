@@ -27,6 +27,86 @@ async function fetchPayment(paymentId: string): Promise<any> {
   return res.json();
 }
 
+// Resuelve un pago de Mercado Pago: crea el pedido real (o lo marca rechazado)
+// si corresponde. Es idempotente (no hace nada si la compra ya fue procesada)
+// y la llaman DOS caminos distintos: el webhook async de Mercado Pago (que
+// puede tardar varios minutos en llegar, según su propia documentación) y la
+// página de retorno del comprador, que verifica al toque con el payment_id
+// que Mercado Pago ya le entrega en la propia URL de vuelta — así el
+// comprador no se queda esperando un aviso que puede demorar.
+async function resolvePayment(sql: any, paymentId: string): Promise<void> {
+  // Nunca confiamos en datos entrantes sin verificar: siempre se vuelve a
+  // consultar el pago real contra la API con nuestro access token.
+  const payment = await fetchPayment(paymentId);
+  if (!payment?.external_reference) return;
+
+  const pendingRows = await sql`SELECT * FROM mp_pending_orders WHERE id = ${payment.external_reference}`;
+  const pending = pendingRows[0];
+  if (!pending || pending.estado !== "pendiente") return; // no existe o ya se procesó
+
+  if (payment.status === "approved") {
+    const body = pending.payload as Record<string, any>;
+
+    const orderRows = await sql`
+      INSERT INTO orders (
+        order_number, customer_name, customer_rut, customer_email, customer_phone,
+        region, comuna, address, notes,
+        shipping_method, shipping_cost, subtotal, total, payment_method, status
+      ) VALUES (
+        ${body.order_number},
+        ${body.customer_name},
+        ${body.customer_rut ?? ""},
+        ${body.customer_email ?? ""},
+        ${body.customer_phone ?? ""},
+        ${body.region ?? ""},
+        ${body.comuna ?? ""},
+        ${body.address ?? ""},
+        ${body.notes ?? ""},
+        ${body.shipping_method ?? ""},
+        ${Number(body.shipping_cost ?? 0)},
+        ${Number(body.subtotal)},
+        ${Number(body.total)},
+        'Mercado Pago',
+        'Pagado con Mercado Pago'
+      )
+      RETURNING *
+    `;
+    const order = orderRows[0];
+
+    for (const item of (body.items as any[]) ?? []) {
+      await sql`
+        INSERT INTO order_items (order_id, product_id, product_name, price, quantity, image)
+        VALUES (
+          ${order.id},
+          ${item.product_id ?? null},
+          ${item.product_name},
+          ${Number(item.price)},
+          ${Number(item.quantity)},
+          ${item.image ?? null}
+        )
+      `;
+
+      if (item.product_id) {
+        await sql`
+          UPDATE products SET stock = GREATEST(0, stock - ${Number(item.quantity)}) WHERE id = ${item.product_id}
+        `;
+      }
+    }
+
+    await sql`
+      UPDATE mp_pending_orders
+      SET estado = 'aprobado', mp_payment_id = ${String(paymentId)}, order_id = ${order.id}, updated_at = NOW()
+      WHERE id = ${pending.id}
+    `;
+  } else if (["rejected", "cancelled"].includes(payment.status)) {
+    await sql`
+      UPDATE mp_pending_orders
+      SET estado = 'rechazado', mp_payment_id = ${String(paymentId)}, updated_at = NOW()
+      WHERE id = ${pending.id}
+    `;
+  }
+}
+
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
@@ -37,15 +117,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     const sql = getDb();
 
-    // GET ?pending=<id> — estado de una compra en curso (polling de /pago-resultado),
-    // y el resumen del pedido ya creado cuando el pago quedó aprobado.
+    // GET ?pending=<id>[&payment_id=<id>] — estado de una compra en curso
+    // (polling de /pago-resultado) y el resumen del pedido si el pago quedó
+    // aprobado. Si viene payment_id (Mercado Pago lo agrega solo a la URL de
+    // retorno) y la compra sigue "pendiente", se verifica el pago al toque acá
+    // mismo — no se espera al webhook, que puede demorar varios minutos.
     if (req.method === "GET") {
       const pendingId = req.query.pending as string;
       if (!pendingId) return res.status(400).json({ error: "Falta 'pending'" });
 
-      const rows = await sql`SELECT estado, order_id FROM mp_pending_orders WHERE id = ${pendingId}`;
-      const pending = rows[0];
+      let rows = await sql`SELECT * FROM mp_pending_orders WHERE id = ${pendingId}`;
+      let pending = rows[0];
       if (!pending) return res.status(404).json({ error: "No encontrada" });
+
+      const paymentIdFromReturn = (req.query.payment_id as string) || (req.query.collection_id as string);
+      if (pending.estado === "pendiente" && paymentIdFromReturn) {
+        await resolvePayment(sql, paymentIdFromReturn);
+        rows = await sql`SELECT * FROM mp_pending_orders WHERE id = ${pendingId}`;
+        pending = rows[0];
+      }
 
       if (pending.estado !== "aprobado" || !pending.order_id) {
         return res.status(200).json({ estado: pending.estado, order: null });
@@ -65,78 +155,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const topic = (req.query.type as string) || (req.query.topic as string) || req.body?.type;
       if (!paymentId || (topic && topic !== "payment")) return res.status(200).end();
 
-      // Nunca confiamos en el cuerpo de la notificación: siempre se vuelve a
-      // consultar el pago real contra la API con nuestro access token.
-      const payment = await fetchPayment(paymentId);
-      if (!payment?.external_reference) return res.status(200).end();
-
-      const pendingRows = await sql`SELECT * FROM mp_pending_orders WHERE id = ${payment.external_reference}`;
-      const pending = pendingRows[0];
-      if (!pending) return res.status(200).end();
-      if (pending.estado !== "pendiente") return res.status(200).end(); // ya procesada (reintento de MP)
-
-      if (payment.status === "approved") {
-        const body = pending.payload as Record<string, any>;
-
-        const orderRows = await sql`
-          INSERT INTO orders (
-            order_number, customer_name, customer_rut, customer_email, customer_phone,
-            region, comuna, address, notes,
-            shipping_method, shipping_cost, subtotal, total, payment_method, status
-          ) VALUES (
-            ${body.order_number},
-            ${body.customer_name},
-            ${body.customer_rut ?? ""},
-            ${body.customer_email ?? ""},
-            ${body.customer_phone ?? ""},
-            ${body.region ?? ""},
-            ${body.comuna ?? ""},
-            ${body.address ?? ""},
-            ${body.notes ?? ""},
-            ${body.shipping_method ?? ""},
-            ${Number(body.shipping_cost ?? 0)},
-            ${Number(body.subtotal)},
-            ${Number(body.total)},
-            'Mercado Pago',
-            'Pagado con Mercado Pago'
-          )
-          RETURNING *
-        `;
-        const order = orderRows[0];
-
-        for (const item of (body.items as any[]) ?? []) {
-          await sql`
-            INSERT INTO order_items (order_id, product_id, product_name, price, quantity, image)
-            VALUES (
-              ${order.id},
-              ${item.product_id ?? null},
-              ${item.product_name},
-              ${Number(item.price)},
-              ${Number(item.quantity)},
-              ${item.image ?? null}
-            )
-          `;
-
-          if (item.product_id) {
-            await sql`
-              UPDATE products SET stock = GREATEST(0, stock - ${Number(item.quantity)}) WHERE id = ${item.product_id}
-            `;
-          }
-        }
-
-        await sql`
-          UPDATE mp_pending_orders
-          SET estado = 'aprobado', mp_payment_id = ${String(paymentId)}, order_id = ${order.id}, updated_at = NOW()
-          WHERE id = ${pending.id}
-        `;
-      } else if (["rejected", "cancelled"].includes(payment.status)) {
-        await sql`
-          UPDATE mp_pending_orders
-          SET estado = 'rechazado', mp_payment_id = ${String(paymentId)}, updated_at = NOW()
-          WHERE id = ${pending.id}
-        `;
-      }
-
+      await resolvePayment(sql, paymentId);
       return res.status(200).end();
     }
 

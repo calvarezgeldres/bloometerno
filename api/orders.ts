@@ -184,6 +184,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         "Comprobante recibido",
         "En preparación",
         "Enviado",
+        "Anulado",
       ];
 
       if (!validStatuses.includes(status)) {

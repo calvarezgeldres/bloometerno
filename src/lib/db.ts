@@ -90,8 +90,13 @@ export const db = {
         body: JSON.stringify(data),
       }),
 
-    getStatus: (pendingId: string): Promise<{ estado: "pendiente" | "aprobado" | "rechazado"; order: any | null }> =>
-      apiFetch(`/api/mercadopago?pending=${encodeURIComponent(pendingId)}`),
+    getStatus: (
+      pendingId: string,
+      paymentId?: string | null
+    ): Promise<{ estado: "pendiente" | "aprobado" | "rechazado"; order: any | null }> =>
+      apiFetch(
+        `/api/mercadopago?pending=${encodeURIComponent(pendingId)}${paymentId ? `&payment_id=${encodeURIComponent(paymentId)}` : ""}`
+      ),
   },
 
   // ─── Configuración ──────────────────────────────────────────────────────────

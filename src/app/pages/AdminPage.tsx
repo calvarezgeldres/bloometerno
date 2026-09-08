@@ -1016,6 +1016,8 @@ export const AdminPage: React.FC = () => {
                                 ? "rgba(184, 144, 78, 0.2)"
                                 : o.status === "Pagado con Mercado Pago"
                                 ? "rgba(59, 130, 246, 0.18)"
+                                : o.status === "Anulado"
+                                ? "rgba(220, 38, 38, 0.15)"
                                 : "var(--background)",
                           }}
                         >
@@ -1024,6 +1026,7 @@ export const AdminPage: React.FC = () => {
                           <option value="Comprobante recibido">Comprobante recibido</option>
                           <option value="En preparación">En preparación</option>
                           <option value="Enviado">Enviado</option>
+                          <option value="Anulado">Anulado</option>
                         </select>
                       </div>
                     </div>
