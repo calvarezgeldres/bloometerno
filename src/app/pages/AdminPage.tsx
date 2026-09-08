@@ -14,10 +14,12 @@ import {
   SlidersHorizontal,
   Lock,
   LogOut,
+  Printer,
 } from "lucide-react";
 import { useStore } from "../context/StoreContext";
-import { Product } from "../types/store";
+import { Product, Order } from "../types/store";
 import { db } from "../../lib/db";
+import { EtiquetaDespachoModal } from "../components/EtiquetaDespachoModal";
 
 function formatCLP(amount: number): string {
   return `$${amount.toLocaleString("es-CL")}`;
@@ -89,6 +91,7 @@ export const AdminPage: React.FC = () => {
   const [filterCategory, setFilterCategory] = useState("Todas");
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | number | null>(null);
+  const [etiquetaOrder, setEtiquetaOrder] = useState<Order | null>(null);
 
   // Formulario de Producto
   const [newName, setNewName] = useState("");
@@ -982,7 +985,26 @@ export const AdminPage: React.FC = () => {
 
                       {/* Status Selector */}
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        {(o.status === "Pendiente de transferencia" || o.status === "Pagado con Mercado Pago") && (
+                        {/* Transferencia: la plata no está confirmada hasta que el admin la acredita a mano */}
+                        {o.status === "Pendiente de transferencia" && (
+                          <button
+                            onClick={() => updateOrderStatus(o.id, "Comprobante recibido")}
+                            style={{
+                              padding: "0.4rem 0.9rem",
+                              borderRadius: "0.4rem",
+                              border: "none",
+                              fontSize: "0.78rem",
+                              fontWeight: 700,
+                              color: "var(--primary-foreground)",
+                              backgroundColor: "var(--gold)",
+                              cursor: "pointer",
+                            }}
+                          >
+                            Confirmar pago recibido
+                          </button>
+                        )}
+                        {/* Mercado Pago ya confirmó el pago solo; transferencia recién llega acá tras el botón de arriba */}
+                        {(o.status === "Comprobante recibido" || o.status === "Pagado con Mercado Pago") && (
                           <button
                             onClick={() => updateOrderStatus(o.id, "En preparación")}
                             style={{
@@ -996,7 +1018,7 @@ export const AdminPage: React.FC = () => {
                               cursor: "pointer",
                             }}
                           >
-                            Confirmar pago e iniciar despacho
+                            Iniciar despacho
                           </button>
                         )}
                         <span style={{ fontSize: "0.78rem", color: "var(--muted-foreground)" }}>Estado del Pedido:</span>
@@ -1028,6 +1050,28 @@ export const AdminPage: React.FC = () => {
                           <option value="Enviado">Enviado</option>
                           <option value="Anulado">Anulado</option>
                         </select>
+                        {["Comprobante recibido", "Pagado con Mercado Pago", "En preparación", "Enviado"].includes(o.status) && (
+                          <button
+                            onClick={() => setEtiquetaOrder(o)}
+                            title="Imprimir etiqueta de despacho"
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.35rem",
+                              padding: "0.35rem 0.7rem",
+                              borderRadius: "0.4rem",
+                              border: "1px solid var(--border)",
+                              fontSize: "0.78rem",
+                              fontWeight: 600,
+                              color: "var(--foreground)",
+                              backgroundColor: "var(--card)",
+                              cursor: "pointer",
+                            }}
+                          >
+                            <Printer size={14} />
+                            Etiqueta
+                          </button>
+                        )}
                       </div>
                     </div>
 
@@ -1260,6 +1304,10 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
       </main>
+
+      {etiquetaOrder && (
+        <EtiquetaDespachoModal order={etiquetaOrder} settings={settings} onClose={() => setEtiquetaOrder(null)} />
+      )}
     </div>
   );
 };
