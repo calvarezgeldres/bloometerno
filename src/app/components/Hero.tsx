@@ -6,13 +6,10 @@ export function Hero() {
       id="inicio"
       style={{
         backgroundColor: "var(--background)",
-        minHeight: "100svh",
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
         position: "relative",
         overflow: "hidden",
       }}
-      className="max-lg:flex max-lg:flex-col"
+      className="grid grid-cols-1 lg:grid-cols-2 lg:h-[clamp(520px,78vh,680px)]"
     >
       {/* LEFT — text panel */}
       <div
@@ -21,10 +18,10 @@ export function Hero() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-end",
-          padding: "clamp(2.5rem, 6vw, 5rem)",
+          padding: "clamp(2rem, 4vw, 3.5rem)",
           position: "relative",
           overflow: "hidden",
-          minHeight: "60vmin",
+          minHeight: "48vmin",
         }}
       >
         {/* Grain overlay */}
@@ -60,7 +57,7 @@ export function Hero() {
         {/* Content */}
         <div style={{ position: "relative" }}>
           {/* Eyebrow */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "2rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.5rem" }}>
             <div style={{ width: "2rem", height: "1px", backgroundColor: "var(--gold)" }} />
             <span
               style={{
@@ -81,9 +78,9 @@ export function Hero() {
             style={{
               fontFamily: "var(--font-display)",
               color: "var(--background)",
-              fontSize: "clamp(2.8rem, 5.5vw, 5.5rem)",
+              fontSize: "clamp(2rem, 3.6vw, 3.25rem)",
               fontWeight: 400,
-              lineHeight: 1.05,
+              lineHeight: 1.1,
               letterSpacing: "-0.02em",
               margin: 0,
             }}
@@ -109,7 +106,7 @@ export function Hero() {
               display: "flex",
               alignItems: "center",
               gap: "0.6rem",
-              margin: "2rem 0",
+              margin: "1.5rem 0",
             }}
           >
             <div style={{ flex: 1, maxWidth: "3rem", height: "1px", backgroundColor: "rgba(255,252,249,0.3)" }} />
@@ -126,7 +123,7 @@ export function Hero() {
               lineHeight: 1.75,
               fontWeight: 300,
               maxWidth: "340px",
-              margin: "0 0 2.5rem",
+              margin: "0 0 2rem",
             }}
           >
             Piedras, mostacillas y accesorios seleccionados para crear piezas únicas con alma natural.
@@ -198,7 +195,7 @@ export function Hero() {
           position: "relative",
           overflow: "hidden",
           backgroundColor: "var(--cream-deep)",
-          minHeight: "50vmin",
+          minHeight: "40vmin",
         }}
       >
         <img
