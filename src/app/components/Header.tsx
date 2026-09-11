@@ -40,7 +40,7 @@ export function Header() {
             fontFamily: "var(--font-body)",
             fontSize: "0.7rem",
             letterSpacing: "0.14em",
-            color: "rgba(246,240,227,0.7)",
+            color: "rgba(255,252,249,0.7)",
             fontWeight: 400,
           }}
         >

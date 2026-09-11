@@ -112,16 +112,16 @@ export function Hero() {
               margin: "2rem 0",
             }}
           >
-            <div style={{ flex: 1, maxWidth: "3rem", height: "1px", backgroundColor: "rgba(246,240,227,0.3)" }} />
+            <div style={{ flex: 1, maxWidth: "3rem", height: "1px", backgroundColor: "rgba(255,252,249,0.3)" }} />
             <span style={{ color: "var(--gold)", fontSize: "0.6rem" }}>✦</span>
-            <div style={{ flex: 1, maxWidth: "3rem", height: "1px", backgroundColor: "rgba(246,240,227,0.3)" }} />
+            <div style={{ flex: 1, maxWidth: "3rem", height: "1px", backgroundColor: "rgba(255,252,249,0.3)" }} />
           </div>
 
           {/* Subtitle */}
           <p
             style={{
               fontFamily: "var(--font-body)",
-              color: "rgba(246,240,227,0.6)",
+              color: "rgba(255,252,249,0.6)",
               fontSize: "0.9rem",
               lineHeight: 1.75,
               fontWeight: 300,
@@ -164,9 +164,9 @@ export function Hero() {
                 fontSize: "0.72rem",
                 fontWeight: 400,
                 letterSpacing: "0.1em",
-                color: "rgba(246,240,227,0.7)",
+                color: "rgba(255,252,249,0.7)",
                 textDecoration: "none",
-                borderBottom: "1px solid rgba(246,240,227,0.3)",
+                borderBottom: "1px solid rgba(255,252,249,0.3)",
                 paddingBottom: "2px",
               }}
             >
@@ -184,7 +184,7 @@ export function Hero() {
             fontFamily: "var(--font-body)",
             fontSize: "0.65rem",
             letterSpacing: "0.1em",
-            color: "rgba(246,240,227,0.25)",
+            color: "rgba(255,252,249,0.25)",
             fontWeight: 400,
           }}
         >
@@ -230,8 +230,8 @@ export function Hero() {
             backgroundColor: "var(--background)",
             borderRadius: "0.75rem",
             padding: "1.25rem 1.5rem",
-            border: "1px solid rgba(33,28,18,0.08)",
-            boxShadow: "0 16px 48px rgba(33,28,18,0.12)",
+            border: "1px solid rgba(31,46,31,0.08)",
+            boxShadow: "0 16px 48px rgba(31,46,31,0.12)",
           }}
         >
           <p

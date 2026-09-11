@@ -35,7 +35,7 @@ export function Footer() {
   return (
     <footer
       id="footer"
-      style={{ backgroundColor: "#1A1710", color: "var(--background)" }}
+      style={{ backgroundColor: "#152A1C", color: "var(--background)" }}
     >
       {/* Main footer */}
       <div
@@ -68,7 +68,7 @@ export function Footer() {
           <p
             style={{
               fontFamily: "var(--font-body)",
-              color: "rgba(246,240,227,0.4)",
+              color: "rgba(255,252,249,0.4)",
               fontSize: "0.85rem",
               lineHeight: 1.8,
               fontWeight: 300,
@@ -95,12 +95,12 @@ export function Footer() {
                   width: "2.25rem",
                   height: "2.25rem",
                   borderRadius: "0.4rem",
-                  backgroundColor: "rgba(246,240,227,0.08)",
-                  border: "1px solid rgba(246,240,227,0.1)",
+                  backgroundColor: "rgba(255,252,249,0.08)",
+                  border: "1px solid rgba(255,252,249,0.1)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "rgba(246,240,227,0.55)",
+                  color: "rgba(255,252,249,0.55)",
                   textDecoration: "none",
                 }}
               >
@@ -121,7 +121,7 @@ export function Footer() {
                   style={{
                     fontFamily: "var(--font-body)",
                     fontSize: "0.65rem",
-                    color: "rgba(246,240,227,0.3)",
+                    color: "rgba(255,252,249,0.3)",
                     letterSpacing: "0.05em",
                   }}
                 >
@@ -140,7 +140,7 @@ export function Footer() {
                 fontFamily: "var(--font-body)",
                 fontSize: "0.65rem",
                 letterSpacing: "0.18em",
-                color: "rgba(246,240,227,0.35)",
+                color: "rgba(255,252,249,0.35)",
                 fontWeight: 500,
                 textTransform: "uppercase" as const,
                 margin: "0 0 1.25rem",
@@ -156,12 +156,12 @@ export function Footer() {
                     style={{
                       fontFamily: "var(--font-body)",
                       fontSize: "0.82rem",
-                      color: "rgba(246,240,227,0.45)",
+                      color: "rgba(255,252,249,0.45)",
                       fontWeight: 300,
                       textDecoration: "none",
                     }}
-                    onMouseEnter={e => (e.currentTarget.style.color = "rgba(246,240,227,0.85)")}
-                    onMouseLeave={e => (e.currentTarget.style.color = "rgba(246,240,227,0.45)")}
+                    onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,252,249,0.85)")}
+                    onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,252,249,0.45)")}
                   >
                     {link.label}
                   </a>
@@ -178,7 +178,7 @@ export function Footer() {
           maxWidth: "1280px",
           margin: "0 auto",
           padding: "1.5rem 2rem",
-          borderTop: "1px solid rgba(246,240,227,0.07)",
+          borderTop: "1px solid rgba(255,252,249,0.07)",
           display: "flex",
           flexWrap: "wrap",
           alignItems: "center",
@@ -190,7 +190,7 @@ export function Footer() {
             fontFamily: "var(--font-body)",
             fontSize: "0.6rem",
             letterSpacing: "0.12em",
-            color: "rgba(246,240,227,0.25)",
+            color: "rgba(255,252,249,0.25)",
             textTransform: "uppercase" as const,
             marginRight: "0.5rem",
           }}
@@ -203,8 +203,8 @@ export function Footer() {
             style={{
               fontFamily: "var(--font-body)",
               fontSize: "0.62rem",
-              color: "rgba(246,240,227,0.3)",
-              border: "1px solid rgba(246,240,227,0.1)",
+              color: "rgba(255,252,249,0.3)",
+              border: "1px solid rgba(255,252,249,0.1)",
               padding: "0.2rem 0.55rem",
               borderRadius: "0.25rem",
             }}
@@ -220,7 +220,7 @@ export function Footer() {
           maxWidth: "1280px",
           margin: "0 auto",
           padding: "1.25rem 2rem",
-          borderTop: "1px solid rgba(246,240,227,0.07)",
+          borderTop: "1px solid rgba(255,252,249,0.07)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -233,7 +233,7 @@ export function Footer() {
             fontFamily: "var(--font-display)",
             fontStyle: "italic",
             fontSize: "0.82rem",
-            color: "rgba(246,240,227,0.2)",
+            color: "rgba(255,252,249,0.2)",
             margin: 0,
           }}
         >
@@ -243,7 +243,7 @@ export function Footer() {
           style={{
             fontFamily: "var(--font-body)",
             fontSize: "0.68rem",
-            color: "rgba(246,240,227,0.2)",
+            color: "rgba(255,252,249,0.2)",
             margin: 0,
           }}
         >

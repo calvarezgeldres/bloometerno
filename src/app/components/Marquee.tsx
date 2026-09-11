@@ -32,8 +32,8 @@ export function Marquee() {
         backgroundColor: "var(--primary)",
         overflow: "hidden",
         padding: "0.875rem 0",
-        borderTop: "1px solid rgba(246,240,227,0.08)",
-        borderBottom: "1px solid rgba(246,240,227,0.08)",
+        borderTop: "1px solid rgba(255,252,249,0.08)",
+        borderBottom: "1px solid rgba(255,252,249,0.08)",
       }}
     >
       <motion.div
@@ -48,7 +48,7 @@ export function Marquee() {
               fontFamily: item === "✦" ? "inherit" : "var(--font-body)",
               fontSize: item === "✦" ? "0.5rem" : "0.68rem",
               letterSpacing: item === "✦" ? 0 : "0.15em",
-              color: item === "✦" ? "var(--gold)" : "rgba(246,240,227,0.55)",
+              color: item === "✦" ? "var(--gold)" : "rgba(255,252,249,0.55)",
               fontWeight: 400,
               textTransform: item === "✦" ? undefined : "uppercase" as const,
               whiteSpace: "nowrap",

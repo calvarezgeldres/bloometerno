@@ -50,7 +50,7 @@ export function BrandStory() {
             fontFamily: "var(--font-display)",
             fontStyle: "italic",
             fontWeight: 300,
-            color: "rgba(246,240,227,0.92)",
+            color: "rgba(255,252,249,0.92)",
             fontSize: "clamp(2.5rem, 6vw, 6rem)",
             lineHeight: 1.05,
             letterSpacing: "-0.02em",
@@ -86,7 +86,7 @@ export function BrandStory() {
               borderRadius: "0.75rem",
               overflow: "hidden",
               aspectRatio: "4/3",
-              backgroundColor: "rgba(246,240,227,0.1)",
+              backgroundColor: "rgba(255,252,249,0.1)",
             }}
           >
             <img
@@ -145,7 +145,7 @@ export function BrandStory() {
           <p
             style={{
               fontFamily: "var(--font-body)",
-              color: "rgba(246,240,227,0.55)",
+              color: "rgba(255,252,249,0.55)",
               fontSize: "1rem",
               lineHeight: 1.85,
               fontWeight: 300,
@@ -157,7 +157,7 @@ export function BrandStory() {
           <p
             style={{
               fontFamily: "var(--font-body)",
-              color: "rgba(246,240,227,0.55)",
+              color: "rgba(255,252,249,0.55)",
               fontSize: "1rem",
               lineHeight: 1.85,
               fontWeight: 300,
@@ -173,7 +173,7 @@ export function BrandStory() {
               display: "grid",
               gridTemplateColumns: "repeat(3, 1fr)",
               gap: "0",
-              borderTop: "1px solid rgba(246,240,227,0.12)",
+              borderTop: "1px solid rgba(255,252,249,0.12)",
               paddingTop: "2rem",
             }}
           >
@@ -185,7 +185,7 @@ export function BrandStory() {
               <div
                 key={label}
                 style={{
-                  borderRight: i < 2 ? "1px solid rgba(246,240,227,0.12)" : "none",
+                  borderRight: i < 2 ? "1px solid rgba(255,252,249,0.12)" : "none",
                   paddingRight: "1.5rem",
                   paddingLeft: i > 0 ? "1.5rem" : "0",
                 }}
@@ -207,7 +207,7 @@ export function BrandStory() {
                     fontFamily: "var(--font-body)",
                     fontSize: "0.65rem",
                     letterSpacing: "0.12em",
-                    color: "rgba(246,240,227,0.4)",
+                    color: "rgba(255,252,249,0.4)",
                     margin: "0.4rem 0 0",
                     textTransform: "uppercase" as const,
                   }}

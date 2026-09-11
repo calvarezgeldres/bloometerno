@@ -6,7 +6,9 @@ import { Categories } from "../components/Categories";
 import { Products } from "../components/Products";
 import { BrandStory } from "../components/BrandStory";
 import { PromoBanner } from "../components/PromoBanner";
+import { Testimonials } from "../components/Testimonials";
 import { Benefits } from "../components/Benefits";
+import { FAQ } from "../components/FAQ";
 import { Newsletter } from "../components/Newsletter";
 
 export const StorePage: React.FC = () => {
@@ -19,7 +21,9 @@ export const StorePage: React.FC = () => {
       <Products />
       <BrandStory />
       <PromoBanner />
+      <Testimonials />
       <Benefits />
+      <FAQ />
       <Newsletter />
     </main>
   );

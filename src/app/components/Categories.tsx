@@ -208,7 +208,7 @@ function BentoCard({
         style={{
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(to top, rgba(33,28,18,0.8) 0%, rgba(33,28,18,0.2) 40%, transparent 70%)",
+          background: "linear-gradient(to top, rgba(31,46,31,0.8) 0%, rgba(31,46,31,0.2) 40%, transparent 70%)",
         }}
       />
 
@@ -270,11 +270,11 @@ function BentoCard({
           width: "2rem",
           height: "2rem",
           borderRadius: "50%",
-          backgroundColor: "rgba(246,240,227,0.15)",
+          backgroundColor: "rgba(255,252,249,0.15)",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          border: "1px solid rgba(246,240,227,0.2)",
+          border: "1px solid rgba(255,252,249,0.2)",
           backdropFilter: "blur(4px)",
         }}
       >

@@ -81,7 +81,7 @@ export function Benefits() {
             display: "grid",
             gridTemplateColumns: "repeat(4, 1fr)",
             gap: "0",
-            borderTop: "1px solid rgba(246,240,227,0.12)",
+            borderTop: "1px solid rgba(255,252,249,0.12)",
           }}
           className="max-lg:grid-cols-2"
         >
@@ -93,8 +93,8 @@ export function Benefits() {
                 key={i}
                 style={{
                   padding: "2.5rem 2rem",
-                  borderRight: !isLast ? "1px solid rgba(246,240,227,0.12)" : "none",
-                  borderBottom: "1px solid rgba(246,240,227,0.12)",
+                  borderRight: !isLast ? "1px solid rgba(255,252,249,0.12)" : "none",
+                  borderBottom: "1px solid rgba(255,252,249,0.12)",
                 }}
                 className={i >= 2 ? "max-lg:border-b-0" : ""}
               >
@@ -103,12 +103,12 @@ export function Benefits() {
                     width: "2.5rem",
                     height: "2.5rem",
                     borderRadius: "0.5rem",
-                    backgroundColor: "rgba(246,240,227,0.1)",
+                    backgroundColor: "rgba(255,252,249,0.1)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     marginBottom: "1.25rem",
-                    border: "1px solid rgba(246,240,227,0.15)",
+                    border: "1px solid rgba(255,252,249,0.15)",
                   }}
                 >
                   <Icon size={18} strokeWidth={1.5} color="var(--gold-light)" />
@@ -129,7 +129,7 @@ export function Benefits() {
                 <p
                   style={{
                     fontFamily: "var(--font-body)",
-                    color: "rgba(246,240,227,0.5)",
+                    color: "rgba(255,252,249,0.5)",
                     fontSize: "0.85rem",
                     lineHeight: 1.7,
                     fontWeight: 300,
