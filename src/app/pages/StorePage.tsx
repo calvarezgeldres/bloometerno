@@ -3,8 +3,6 @@ import { Hero } from "../components/Hero";
 import { RealCreations } from "../components/RealCreations";
 import { Marquee } from "../components/Marquee";
 import { Categories } from "../components/Categories";
-import { Products } from "../components/Products";
-import { BrandStory } from "../components/BrandStory";
 import { PromoBanner } from "../components/PromoBanner";
 import { Testimonials } from "../components/Testimonials";
 import { Benefits } from "../components/Benefits";
@@ -18,10 +16,8 @@ export const StorePage: React.FC = () => {
       <RealCreations />
       <Marquee />
       <Categories />
-      <Products />
-      <BrandStory />
-      <PromoBanner />
       <Testimonials />
+      <PromoBanner />
       <Benefits />
       <FAQ />
       <Newsletter />

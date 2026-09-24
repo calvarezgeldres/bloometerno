@@ -1,34 +1,33 @@
-import { Instagram, MessageCircle, Shield, Truck } from "lucide-react";
+import { Link } from "react-router";
+import { Instagram, MessageCircle, Mail, Shield, Truck } from "lucide-react";
 
 const navColumns = [
   {
     heading: "Tienda",
     links: [
-      { label: "Piedras naturales", href: "#categorias" },
-      { label: "Mostacillas", href: "#categorias" },
-      { label: "Cristales y dijes", href: "#categorias" },
-      { label: "Kits creativos", href: "#categorias" },
-      { label: "Herramientas", href: "#categorias" },
+      { label: "Piedras naturales", href: "/productos?categoria=Piedras" },
+      { label: "Mostacillas", href: "/productos?categoria=Mostacillas" },
+      { label: "Cristales y dijes", href: "/productos?categoria=Cristales" },
+      { label: "Kits creativos", href: "/kits" },
+      { label: "Herramientas", href: "/productos?categoria=Herramientas" },
     ],
   },
   {
     heading: "Información",
     links: [
-      { label: "Nosotros", href: "#marca" },
+      { label: "Nosotros", href: "/nosotros" },
       { label: "Política de envíos", href: "#" },
       { label: "Cambios y devoluciones", href: "#" },
       { label: "Preguntas frecuentes", href: "#" },
       { label: "Privacidad", href: "#" },
     ],
   },
-  {
-    heading: "Contacto",
-    links: [
-      { label: "WhatsApp: +56 9 1234 5678", href: "https://wa.me/56912345678" },
-      { label: "@bloometerno", href: "https://instagram.com" },
-      { label: "hola@bloometerno.cl", href: "mailto:hola@bloometerno.cl" },
-    ],
-  },
+];
+
+const contactLinks = [
+  { Icon: MessageCircle, label: "WhatsApp: +56 9 1234 5678", href: "https://wa.me/56912345678" },
+  { Icon: Instagram, label: "@bloometerno", href: "https://instagram.com" },
+  { Icon: Mail, label: "hola@bloometerno.cl", href: "mailto:hola@bloometerno.cl" },
 ];
 
 export function Footer() {
@@ -151,8 +150,8 @@ export function Footer() {
             <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.6rem" }}>
               {col.links.map(link => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
+                  <Link
+                    to={link.href}
                     style={{
                       fontFamily: "var(--font-body)",
                       fontSize: "0.82rem",
@@ -164,12 +163,55 @@ export function Footer() {
                     onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,252,249,0.45)")}
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
           </div>
         ))}
+
+        {/* Contacto column with app icons */}
+        <div>
+          <h4
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "0.65rem",
+              letterSpacing: "0.18em",
+              color: "rgba(255,252,249,0.35)",
+              fontWeight: 500,
+              textTransform: "uppercase" as const,
+              margin: "0 0 1.25rem",
+            }}
+          >
+            Contacto
+          </h4>
+          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+            {contactLinks.map(({ Icon, label, href }) => (
+              <li key={label}>
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    fontFamily: "var(--font-body)",
+                    fontSize: "0.82rem",
+                    color: "rgba(255,252,249,0.45)",
+                    fontWeight: 300,
+                    textDecoration: "none",
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.color = "rgba(255,252,249,0.85)")}
+                  onMouseLeave={e => (e.currentTarget.style.color = "rgba(255,252,249,0.45)")}
+                >
+                  <Icon size={14} strokeWidth={1.5} style={{ flexShrink: 0 }} />
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       {/* Payment badges */}

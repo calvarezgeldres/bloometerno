@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 
 export function PromoBanner() {
@@ -132,8 +133,8 @@ export function PromoBanner() {
               ))}
             </div>
 
-            <a
-              href="#productos"
+            <Link
+              to="/kits"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -152,7 +153,7 @@ export function PromoBanner() {
               }}
             >
               Crear mi kit <ArrowRight size={13} />
-            </a>
+            </Link>
           </div>
         </div>
       </div>

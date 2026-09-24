@@ -14,7 +14,7 @@
   --secondary-foreground: #FFFFFF;
   --muted: #F4F4F4;
   --muted-foreground: #6B7563;
-  --accent: #FADCE0;
+  --accent: #E9D8D6;
   --accent-foreground: #1F2E1F;
   --destructive: #C1455A;
   --destructive-foreground: #FFFCF9;
@@ -22,11 +22,11 @@
   --input: transparent;
   --input-background: #F4F4F4;
   --switch-background: #D8DED4;
-  --gold: #FC7589;
-  --gold-light: #FDAAB8;
-  --gold-muted: #F5B8C4;
-  --pale-pink: #FADCE0;
-  --cream-deep: #F4F4F4;
+  --gold: #7A2331;
+  --gold-light: #9C3D4B;
+  --gold-muted: #B97E86;
+  --pale-pink: #E9D8D6;
+  --cream-deep: #F7F2E7;
   --olive-dark: #1E3524;
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body: 'Jost', system-ui, sans-serif;

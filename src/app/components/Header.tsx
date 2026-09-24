@@ -1,16 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Search, User, ShoppingBag, Menu, X, SlidersHorizontal } from "lucide-react";
+import { ShoppingBag, Menu, X, SlidersHorizontal } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 
 const navLinks = [
-  { label: "Inicio", href: "#inicio" },
-  { label: "Productos", href: "#productos" },
-  { label: "Piedras", href: "#categorias" },
-  { label: "Mostacillas", href: "#categorias" },
-  { label: "Kits", href: "#categorias" },
-  { label: "Nosotros", href: "#marca" },
-  { label: "Contacto", href: "#footer" },
+  { label: "Inicio", to: "/" },
+  { label: "Productos", to: "/productos" },
+  { label: "Ocasión", to: "/productos" },
+  { label: "Kits", to: "/kits" },
+  { label: "Nosotros", to: "/nosotros" },
+  { label: "Contacto", to: "/contacto" },
 ];
 
 export function Header() {
@@ -54,47 +53,22 @@ export function Header() {
           maxWidth: "1280px",
           margin: "0 auto",
           padding: "0 2rem",
-          display: "grid",
-          gridTemplateColumns: "1fr auto 1fr",
+          display: "flex",
           alignItems: "center",
+          justifyContent: "space-between",
           height: "4.5rem",
-          gap: "1rem",
+          gap: "1.5rem",
         }}
       >
-        {/* Left nav */}
-        <nav className="hidden lg:flex items-center gap-7">
-          {navLinks.slice(0, 4).map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              style={{
-                fontFamily: "var(--font-body)",
-                color: "var(--foreground)",
-                fontSize: "0.75rem",
-                letterSpacing: "0.1em",
-                fontWeight: 400,
-                textTransform: "uppercase" as const,
-                opacity: 0.7,
-                transition: "opacity 0.2s",
-              }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-              onMouseLeave={e => (e.currentTarget.style.opacity = "0.7")}
-            >
-              {link.label}
-            </a>
-          ))}
-        </nav>
-
-        {/* Center logo */}
-        <a
-          href="#inicio"
+        {/* Left logo */}
+        <Link
+          to="/"
           style={{
             textDecoration: "none",
             display: "flex",
-            flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
-            transition: "opacity 0.2s, transform 0.2s",
+            transition: "opacity 0.2s",
+            flexShrink: 0,
           }}
           className="hover:opacity-85"
         >
@@ -102,36 +76,38 @@ export function Header() {
             src="/logos/bloom-logo-full.png"
             alt="Bloom Eterno - Hecho a mano. Hecho para siempre"
             style={{
-              height: "46px",
+              height: "42px",
               width: "auto",
               objectFit: "contain",
               display: "block",
             }}
           />
-        </a>
+        </Link>
 
-        {/* Right nav + icons */}
-        <div className="hidden lg:flex items-center justify-end gap-7">
-          {navLinks.slice(4).map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              style={{
-                fontFamily: "var(--font-body)",
-                color: "var(--foreground)",
-                fontSize: "0.75rem",
-                letterSpacing: "0.1em",
-                fontWeight: 400,
-                textTransform: "uppercase" as const,
-                opacity: 0.7,
-                transition: "opacity 0.2s",
-              }}
-              onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
-              onMouseLeave={e => (e.currentTarget.style.opacity = "0.7")}
-            >
-              {link.label}
-            </a>
-          ))}
+        {/* Nav + icons */}
+        <div className="hidden lg:flex items-center justify-end gap-7" style={{ flex: 1 }}>
+          <nav className="flex items-center gap-7">
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                to={link.to}
+                style={{
+                  fontFamily: "var(--font-body)",
+                  color: "var(--foreground)",
+                  fontSize: "0.75rem",
+                  letterSpacing: "0.1em",
+                  fontWeight: 400,
+                  textTransform: "uppercase" as const,
+                  opacity: 0.7,
+                  transition: "opacity 0.2s",
+                }}
+                onMouseEnter={e => (e.currentTarget.style.opacity = "1")}
+                onMouseLeave={e => (e.currentTarget.style.opacity = "0.7")}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
 
           <div
             style={{
@@ -218,27 +194,6 @@ export function Header() {
               </span>
             )}
           </button>
-
-          <a
-            href="#productos"
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "0.7rem",
-              letterSpacing: "0.12em",
-              fontWeight: 500,
-              textTransform: "uppercase" as const,
-              color: "var(--primary-foreground)",
-              backgroundColor: "var(--primary)",
-              padding: "0.55rem 1.25rem",
-              borderRadius: "2rem",
-              textDecoration: "none",
-              transition: "background-color 0.2s",
-            }}
-            onMouseEnter={e => (e.currentTarget.style.backgroundColor = "var(--olive-dark)")}
-            onMouseLeave={e => (e.currentTarget.style.backgroundColor = "var(--primary)")}
-          >
-            Comprar
-          </a>
         </div>
 
         {/* Mobile icons */}
@@ -297,17 +252,10 @@ export function Header() {
             padding: "1.5rem 2rem 2rem",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "center", marginBottom: "1rem" }}>
-            <img
-              src="/logos/bloom-monogram.png"
-              alt="Bloom Eterno"
-              style={{ height: "38px", width: "auto", opacity: 0.8 }}
-            />
-          </div>
           {navLinks.map((link) => (
-            <a
+            <Link
               key={link.label}
-              href={link.href}
+              to={link.to}
               onClick={() => setMenuOpen(false)}
               style={{
                 display: "block",
@@ -321,28 +269,8 @@ export function Header() {
               }}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
-          <a
-            href="#productos"
-            style={{
-              display: "block",
-              marginTop: "1.25rem",
-              textAlign: "center",
-              fontFamily: "var(--font-body)",
-              fontSize: "0.75rem",
-              letterSpacing: "0.12em",
-              fontWeight: 500,
-              textTransform: "uppercase" as const,
-              color: "var(--primary-foreground)",
-              backgroundColor: "var(--primary)",
-              padding: "0.9rem",
-              borderRadius: "2rem",
-              textDecoration: "none",
-            }}
-          >
-            Comprar ahora
-          </a>
         </div>
       )}
     </header>

@@ -1,23 +1,20 @@
 import { BrowserRouter, Routes, Route } from "react-router";
 import { StoreProvider } from "./context/StoreContext";
-import { Header } from "./components/Header";
-import { Footer } from "./components/Footer";
+import { PageLayout } from "./components/PageLayout";
 import { StorePage } from "./pages/StorePage";
+import { ProductosPage } from "./pages/ProductosPage";
+import { KitsPage } from "./pages/KitsPage";
+import { NosotrosPage } from "./pages/NosotrosPage";
+import { ContactoPage } from "./pages/ContactoPage";
 import { AdminPage } from "./pages/AdminPage";
-import { CartDrawer } from "./components/CartDrawer";
-import { CheckoutModal } from "./components/CheckoutModal";
 import { PagoResultadoPage } from "./pages/PagoResultadoPage";
 import { PagoErrorPage } from "./pages/PagoErrorPage";
 
 function StoreLayout() {
   return (
-    <>
-      <Header />
+    <PageLayout>
       <StorePage />
-      <Footer />
-      <CartDrawer />
-      <CheckoutModal />
-    </>
+    </PageLayout>
   );
 }
 
@@ -75,6 +72,10 @@ export default function App() {
 
           <Routes>
             <Route path="/" element={<StoreLayout />} />
+            <Route path="/productos" element={<ProductosPage />} />
+            <Route path="/kits" element={<KitsPage />} />
+            <Route path="/nosotros" element={<NosotrosPage />} />
+            <Route path="/contacto" element={<ContactoPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/pago-resultado" element={<PagoResultadoPage />} />
             <Route path="/pago-error" element={<PagoErrorPage />} />

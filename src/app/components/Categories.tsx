@@ -1,9 +1,11 @@
+import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
 
 const categories = [
   {
     id: 1,
     name: "Piedras naturales",
+    categoryKey: "Piedras",
     sub: "Cuarzo, ámbar, ojo de tigre",
     image: "https://images.unsplash.com/photo-1560427450-00fa9481f01e?w=900&h=1100&fit=crop&auto=format&q=80",
     alt: "Colección de piedras naturales multicolor",
@@ -13,6 +15,7 @@ const categories = [
   {
     id: 2,
     name: "Mostacillas",
+    categoryKey: "Mostacillas",
     sub: "Decenas de colores y tamaños",
     image: "https://images.unsplash.com/photo-1560847133-e6f64dc352ea?w=600&h=500&fit=crop&auto=format&q=80",
     alt: "Mostacillas de colores ensartadas",
@@ -22,6 +25,7 @@ const categories = [
   {
     id: 3,
     name: "Cristales",
+    categoryKey: "Cristales",
     sub: "Facetados y brillantes",
     image: "https://images.unsplash.com/photo-1556376752-19770d78207f?w=600&h=500&fit=crop&auto=format&q=80",
     alt: "Cristales y gemas facetadas",
@@ -31,6 +35,7 @@ const categories = [
   {
     id: 4,
     name: "Kits creativos",
+    categoryKey: "Kits",
     sub: "Para empezar a crear hoy",
     image: "https://images.unsplash.com/photo-1660911866937-9399bf71af1e?w=600&h=500&fit=crop&auto=format&q=80",
     alt: "Kit completo de materiales para bisutería",
@@ -40,6 +45,7 @@ const categories = [
   {
     id: 5,
     name: "Herramientas",
+    categoryKey: "Herramientas",
     sub: "Hilos, cierres y accesorios",
     image: "https://images.unsplash.com/photo-1658915250017-bee8f8f0d9a6?w=600&h=500&fit=crop&auto=format&q=80",
     alt: "Aretes y accesorios artesanales",
@@ -84,8 +90,8 @@ export function Categories() {
               <em style={{ color: "var(--primary)", fontStyle: "italic" }}>para crear</em>
             </h2>
           </div>
-          <a
-            href="#productos"
+          <Link
+            to="/productos"
             style={{
               display: "none",
               alignItems: "center",
@@ -102,7 +108,7 @@ export function Categories() {
             className="lg:flex"
           >
             Ver catálogo <ArrowRight size={12} />
-          </a>
+          </Link>
         </div>
 
         {/* Bento grid */}
@@ -174,8 +180,8 @@ function BentoCard({
   tall?: boolean;
 }) {
   return (
-    <a
-      href="#productos"
+    <Link
+      to={`/productos?categoria=${encodeURIComponent(category.categoryKey)}`}
       className={tall ? "bento-card-featured" : "bento-card-small"}
       style={{
         position: "relative",
@@ -280,6 +286,6 @@ function BentoCard({
       >
         <ArrowRight size={12} color="#fff" />
       </div>
-    </a>
+    </Link>
   );
 }

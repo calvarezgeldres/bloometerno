@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router";
 import { Heart, ShoppingBag, Check, AlertCircle } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { Product } from "../types/store";
@@ -13,11 +14,14 @@ function formatCLP(n: number) {
   return `$${n.toLocaleString("es-CL")}`;
 }
 
-export function Products() {
+export function Products({ initialCategory }: { initialCategory?: string } = {}) {
   const { products, addToCart } = useStore();
+  const [searchParams] = useSearchParams();
   const [wishlist, setWishlist] = useState<Set<string | number>>(new Set());
   const [added, setAdded] = useState<Set<string | number>>(new Set());
-  const [activeCategory, setActiveCategory] = useState("Todos");
+  const [activeCategory, setActiveCategory] = useState(
+    initialCategory || searchParams.get("categoria") || "Todos"
+  );
 
   const toggleWishlist = (id: string | number) =>
     setWishlist((prev) => {
@@ -80,7 +84,7 @@ export function Products() {
                 marginBottom: "0.5rem",
               }}
             >
-              Selección especial
+              Catálogo completo
             </p>
             <h2
               style={{
@@ -92,7 +96,7 @@ export function Products() {
                 margin: 0,
               }}
             >
-              Materiales <em style={{ fontStyle: "italic", color: "var(--primary)" }}>destacados</em>
+              Nuestros <em style={{ fontStyle: "italic", color: "var(--primary)" }}>materiales</em>
             </h2>
           </div>
 
@@ -152,36 +156,11 @@ export function Products() {
           </div>
         )}
 
-        {/* Bottom CTA */}
-        <div style={{ textAlign: "center", marginTop: "3rem", paddingTop: "2.5rem", borderTop: "1px solid var(--border)" }}>
-          <a
-            href="#productos"
-            onClick={() => setActiveCategory("Todos")}
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "0.72rem",
-              letterSpacing: "0.12em",
-              fontWeight: 500,
-              textTransform: "uppercase" as const,
-              color: "var(--primary)",
-              border: "1.5px solid var(--primary)",
-              padding: "0.875rem 2.5rem",
-              borderRadius: "2rem",
-              textDecoration: "none",
-              display: "inline-block",
-              transition: "all 0.2s ease",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.backgroundColor = "var(--primary)";
-              e.currentTarget.style.color = "var(--primary-foreground)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.backgroundColor = "transparent";
-              e.currentTarget.style.color = "var(--primary)";
-            }}
-          >
-            Ver catálogo completo ({products.length} productos)
-          </a>
+        {/* Product count */}
+        <div style={{ textAlign: "center", marginTop: "3rem", paddingTop: "2rem", borderTop: "1px solid var(--border)" }}>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: "0.75rem", letterSpacing: "0.08em", color: "var(--muted-foreground)" }}>
+            {filteredProducts.length} de {products.length} productos
+          </p>
         </div>
       </div>
     </section>

@@ -116,7 +116,7 @@ export function BrandStory() {
             }}
           >
             <img
-              src="/logos/bloom-monogram.png"
+              src="/logos/bloom-monogram-light.png"
               alt="Bloom Eterno"
               style={{
                 height: "2.2rem",
@@ -129,7 +129,7 @@ export function BrandStory() {
                 fontFamily: "var(--font-body)",
                 fontSize: "0.55rem",
                 letterSpacing: "0.12em",
-                color: "var(--olive-dark)",
+                color: "rgba(255,252,249,0.9)",
                 margin: 0,
                 fontWeight: 600,
                 textTransform: "uppercase" as const,
