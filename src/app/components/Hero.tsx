@@ -93,16 +93,7 @@ export function Hero() {
               display: "block",
             }}
           />
-          {/* Legibility gradient */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              background: "linear-gradient(100deg, rgba(30,53,36,0.78) 0%, rgba(30,53,36,0.45) 42%, rgba(30,53,36,0.08) 70%)",
-            }}
-          />
-
-          {/* Content */}
+          {/* Content — sin degradado sobre la foto; la sombra del texto mantiene la legibilidad */}
           <div
             style={{
               position: "relative",
@@ -113,6 +104,7 @@ export function Hero() {
               maxWidth: "1280px",
               margin: "0 auto",
               padding: "0 clamp(1.5rem, 5vw, 4rem)",
+              textShadow: "0 2px 12px rgba(20,35,24,0.65), 0 1px 3px rgba(20,35,24,0.5)",
             }}
           >
             <div style={{ maxWidth: "480px" }}>
