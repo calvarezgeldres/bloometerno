@@ -75,18 +75,30 @@ async function resolvePayment(sql: any, paymentId: string): Promise<void> {
 
     for (const item of (body.items as any[]) ?? []) {
       await sql`
-        INSERT INTO order_items (order_id, product_id, product_name, price, quantity, image)
+        INSERT INTO order_items (order_id, product_id, product_name, price, quantity, image, variant_id, variant_label)
         VALUES (
           ${order.id},
           ${item.product_id ?? null},
           ${item.product_name},
           ${Number(item.price)},
           ${Number(item.quantity)},
-          ${item.image ?? null}
+          ${item.image ?? null},
+          ${item.variant_id ?? null},
+          ${item.variant_label ?? null}
         )
       `;
 
-      if (item.product_id) {
+      // Descontar stock: de la variante (y el producto queda con la suma) o del producto
+      if (item.variant_id) {
+        await sql`
+          UPDATE product_variants SET stock = GREATEST(0, stock - ${Number(item.quantity)}) WHERE id = ${item.variant_id}
+        `;
+        await sql`
+          UPDATE products
+          SET stock = (SELECT COALESCE(SUM(stock), 0) FROM product_variants WHERE product_id = products.id)
+          WHERE id = (SELECT product_id FROM product_variants WHERE id = ${item.variant_id})
+        `;
+      } else if (item.product_id) {
         await sql`
           UPDATE products SET stock = GREATEST(0, stock - ${Number(item.quantity)}) WHERE id = ${item.product_id}
         `;
@@ -174,7 +186,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const pendingId = pendingRows[0].id;
 
     const mpItems = (items as any[]).map((i) => ({
-      title: i.product_name,
+      title: i.variant_label ? `${i.product_name} (${i.variant_label})` : i.product_name,
       quantity: Number(i.quantity),
       unit_price: Number(i.price),
       currency_id: "CLP",

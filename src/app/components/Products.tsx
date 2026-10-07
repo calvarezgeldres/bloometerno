@@ -2,7 +2,15 @@ import { useState } from "react";
 import { useSearchParams } from "react-router";
 import { Heart, ShoppingBag, Check, AlertCircle } from "lucide-react";
 import { useStore } from "../context/StoreContext";
-import { Product } from "../types/store";
+import { Category, Product, ProductVariant } from "../types/store";
+import {
+  findCategory,
+  fixedAttributesSummary,
+  hasVariants,
+  variantAttributes,
+  variantLabel,
+  variantPrice,
+} from "../../lib/catalog";
 
 const badgeConfig: Record<string, { label: string; bg: string; color: string }> = {
   new: { label: "Nuevo", bg: "var(--secondary)", color: "#fff" },
@@ -15,7 +23,7 @@ function formatCLP(n: number) {
 }
 
 export function Products({ initialCategory }: { initialCategory?: string } = {}) {
-  const { products, addToCart } = useStore();
+  const { products, categories: storeCategories, addToCart } = useStore();
   const [searchParams] = useSearchParams();
   const [wishlist, setWishlist] = useState<Set<string | number>>(new Set());
   const [added, setAdded] = useState<Set<string | number>>(new Set());
@@ -30,9 +38,9 @@ export function Products({ initialCategory }: { initialCategory?: string } = {})
       return s;
     });
 
-  const handleAddToCart = (product: Product) => {
-    if (product.stock <= 0) return;
-    const ok = addToCart(product, 1);
+  const handleAddToCart = (product: Product, variant: ProductVariant | null, label?: string) => {
+    if ((variant ? variant.stock : product.stock) <= 0) return;
+    const ok = addToCart(product, 1, variant, label);
     if (ok) {
       setAdded((prev) => new Set(prev).add(product.id));
       setTimeout(() => {
@@ -45,8 +53,13 @@ export function Products({ initialCategory }: { initialCategory?: string } = {})
     }
   };
 
-  // Extraer categorías dinámicas únicas del catálogo
-  const categories = ["Todos", ...Array.from(new Set(products.map((p) => p.category)))];
+  // Filtros: categorías administradas que tienen productos, en el orden definido en el panel
+  const usedCategoryNames = new Set(products.map((p) => p.category));
+  const categories = [
+    "Todos",
+    ...storeCategories.filter((c) => usedCategoryNames.has(c.name)).map((c) => c.name),
+    ...Array.from(usedCategoryNames).filter((name) => !storeCategories.some((c) => c.name === name)),
+  ];
 
   const filteredProducts =
     activeCategory === "Todos"
@@ -147,10 +160,11 @@ export function Products({ initialCategory }: { initialCategory?: string } = {})
               <ProductCard
                 key={product.id}
                 product={product}
+                category={findCategory(product, storeCategories)}
                 inWishlist={wishlist.has(product.id)}
                 wasAdded={added.has(product.id)}
                 onWishlist={() => toggleWishlist(product.id)}
-                onAddToCart={() => handleAddToCart(product)}
+                onAddToCart={(variant, label) => handleAddToCart(product, variant, label)}
               />
             ))}
           </div>
@@ -169,19 +183,55 @@ export function Products({ initialCategory }: { initialCategory?: string } = {})
 
 function ProductCard({
   product,
+  category,
   inWishlist,
   wasAdded,
   onWishlist,
   onAddToCart,
 }: {
   product: Product;
+  category?: Category;
   inWishlist: boolean;
   wasAdded: boolean;
   onWishlist: () => void;
-  onAddToCart: () => void;
+  onAddToCart: (variant: ProductVariant | null, label?: string) => void;
 }) {
+  const variants = product.variants ?? [];
+  const withVariants = hasVariants(product);
+
+  // Opciones elegibles: cada característica variante con los valores que tiene este producto.
+  // Si la categoría ya no tiene esas características, se elige directo entre las variantes.
+  const groups = variantAttributes(category)
+    .map((a) => ({
+      attr: a,
+      values: Array.from(new Set(variants.map((v) => v.options[a.id]).filter(Boolean))),
+    }))
+    .filter((g) => g.values.length > 0);
+
+  const [selected, setSelected] = useState<Record<string, string>>(
+    () => (variants.find((v) => v.stock > 0) ?? variants[0])?.options ?? {}
+  );
+  const [fallbackVariantId, setFallbackVariantId] = useState<string | undefined>(
+    () => (variants.find((v) => v.stock > 0) ?? variants[0])?.id
+  );
+
+  const selectedVariant: ProductVariant | null = !withVariants
+    ? null
+    : groups.length > 0
+    ? variants.find((v) => groups.every((g) => v.options[g.attr.id] === selected[g.attr.id])) ?? null
+    : variants.find((v) => v.id === fallbackVariantId) ?? null;
+
+  const isValueAvailable = (attrId: string, value: string) =>
+    variants.some(
+      (v) => v.stock > 0 && groups.every((g) => v.options[g.attr.id] === (g.attr.id === attrId ? value : selected[g.attr.id]))
+    );
+
+  const price = variantPrice(product, selectedVariant);
+  const stock = withVariants ? selectedVariant?.stock ?? 0 : product.stock;
   const isOutOfStock = product.stock <= 0;
-  const isLowStock = product.stock > 0 && product.stock <= 3;
+  const isSelectionUnavailable = !isOutOfStock && stock <= 0;
+  const isLowStock = stock > 0 && stock <= 3;
+  const specs = fixedAttributesSummary(product, category);
 
   const defaultBadge = product.badgeType ? badgeConfig[product.badgeType] : null;
   const badge = isOutOfStock
@@ -323,7 +373,68 @@ function ProductCard({
           >
             {product.name}
           </h3>
+          {specs && (
+            <p style={{ fontSize: "0.68rem", color: "var(--muted-foreground)", margin: "0.3rem 0 0", lineHeight: 1.4 }}>
+              {specs}
+            </p>
+          )}
         </div>
+
+        {/* Selector de variantes (ej: colores de un alambre) */}
+        {withVariants && (
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            {groups.length > 0 ? (
+              groups.map((g) => (
+                <div key={g.attr.id}>
+                  <div style={{ fontSize: "0.62rem", color: "var(--muted-foreground)", marginBottom: "0.3rem" }}>
+                    {g.attr.name}: <strong style={{ color: "var(--foreground)" }}>{selected[g.attr.id] ?? "—"}</strong>
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.3rem" }}>
+                    {g.values.map((value) => {
+                      const isSel = selected[g.attr.id] === value;
+                      const available = isValueAvailable(g.attr.id, value);
+                      return (
+                        <button
+                          key={value}
+                          type="button"
+                          onClick={() => setSelected((prev) => ({ ...prev, [g.attr.id]: value }))}
+                          title={available ? value : `${value} (sin stock)`}
+                          style={{
+                            fontFamily: "var(--font-body)",
+                            fontSize: "0.65rem",
+                            padding: "0.22rem 0.6rem",
+                            borderRadius: "1rem",
+                            cursor: "pointer",
+                            border: isSel ? "1px solid var(--primary)" : "1px solid var(--border)",
+                            backgroundColor: isSel ? "var(--primary)" : "transparent",
+                            color: isSel ? "var(--primary-foreground)" : "var(--foreground)",
+                            opacity: available ? 1 : 0.45,
+                            textDecoration: available ? "none" : "line-through",
+                          }}
+                        >
+                          {value}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <select
+                value={fallbackVariantId}
+                onChange={(e) => setFallbackVariantId(e.target.value)}
+                style={{ padding: "0.35rem 0.5rem", borderRadius: "0.4rem", border: "1px solid var(--border)", fontSize: "0.72rem" }}
+              >
+                {variants.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {variantLabel(v, category)}
+                    {v.stock <= 0 ? " (sin stock)" : ""}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        )}
 
         {/* Price & Stock info */}
         <div
@@ -343,7 +454,7 @@ function ProductCard({
                 color: "var(--primary)",
               }}
             >
-              {formatCLP(product.price)}
+              {formatCLP(price)}
             </span>
             <span
               style={{
@@ -359,37 +470,37 @@ function ProductCard({
           </div>
 
           {/* Stock badge */}
-          {isOutOfStock ? (
+          {stock <= 0 ? (
             <span style={{ fontSize: "0.65rem", color: "var(--destructive)", fontWeight: 600 }}>
               Sin stock
             </span>
           ) : isLowStock ? (
             <span style={{ fontSize: "0.65rem", color: "var(--gold)", fontWeight: 600 }}>
-              ¡Solo {product.stock} un!
+              ¡Solo {stock} un!
             </span>
           ) : (
             <span style={{ fontSize: "0.62rem", color: "var(--muted-foreground)" }}>
-              {product.stock} un. disp.
+              {stock} un. disp.
             </span>
           )}
         </div>
 
         {/* Add button */}
         <button
-          disabled={isOutOfStock}
-          onClick={onAddToCart}
+          disabled={stock <= 0}
+          onClick={() => onAddToCart(selectedVariant, selectedVariant ? variantLabel(selectedVariant, category) : undefined)}
           style={{
             width: "100%",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: "0.4rem",
-            backgroundColor: isOutOfStock
+            backgroundColor: stock <= 0
               ? "var(--muted)"
               : wasAdded
               ? "var(--secondary)"
               : "var(--primary)",
-            color: isOutOfStock ? "var(--muted-foreground)" : "var(--primary-foreground)",
+            color: stock <= 0 ? "var(--muted-foreground)" : "var(--primary-foreground)",
             border: "none",
             borderRadius: "2rem",
             padding: "0.65rem",
@@ -398,12 +509,14 @@ function ProductCard({
             fontWeight: 600,
             letterSpacing: "0.08em",
             textTransform: "uppercase" as const,
-            cursor: isOutOfStock ? "not-allowed" : "pointer",
+            cursor: stock <= 0 ? "not-allowed" : "pointer",
             transition: "background-color 0.25s ease",
           }}
         >
           {isOutOfStock ? (
             "Agotado"
+          ) : isSelectionUnavailable ? (
+            "Opción sin stock"
           ) : wasAdded ? (
             <>
               <Check size={13} strokeWidth={2} />

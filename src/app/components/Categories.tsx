@@ -1,60 +1,44 @@
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
+import { useStore } from "../context/StoreContext";
 
-const categories = [
-  {
-    id: 1,
-    name: "Piedras naturales",
-    categoryKey: "Piedras",
-    sub: "Cuarzo, ámbar, ojo de tigre",
-    image: "https://images.unsplash.com/photo-1560427450-00fa9481f01e?w=900&h=1100&fit=crop&auto=format&q=80",
-    alt: "Colección de piedras naturales multicolor",
-    count: "48 productos",
-    featured: true,
-  },
-  {
-    id: 2,
-    name: "Mostacillas",
-    categoryKey: "Mostacillas",
-    sub: "Decenas de colores y tamaños",
-    image: "https://images.unsplash.com/photo-1560847133-e6f64dc352ea?w=600&h=500&fit=crop&auto=format&q=80",
-    alt: "Mostacillas de colores ensartadas",
-    count: "62 productos",
-    featured: false,
-  },
-  {
-    id: 3,
-    name: "Cristales",
-    categoryKey: "Cristales",
-    sub: "Facetados y brillantes",
-    image: "https://images.unsplash.com/photo-1556376752-19770d78207f?w=600&h=500&fit=crop&auto=format&q=80",
-    alt: "Cristales y gemas facetadas",
-    count: "35 productos",
-    featured: false,
-  },
-  {
-    id: 4,
-    name: "Kits creativos",
-    categoryKey: "Kits",
-    sub: "Para empezar a crear hoy",
-    image: "https://images.unsplash.com/photo-1660911866937-9399bf71af1e?w=600&h=500&fit=crop&auto=format&q=80",
-    alt: "Kit completo de materiales para bisutería",
-    count: "12 kits",
-    featured: false,
-  },
-  {
-    id: 5,
-    name: "Herramientas",
-    categoryKey: "Herramientas",
-    sub: "Hilos, cierres y accesorios",
-    image: "https://images.unsplash.com/photo-1658915250017-bee8f8f0d9a6?w=600&h=500&fit=crop&auto=format&q=80",
-    alt: "Aretes y accesorios artesanales",
-    count: "29 productos",
-    featured: false,
-  },
+type BentoCategory = {
+  id: string;
+  name: string;
+  sub: string;
+  image: string;
+  count: string;
+};
+
+// Posición de cada tarjeta en la grilla (la primera es la grande)
+const BENTO_SPANS: React.CSSProperties[] = [
+  { gridColumn: "span 5", gridRow: "span 2", aspectRatio: "unset" },
+  { gridColumn: "span 4" },
+  { gridColumn: "span 3" },
+  { gridColumn: "span 3" },
+  { gridColumn: "span 4" },
 ];
 
 export function Categories() {
+  const { categories: storeCategories, products } = useStore();
+
+  // Las categorías con foto, en el orden definido en el panel de administración
+  const categories: BentoCategory[] = storeCategories
+    .filter((c) => c.image)
+    .slice(0, BENTO_SPANS.length)
+    .map((c) => {
+      const n = products.filter((p) => p.categoryId === c.id || (!p.categoryId && p.category === c.name)).length;
+      return {
+        id: c.id,
+        name: c.name,
+        sub: c.description ?? "",
+        image: c.image!,
+        count: `${n} producto${n === 1 ? "" : "s"}`,
+      };
+    });
+
+  if (categories.length === 0) return null;
+
   return (
     <section id="categorias" style={{ backgroundColor: "var(--background)", paddingTop: "5rem", paddingBottom: "5rem" }}>
       <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 2rem" }}>
@@ -120,32 +104,9 @@ export function Categories() {
             gap: "0.875rem",
           }}
         >
-          {/* Featured large card — col 1-5, rows 1-2 */}
-          <BentoCard
-            category={categories[0]}
-            style={{ gridColumn: "span 5", gridRow: "span 2", aspectRatio: "unset" }}
-            tall
-          />
-
-          {/* Row 1 — small cards */}
-          <BentoCard
-            category={categories[1]}
-            style={{ gridColumn: "span 4" }}
-          />
-          <BentoCard
-            category={categories[2]}
-            style={{ gridColumn: "span 3" }}
-          />
-
-          {/* Row 2 — small cards */}
-          <BentoCard
-            category={categories[3]}
-            style={{ gridColumn: "span 3" }}
-          />
-          <BentoCard
-            category={categories[4]}
-            style={{ gridColumn: "span 4" }}
-          />
+          {categories.map((category, i) => (
+            <BentoCard key={category.id} category={category} style={BENTO_SPANS[i]} tall={i === 0} />
+          ))}
         </div>
 
         {/* Mobile grid override */}
@@ -175,13 +136,13 @@ function BentoCard({
   style,
   tall = false,
 }: {
-  category: (typeof categories)[0];
+  category: BentoCategory;
   style?: React.CSSProperties;
   tall?: boolean;
 }) {
   return (
     <Link
-      to={`/productos?categoria=${encodeURIComponent(category.categoryKey)}`}
+      to={`/productos?categoria=${encodeURIComponent(category.name)}`}
       className={tall ? "bento-card-featured" : "bento-card-small"}
       style={{
         position: "relative",
@@ -197,7 +158,7 @@ function BentoCard({
     >
       <img
         src={category.image}
-        alt={category.alt}
+        alt={category.name}
         style={{
           width: "100%",
           height: "100%",

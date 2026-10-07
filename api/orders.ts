@@ -139,19 +139,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // 2. Insertar ítems y descontar stock
       for (const item of items as any[]) {
         await sql`
-          INSERT INTO order_items (order_id, product_id, product_name, price, quantity, image)
+          INSERT INTO order_items (order_id, product_id, product_name, price, quantity, image, variant_id, variant_label)
           VALUES (
             ${order.id},
             ${item.product_id ?? null},
             ${item.product_name},
             ${Number(item.price)},
             ${Number(item.quantity)},
-            ${item.image ?? null}
+            ${item.image ?? null},
+            ${item.variant_id ?? null},
+            ${item.variant_label ?? null}
           )
         `;
 
-        // Descontar stock si existe el product_id
-        if (item.product_id) {
+        // Descontar stock: de la variante (y el producto queda con la suma) o del producto
+        if (item.variant_id) {
+          await sql`
+            UPDATE product_variants
+            SET stock = GREATEST(0, stock - ${Number(item.quantity)})
+            WHERE id = ${item.variant_id}
+          `;
+          await sql`
+            UPDATE products
+            SET stock = (SELECT COALESCE(SUM(stock), 0) FROM product_variants WHERE product_id = products.id)
+            WHERE id = (SELECT product_id FROM product_variants WHERE id = ${item.variant_id})
+          `;
+        } else if (item.product_id) {
           await sql`
             UPDATE products
             SET stock = GREATEST(0, stock - ${Number(item.quantity)})

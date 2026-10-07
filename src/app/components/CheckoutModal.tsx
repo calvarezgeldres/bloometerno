@@ -4,6 +4,7 @@ import { useStore } from "../context/StoreContext";
 import { CHILE_REGIONS, SHIPPING_METHODS } from "../data/chileData";
 import { formatRut, isValidRut } from "../../lib/rut";
 import { db } from "../../lib/db";
+import { variantPrice } from "../../lib/catalog";
 
 function formatCLP(amount: number): string {
   return `$${amount.toLocaleString("es-CL")}`;
@@ -103,9 +104,11 @@ export const CheckoutModal: React.FC = () => {
           items: cart.map((i) => ({
             product_id: typeof i.product.id === "string" && i.product.id.includes("-") ? i.product.id : null,
             product_name: i.product.name,
-            price: i.product.price,
+            price: variantPrice(i.product, i.variant),
             quantity: i.quantity,
             image: i.product.image,
+            variant_id: i.variant?.id ?? null,
+            variant_label: i.variantLabel ?? null,
           })),
         });
         window.location.href = init_point;
@@ -131,9 +134,11 @@ export const CheckoutModal: React.FC = () => {
         items: cart.map((i) => ({
           productId: i.product.id,
           productName: i.product.name,
-          price: i.product.price,
+          price: variantPrice(i.product, i.variant),
           quantity: i.quantity,
           image: i.product.image,
+          variantId: i.variant?.id ?? null,
+          variantLabel: i.variantLabel ?? null,
         })),
       });
 
@@ -161,7 +166,10 @@ Correo: ${settings.contactEmail}`;
     if (!completedOrder) return "#";
     const cleanPhone = settings.whatsappNumber.replace(/[^0-9]/g, "");
     const itemsSummary = completedOrder.items
-      .map((i: any) => `• ${i.quantity}x ${i.productName} (${formatCLP(i.price * i.quantity)})`)
+      .map(
+        (i: any) =>
+          `• ${i.quantity}x ${i.productName}${i.variantLabel ? ` — ${i.variantLabel}` : ""} (${formatCLP(i.price * i.quantity)})`
+      )
       .join("\n");
 
     const message = `🌸 *Nuevo Pedido Bloom Eterno*

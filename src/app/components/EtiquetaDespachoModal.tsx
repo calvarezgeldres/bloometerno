@@ -100,6 +100,7 @@ export const EtiquetaDespachoModal: React.FC<Props> = ({ order, settings, onClos
             {order.items.map((item, i) => (
               <div key={i}>
                 {item.quantity}x {item.productName}
+                {item.variantLabel ? ` — ${item.variantLabel}` : ""}
               </div>
             ))}
           </div>

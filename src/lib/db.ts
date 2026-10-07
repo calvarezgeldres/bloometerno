@@ -37,20 +37,74 @@ export interface DbProduct {
   description: string | null;
   is_active: boolean;
   created_at: string;
+  category_id: string | null;
+  attributes: Record<string, string>;
+  variants: DbVariant[];
 }
 
+export interface DbVariant {
+  id: string;
+  product_id: string;
+  options: Record<string, string>;
+  stock: number;
+  price: number | null;
+  sort_order: number;
+}
+
+/** Variante tal como se envía a la API: sin id (o con un id que la API no conoce) = variante nueva. */
+export type DbVariantInput = { id?: string; options: Record<string, string>; stock: number; price: number | null };
+
+export type DbProductInput = Omit<DbProduct, "id" | "created_at" | "is_active" | "variants"> & {
+  variants?: DbVariantInput[];
+};
+
+export interface DbCategory {
+  id: string;
+  name: string;
+  description: string | null;
+  image: string | null;
+  attributes: { id: string; name: string; isVariant: boolean }[];
+  sort_order: number;
+  product_count: number;
+  created_at: string;
+}
+
+export type DbCategoryInput = Partial<Pick<DbCategory, "name" | "description" | "image" | "attributes" | "sort_order">>;
+
 export const db = {
+  categories: {
+    list: (): Promise<DbCategory[]> =>
+      apiFetch("/api/categories"),
+
+    create: (data: DbCategoryInput): Promise<DbCategory> =>
+      apiFetch("/api/categories", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+
+    update: (id: string, updates: DbCategoryInput): Promise<DbCategory> =>
+      apiFetch("/api/categories", {
+        method: "PATCH",
+        body: JSON.stringify({ id, ...updates }),
+      }),
+
+    delete: (id: string): Promise<{ ok: boolean }> =>
+      apiFetch(`/api/categories?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      }),
+  },
+
   products: {
     list: (): Promise<DbProduct[]> =>
       apiFetch("/api/products"),
 
-    create: (data: Omit<DbProduct, "id" | "created_at" | "is_active">): Promise<DbProduct> =>
+    create: (data: DbProductInput): Promise<DbProduct> =>
       apiFetch("/api/products", {
         method: "POST",
         body: JSON.stringify(data),
       }),
 
-    update: (id: string, updates: Partial<Omit<DbProduct, "id" | "created_at">>): Promise<DbProduct> =>
+    update: (id: string, updates: Partial<DbProductInput & { is_active: boolean }>): Promise<DbProduct> =>
       apiFetch("/api/products", {
         method: "PATCH",
         body: JSON.stringify({ id, ...updates }),

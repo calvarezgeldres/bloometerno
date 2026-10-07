@@ -1,3 +1,33 @@
+/**
+ * Característica de una categoría (ej: "Calibre", "Color").
+ * isVariant = el producto puede tener varias opciones de esta característica y
+ * el cliente elige una al comprar; cada combinación es una ProductVariant con su stock.
+ */
+export type CategoryAttribute = {
+  id: string;
+  name: string;
+  isVariant: boolean;
+};
+
+export type Category = {
+  id: string;
+  name: string;
+  description?: string | null;
+  image?: string | null;
+  attributes: CategoryAttribute[];
+  sortOrder: number;
+  productCount?: number;
+};
+
+export type ProductVariant = {
+  id: string;
+  /** { "<id característica>": "Dorado" } */
+  options: Record<string, string>;
+  stock: number;
+  /** null = usa el precio del producto */
+  price?: number | null;
+};
+
 export type Product = {
   id: string | number;
   num: string;
@@ -5,6 +35,10 @@ export type Product = {
   price: number;
   stock: number;
   category: string;
+  categoryId?: string | null;
+  /** Valores de las características fijas: { "<id característica>": "0,8 mm" } */
+  attributes?: Record<string, string>;
+  variants?: ProductVariant[];
   badge?: string | null;
   badgeType?: "new" | "hot" | "limited" | null;
   image: string;
@@ -16,6 +50,9 @@ export type Product = {
 export type CartItem = {
   product: Product;
   quantity: number;
+  variant?: ProductVariant | null;
+  /** Texto legible de la variante, ej: "Color: Dorado" */
+  variantLabel?: string;
 };
 
 export type ShippingMethod = {
@@ -53,6 +90,8 @@ export type Order = {
     price: number;
     quantity: number;
     image?: string;
+    variantId?: string | null;
+    variantLabel?: string | null;
   }[];
   createdAt: string;
 };

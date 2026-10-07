@@ -15,11 +15,15 @@ import {
   Lock,
   LogOut,
   Printer,
+  Tags,
 } from "lucide-react";
 import { useStore } from "../context/StoreContext";
-import { Product, Order } from "../types/store";
+import { Product, Order, ProductVariant } from "../types/store";
 import { db } from "../../lib/db";
+import { findCategory, variantAttributes, variantLabel } from "../../lib/catalog";
 import { EtiquetaDespachoModal } from "../components/EtiquetaDespachoModal";
+import { CategoriesManager } from "../components/admin/CategoriesManager";
+import { ProductAttributesEditor } from "../components/admin/ProductAttributesEditor";
 
 function formatCLP(amount: number): string {
   return `$${amount.toLocaleString("es-CL")}`;
@@ -36,6 +40,7 @@ const PRESET_IMAGES = [
 export const AdminPage: React.FC = () => {
   const {
     products,
+    categories: storeCategories,
     orders,
     settings,
     isCloudConnected,
@@ -86,7 +91,7 @@ export const AdminPage: React.FC = () => {
     setIsAuthenticated(false);
   };
 
-  const [activeTab, setActiveTab] = useState<"inventory" | "orders" | "settings">("inventory");
+  const [activeTab, setActiveTab] = useState<"inventory" | "categories" | "orders" | "settings">("inventory");
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("Todas");
   const [showAddForm, setShowAddForm] = useState(false);
@@ -95,7 +100,10 @@ export const AdminPage: React.FC = () => {
 
   // Formulario de Producto
   const [newName, setNewName] = useState("");
-  const [newCategory, setNewCategory] = useState("Mostacillas");
+  const [newCategoryId, setNewCategoryId] = useState("");
+  const [newAttributes, setNewAttributes] = useState<Record<string, string>>({});
+  const [newVariants, setNewVariants] = useState<ProductVariant[]>([]);
+  const [isSavingProduct, setIsSavingProduct] = useState(false);
   const [newPrice, setNewPrice] = useState("2990");
   const [newStock, setNewStock] = useState("15");
   const [newImage, setNewImage] = useState(PRESET_IMAGES[0].url);
@@ -116,7 +124,43 @@ export const AdminPage: React.FC = () => {
   const totalStockUnits = products.reduce((acc, p) => acc + p.stock, 0);
   const outOfStockCount = products.filter((p) => p.stock === 0).length;
 
-  const categories = ["Todas", ...Array.from(new Set(products.map((p) => p.category)))];
+  const sortedCategories = [...storeCategories].sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name));
+  const categories = [
+    "Todas",
+    ...sortedCategories.map((c) => c.name),
+    ...Array.from(new Set(products.map((p) => p.category))).filter((name) => !storeCategories.some((c) => c.name === name)),
+  ];
+  const selectedCategory = storeCategories.find((c) => c.id === newCategoryId);
+
+  // Valores ya usados en otros productos de la categoría elegida: se sugieren al cargar
+  const attributeSuggestions: Record<string, string[]> = {};
+  if (selectedCategory) {
+    const sameCategory = products.filter((p) => findCategory(p, storeCategories)?.id === selectedCategory.id);
+    for (const a of selectedCategory.attributes) {
+      const vals = sameCategory.flatMap((p) =>
+        a.isVariant ? (p.variants ?? []).map((v) => v.options[a.id]) : [p.attributes?.[a.id]]
+      );
+      attributeSuggestions[a.id] = Array.from(new Set(vals.filter((v): v is string => Boolean(v)))).sort();
+    }
+  }
+
+  const handleCategoryChange = (id: string) => {
+    if (newVariants.length > 0 && !confirm("Al cambiar de categoría se pierden las variantes cargadas. ¿Continuar?")) return;
+    setNewCategoryId(id);
+    setNewAttributes({});
+    setNewVariants([]);
+  };
+
+  const resetProductForm = () => {
+    setNewName("");
+    setNewPrice("2990");
+    setNewStock("15");
+    setNewBadge("");
+    setNewDescription("");
+    setNewCategoryId(sortedCategories[0]?.id ?? "");
+    setNewAttributes({});
+    setNewVariants([]);
+  };
 
   const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -131,51 +175,60 @@ export const AdminPage: React.FC = () => {
       alert("Por favor completa nombre, precio e imagen");
       return;
     }
+    if (!selectedCategory) {
+      alert("Elige una categoría (puedes crearlas en la pestaña Categorías)");
+      return;
+    }
 
     let badgeType: Product["badgeType"] = null;
     if (newBadge === "Nuevo") badgeType = "new";
     if (newBadge === "Más vendido") badgeType = "hot";
     if (newBadge === "Ed. Limitada") badgeType = "limited";
 
-    if (editingProductId) {
-      await updateProduct(editingProductId, {
-        name: newName,
-        category: newCategory,
-        price: parseInt(newPrice, 10) || 0,
-        stock: parseInt(newStock, 10) || 0,
-        image: newImage,
-        badge: newBadge || null,
-        badgeType,
-        description: newDescription,
-      });
-      setEditingProductId(null);
-    } else {
-      await addProduct({
-        name: newName,
-        category: newCategory,
-        price: parseInt(newPrice, 10) || 0,
-        stock: parseInt(newStock, 10) || 0,
-        image: newImage,
-        num: String(products.length + 1).padStart(2, "0"),
-        badge: newBadge || null,
-        badgeType,
-        description: newDescription,
-        isActive: true,
-      });
+    // Solo se guardan los valores de características que existen en la categoría
+    const attributes: Record<string, string> = {};
+    for (const a of selectedCategory.attributes) {
+      const value = newAttributes[a.id]?.trim();
+      if (!a.isVariant && value) attributes[a.id] = value;
     }
 
-    setNewName("");
-    setNewPrice("2990");
-    setNewStock("15");
-    setNewBadge("");
-    setNewDescription("");
-    setShowAddForm(false);
+    const data = {
+      name: newName,
+      category: selectedCategory.name,
+      categoryId: selectedCategory.id,
+      attributes,
+      variants: newVariants,
+      price: parseInt(newPrice, 10) || 0,
+      stock: newVariants.length > 0 ? newVariants.reduce((acc, v) => acc + v.stock, 0) : parseInt(newStock, 10) || 0,
+      image: newImage,
+      badge: newBadge || null,
+      badgeType,
+      description: newDescription,
+    };
+
+    setIsSavingProduct(true);
+    try {
+      if (editingProductId) {
+        await updateProduct(editingProductId, data);
+        setEditingProductId(null);
+      } else {
+        await addProduct({ ...data, num: String(products.length + 1).padStart(2, "0"), isActive: true });
+      }
+      resetProductForm();
+      setShowAddForm(false);
+    } catch (err: any) {
+      alert(`No se pudo guardar el producto: ${err.message || "error desconocido"}`);
+    } finally {
+      setIsSavingProduct(false);
+    }
   };
 
   const startEditProduct = (p: Product) => {
     setEditingProductId(p.id);
     setNewName(p.name);
-    setNewCategory(p.category);
+    setNewCategoryId(findCategory(p, storeCategories)?.id ?? "");
+    setNewAttributes(p.attributes ?? {});
+    setNewVariants(p.variants ?? []);
     setNewPrice(String(p.price));
     setNewStock(String(p.stock));
     setNewImage(p.image);
@@ -419,6 +472,7 @@ export const AdminPage: React.FC = () => {
         >
           {[
             { id: "inventory", label: "Inventario & Productos", icon: Package, count: products.length },
+            { id: "categories", label: "Categorías", icon: Tags, count: storeCategories.length },
             { id: "orders", label: "Historial de Pedidos", icon: ShoppingCart, count: orders.length },
             { id: "settings", label: "Datos Bancarios & Configuración", icon: Settings },
           ].map((tab) => {
@@ -577,7 +631,7 @@ export const AdminPage: React.FC = () => {
                 onClick={() => {
                   setShowAddForm(!showAddForm);
                   setEditingProductId(null);
-                  setNewName("");
+                  resetProductForm();
                 }}
                 style={{
                   backgroundColor: "var(--primary)",
@@ -652,16 +706,19 @@ export const AdminPage: React.FC = () => {
                       Categoría *
                     </label>
                     <select
-                      value={newCategory}
-                      onChange={(e) => setNewCategory(e.target.value)}
+                      required
+                      value={newCategoryId}
+                      onChange={(e) => handleCategoryChange(e.target.value)}
                       style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "0.4rem", border: "1px solid var(--border)", fontSize: "0.85rem", boxSizing: "border-box" }}
                     >
-                      <option value="Mostacillas">Mostacillas</option>
-                      <option value="Piedras">Piedras</option>
-                      <option value="Cristales">Cristales</option>
-                      <option value="Kits">Kits</option>
-                      <option value="Herramientas">Herramientas</option>
-                      <option value="Dijes">Dijes</option>
+                      <option value="" disabled>
+                        {sortedCategories.length === 0 ? "Crea una categoría primero" : "Elige una categoría"}
+                      </option>
+                      {sortedCategories.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
@@ -681,18 +738,30 @@ export const AdminPage: React.FC = () => {
 
                   <div>
                     <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.3rem" }}>
-                      Stock Inicial *
+                      {newVariants.length > 0 ? "Stock (suma de variantes)" : "Stock Inicial *"}
                     </label>
                     <input
                       required
                       type="number"
-                      value={newStock}
+                      disabled={newVariants.length > 0}
+                      value={newVariants.length > 0 ? newVariants.reduce((acc, v) => acc + v.stock, 0) : newStock}
                       onChange={(e) => setNewStock(e.target.value)}
                       placeholder="10"
                       style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "0.4rem", border: "1px solid var(--border)", fontSize: "0.85rem", boxSizing: "border-box" }}
                     />
                   </div>
                 </div>
+
+                <ProductAttributesEditor
+                  key={`${editingProductId ?? "nuevo"}-${newCategoryId}`}
+                  category={selectedCategory}
+                  attributes={newAttributes}
+                  onAttributesChange={setNewAttributes}
+                  variants={newVariants}
+                  onVariantsChange={setNewVariants}
+                  basePrice={parseInt(newPrice, 10) || 0}
+                  suggestions={attributeSuggestions}
+                />
 
                 <div>
                   <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.3rem" }}>
@@ -765,18 +834,20 @@ export const AdminPage: React.FC = () => {
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem" }}>
                   <button
                     type="submit"
+                    disabled={isSavingProduct}
                     style={{
                       backgroundColor: "var(--primary)",
                       color: "var(--primary-foreground)",
                       padding: "0.65rem 1.75rem",
                       border: "none",
                       borderRadius: "2rem",
-                      cursor: "pointer",
+                      cursor: isSavingProduct ? "default" : "pointer",
+                      opacity: isSavingProduct ? 0.7 : 1,
                       fontSize: "0.82rem",
                       fontWeight: 600,
                     }}
                   >
-                    {editingProductId ? "Guardar Modificaciones" : "Guardar Producto"}
+                    {isSavingProduct ? "Guardando…" : editingProductId ? "Guardar Modificaciones" : "Guardar Producto"}
                   </button>
                 </div>
               </form>
@@ -807,6 +878,8 @@ export const AdminPage: React.FC = () => {
                   {filteredProducts.map((p) => {
                     const isOutOfStock = p.stock <= 0;
                     const isLowStock = p.stock > 0 && p.stock <= 3;
+                    const pVariants = p.variants ?? [];
+                    const pCategory = findCategory(p, storeCategories);
 
                     return (
                       <tr key={p.id} style={{ borderBottom: "1px solid var(--border)" }}>
@@ -824,6 +897,13 @@ export const AdminPage: React.FC = () => {
                                 ★ {p.badge}
                               </span>
                             )}
+                            {pVariants.length > 0 && (
+                              <div style={{ fontSize: "0.7rem", color: "var(--muted-foreground)", marginTop: "0.15rem" }}>
+                                {pVariants.length} variante{pVariants.length === 1 ? "" : "s"}
+                                {variantAttributes(pCategory).length > 0 &&
+                                  ` · ${variantAttributes(pCategory).map((a) => a.name).join(", ")}`}
+                              </div>
+                            )}
                           </div>
                         </td>
 
@@ -839,6 +919,17 @@ export const AdminPage: React.FC = () => {
 
                         {/* Stock Controls */}
                         <td style={{ padding: "0.75rem 0.9rem" }}>
+                          {pVariants.length > 0 ? (
+                            // Con variantes el stock se maneja por opción, desde la ficha del producto
+                            <div style={{ fontSize: "0.75rem", lineHeight: 1.5 }}>
+                              <div style={{ fontWeight: 700, fontSize: "0.85rem" }}>{p.stock} un. en total</div>
+                              {pVariants.map((v) => (
+                                <div key={v.id} style={{ color: v.stock <= 0 ? "var(--destructive)" : "var(--muted-foreground)" }}>
+                                  {variantLabel(v, pCategory)}: {v.stock}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
                           <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
                             <button
                               onClick={() => updateStock(p.id, p.stock - 1)}
@@ -881,6 +972,7 @@ export const AdminPage: React.FC = () => {
                               +
                             </button>
                           </div>
+                          )}
                         </td>
 
                         {/* Status */}
@@ -929,6 +1021,8 @@ export const AdminPage: React.FC = () => {
             </div>
           </div>
         )}
+
+        {activeTab === "categories" && <CategoriesManager />}
 
         {/* ==================================================================== */}
         {/* TAB 2: HISTORIAL DE PEDIDOS                                          */}
@@ -1122,7 +1216,10 @@ export const AdminPage: React.FC = () => {
                           {item.image && (
                             <img src={item.image} alt="" style={{ width: "28px", height: "28px", borderRadius: "0.25rem", objectFit: "cover" }} />
                           )}
-                          <span><strong>{item.quantity}x</strong> {item.productName}</span>
+                          <span>
+                            <strong>{item.quantity}x</strong> {item.productName}
+                            {item.variantLabel && <span style={{ color: "var(--muted-foreground)" }}> — {item.variantLabel}</span>}
+                          </span>
                           <span style={{ color: "var(--muted-foreground)" }}>({formatCLP(item.price * item.quantity)})</span>
                         </div>
                       ))}

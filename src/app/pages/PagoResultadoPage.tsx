@@ -148,7 +148,10 @@ export const PagoResultadoPage: React.FC = () => {
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", fontSize: "0.82rem", color: "var(--foreground)", borderTop: "1px dashed var(--border)", paddingTop: "0.75rem" }}>
                     {mappedOrder.items.map((item, i) => (
                       <div key={i} style={{ display: "flex", justifyContent: "space-between" }}>
-                        <span>{item.quantity}x {item.productName}</span>
+                        <span>
+                          {item.quantity}x {item.productName}
+                          {item.variantLabel ? ` — ${item.variantLabel}` : ""}
+                        </span>
                         <span style={{ fontWeight: 600 }}>{formatCLP(item.price * item.quantity)}</span>
                       </div>
                     ))}

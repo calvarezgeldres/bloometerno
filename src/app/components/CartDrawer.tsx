@@ -1,6 +1,7 @@
 import React from "react";
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Truck } from "lucide-react";
 import { useStore } from "../context/StoreContext";
+import { cartKey, variantPrice } from "../../lib/catalog";
 
 function formatCLP(amount: number): string {
   return `$${amount.toLocaleString("es-CL")}`;
@@ -270,13 +271,14 @@ export const CartDrawer: React.FC = () => {
               </button>
             </div>
           ) : (
-            cart.map(({ product, quantity }) => {
-              const maxStock = product.stock;
+            cart.map(({ product, quantity, variant, variantLabel }) => {
+              const maxStock = variant ? variant.stock : product.stock;
               const isAtMax = quantity >= maxStock;
+              const variantId = variant?.id ?? null;
 
               return (
                 <div
-                  key={product.id}
+                  key={cartKey(product.id, variantId)}
                   style={{
                     display: "flex",
                     gap: "1rem",
@@ -333,6 +335,11 @@ export const CartDrawer: React.FC = () => {
                     >
                       {product.name}
                     </h4>
+                    {variantLabel && (
+                      <p style={{ margin: "-0.2rem 0 0.35rem", fontSize: "0.7rem", color: "var(--muted-foreground)" }}>
+                        {variantLabel}
+                      </p>
+                    )}
 
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span
@@ -343,7 +350,7 @@ export const CartDrawer: React.FC = () => {
                           color: "var(--primary)",
                         }}
                       >
-                        {formatCLP(product.price * quantity)}
+                        {formatCLP(variantPrice(product, variant) * quantity)}
                       </span>
 
                       {/* Quantity Controls */}
@@ -358,7 +365,7 @@ export const CartDrawer: React.FC = () => {
                         }}
                       >
                         <button
-                          onClick={() => updateQuantity(product.id, quantity - 1)}
+                          onClick={() => updateQuantity(product.id, quantity - 1, variantId)}
                           style={{
                             background: "none",
                             border: "none",
@@ -385,7 +392,7 @@ export const CartDrawer: React.FC = () => {
                         </span>
                         <button
                           disabled={isAtMax}
-                          onClick={() => updateQuantity(product.id, quantity + 1)}
+                          onClick={() => updateQuantity(product.id, quantity + 1, variantId)}
                           style={{
                             background: "none",
                             border: "none",
@@ -412,7 +419,7 @@ export const CartDrawer: React.FC = () => {
 
                   {/* Remove Button */}
                   <button
-                    onClick={() => removeFromCart(product.id)}
+                    onClick={() => removeFromCart(product.id, variantId)}
                     style={{
                       background: "none",
                       border: "none",
