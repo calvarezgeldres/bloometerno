@@ -24,18 +24,12 @@ import { findCategory, variantAttributes, variantLabel } from "../../lib/catalog
 import { EtiquetaDespachoModal } from "../components/EtiquetaDespachoModal";
 import { CategoriesManager } from "../components/admin/CategoriesManager";
 import { ProductAttributesEditor } from "../components/admin/ProductAttributesEditor";
+import { ImageUploader } from "../components/admin/ImageUploader";
+import { IMAGE_RULES } from "../../lib/imageUpload";
 
 function formatCLP(amount: number): string {
   return `$${amount.toLocaleString("es-CL")}`;
 }
-
-const PRESET_IMAGES = [
-  { label: "Piedras Amatista", url: "https://images.unsplash.com/photo-1599707367072-cd6ada2bc375?w=600&h=700&fit=crop&auto=format&q=80" },
-  { label: "Perlas Naturales", url: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=700&fit=crop&auto=format&q=80" },
-  { label: "Mostacillas Doradas", url: "https://images.unsplash.com/photo-1611591475883-9b63a03fb7b9?w=600&h=700&fit=crop&auto=format&q=80" },
-  { label: "Ágata Turquesa", url: "https://images.unsplash.com/photo-1617042375876-a13e36732a04?w=600&h=700&fit=crop&auto=format&q=80" },
-  { label: "Kit Macramé", url: "https://images.unsplash.com/photo-1620656798579-1984d9e87dfa?w=600&h=700&fit=crop&auto=format&q=80" },
-];
 
 export const AdminPage: React.FC = () => {
   const {
@@ -106,7 +100,8 @@ export const AdminPage: React.FC = () => {
   const [isSavingProduct, setIsSavingProduct] = useState(false);
   const [newPrice, setNewPrice] = useState("2990");
   const [newStock, setNewStock] = useState("15");
-  const [newImage, setNewImage] = useState(PRESET_IMAGES[0].url);
+  const [newImage, setNewImage] = useState("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [newBadge, setNewBadge] = useState("");
   const [newDescription, setNewDescription] = useState("");
 
@@ -157,6 +152,7 @@ export const AdminPage: React.FC = () => {
     setNewStock("15");
     setNewBadge("");
     setNewDescription("");
+    setNewImage("");
     setNewCategoryId(sortedCategories[0]?.id ?? "");
     setNewAttributes({});
     setNewVariants([]);
@@ -171,6 +167,10 @@ export const AdminPage: React.FC = () => {
 
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isUploadingImage) {
+      alert("Espera a que termine de subir la imagen");
+      return;
+    }
     if (!newName || !newPrice || !newImage) {
       alert("Por favor completa nombre, precio e imagen");
       return;
@@ -765,39 +765,15 @@ export const AdminPage: React.FC = () => {
 
                 <div>
                   <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.3rem" }}>
-                    URL de la Imagen *
+                    Imagen del Producto *
                   </label>
-                  <input
-                    required
-                    type="url"
+                  <ImageUploader
                     value={newImage}
-                    onChange={(e) => setNewImage(e.target.value)}
-                    placeholder="https://images.unsplash.com/..."
-                    style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "0.4rem", border: "1px solid var(--border)", fontSize: "0.85rem", boxSizing: "border-box", marginBottom: "0.5rem" }}
+                    onChange={setNewImage}
+                    folder="productos"
+                    rules={IMAGE_RULES.product}
+                    onUploadingChange={setIsUploadingImage}
                   />
-
-                  {/* Fotos Temáticas */}
-                  <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
-                    <span style={{ fontSize: "0.72rem", color: "var(--muted-foreground)" }}>Fotos de muestra sugeridas:</span>
-                    {PRESET_IMAGES.map((preset) => (
-                      <button
-                        key={preset.label}
-                        type="button"
-                        onClick={() => setNewImage(preset.url)}
-                        style={{
-                          fontSize: "0.72rem",
-                          padding: "0.25rem 0.65rem",
-                          border: "1px solid var(--border)",
-                          borderRadius: "1rem",
-                          background: newImage === preset.url ? "var(--primary)" : "var(--background)",
-                          color: newImage === preset.url ? "#fff" : "inherit",
-                          cursor: "pointer",
-                        }}
-                      >
-                        {preset.label}
-                      </button>
-                    ))}
-                  </div>
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: "1rem" }}>
@@ -834,7 +810,7 @@ export const AdminPage: React.FC = () => {
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem" }}>
                   <button
                     type="submit"
-                    disabled={isSavingProduct}
+                    disabled={isSavingProduct || isUploadingImage}
                     style={{
                       backgroundColor: "var(--primary)",
                       color: "var(--primary-foreground)",

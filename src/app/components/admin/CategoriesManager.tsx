@@ -3,6 +3,8 @@ import { Plus, Trash2, Edit2, ArrowUp, ArrowDown, X } from "lucide-react";
 import { useStore } from "../../context/StoreContext";
 import { Category, CategoryAttribute } from "../../types/store";
 import { newLocalId } from "../../../lib/catalog";
+import { IMAGE_RULES } from "../../../lib/imageUpload";
+import { ImageUploader } from "./ImageUploader";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
@@ -37,6 +39,7 @@ export const CategoriesManager: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const sorted = [...categories].sort((a, b) => a.sortOrder - b.sortOrder || a.name.localeCompare(b.name));
 
@@ -231,23 +234,18 @@ export const CategoriesManager: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
-            <div style={{ flex: 1 }}>
-              <label style={labelStyle}>URL de la imagen (portada)</label>
-              <input
-                type="url"
-                value={form.image}
-                onChange={(e) => setForm({ ...form, image: e.target.value })}
-                placeholder="https://..."
-                style={inputStyle}
-              />
-              <span style={{ fontSize: "0.7rem", color: "var(--muted-foreground)" }}>
-                Las categorías con imagen aparecen en la portada de la tienda (hasta 5, en el orden de esta lista).
-              </span>
-            </div>
-            {form.image && (
-              <img src={form.image} alt="" style={{ width: "72px", height: "72px", objectFit: "cover", borderRadius: "0.5rem", backgroundColor: "var(--muted)" }} />
-            )}
+          <div>
+            <label style={labelStyle}>Imagen (portada)</label>
+            <ImageUploader
+              value={form.image}
+              onChange={(url) => setForm((f) => ({ ...f, image: url }))}
+              folder="categorias"
+              rules={IMAGE_RULES.category}
+              onUploadingChange={setUploadingImage}
+            />
+            <span style={{ fontSize: "0.7rem", color: "var(--muted-foreground)" }}>
+              Las categorías con imagen aparecen en la portada de la tienda (hasta 5, en el orden de esta lista).
+            </span>
           </div>
 
           {/* Características */}
@@ -319,7 +317,7 @@ export const CategoriesManager: React.FC = () => {
           <div style={{ display: "flex", justifyContent: "flex-end" }}>
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || uploadingImage}
               style={{
                 backgroundColor: "var(--primary)",
                 color: "var(--primary-foreground)",
