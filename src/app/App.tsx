@@ -3,6 +3,7 @@ import { StoreProvider } from "./context/StoreContext";
 import { PageLayout } from "./components/PageLayout";
 import { StorePage } from "./pages/StorePage";
 import { ProductosPage } from "./pages/ProductosPage";
+import { ProductoDetallePage } from "./pages/ProductoDetallePage";
 import { KitsPage } from "./pages/KitsPage";
 import { NosotrosPage } from "./pages/NosotrosPage";
 import { ContactoPage } from "./pages/ContactoPage";
@@ -73,6 +74,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<StoreLayout />} />
             <Route path="/productos" element={<ProductosPage />} />
+            <Route path="/producto/:id" element={<ProductoDetallePage />} />
             <Route path="/kits" element={<KitsPage />} />
             <Route path="/nosotros" element={<NosotrosPage />} />
             <Route path="/contacto" element={<ContactoPage />} />

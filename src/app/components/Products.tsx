@@ -1,25 +1,18 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Heart, ShoppingBag, Check, AlertCircle } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { Category, Product, ProductVariant } from "../types/store";
-import {
-  findCategory,
-  fixedAttributesSummary,
-  hasVariants,
-  variantAttributes,
-  variantImage,
-  variantLabel,
-  variantPrice,
-} from "../../lib/catalog";
+import { findCategory, fixedAttributesSummary, productPath, variantLabel } from "../../lib/catalog";
+import { useVariantSelection } from "../hooks/useVariantSelection";
 
-const badgeConfig: Record<string, { label: string; bg: string; color: string }> = {
+export const badgeConfig: Record<string, { label: string; bg: string; color: string }> = {
   new: { label: "Nuevo", bg: "var(--secondary)", color: "#fff" },
   hot: { label: "Más vendido", bg: "var(--gold)", color: "#fff" },
   limited: { label: "Ed. Limitada", bg: "var(--pale-pink)", color: "var(--foreground)" },
 };
 
-function formatCLP(n: number) {
+export function formatCLP(n: number) {
   return `$${n.toLocaleString("es-CL")}`;
 }
 
@@ -182,7 +175,7 @@ export function Products({ initialCategory }: { initialCategory?: string } = {})
   );
 }
 
-function ProductCard({
+export function ProductCard({
   product,
   category,
   inWishlist,
@@ -197,53 +190,27 @@ function ProductCard({
   onWishlist: () => void;
   onAddToCart: (variant: ProductVariant | null, label?: string) => void;
 }) {
-  const variants = product.variants ?? [];
-  const withVariants = hasVariants(product);
-
-  // Opciones elegibles: cada característica variante con los valores que tiene este producto.
-  // Si la categoría ya no tiene esas características, se elige directo entre las variantes.
-  const groups = variantAttributes(category)
-    .map((a) => ({
-      attr: a,
-      values: Array.from(new Set(variants.map((v) => v.options[a.id]).filter(Boolean))),
-    }))
-    .filter((g) => g.values.length > 0);
-
-  const [selected, setSelected] = useState<Record<string, string>>(
-    () => (variants.find((v) => v.stock > 0) ?? variants[0])?.options ?? {}
-  );
-  const [fallbackVariantId, setFallbackVariantId] = useState<string | undefined>(
-    () => (variants.find((v) => v.stock > 0) ?? variants[0])?.id
-  );
-
-  const selectedVariant: ProductVariant | null = !withVariants
-    ? null
-    : groups.length > 0
-    ? variants.find((v) => groups.every((g) => v.options[g.attr.id] === selected[g.attr.id])) ?? null
-    : variants.find((v) => v.id === fallbackVariantId) ?? null;
-
-  const isValueAvailable = (attrId: string, value: string) =>
-    variants.some(
-      (v) => v.stock > 0 && groups.every((g) => v.options[g.attr.id] === (g.attr.id === attrId ? value : selected[g.attr.id]))
-    );
-
-  // Foto de cada opción para el botón: la de la combinación que quedaría elegida o,
-  // si esa no tiene, la de cualquier variante con esa opción (ej: la foto del Dorado
-  // aunque el largo elegido no tenga foto propia).
-  const optionImage = (attrId: string, value: string) =>
-    (
-      variants.find(
-        (v) => v.image && groups.every((g) => v.options[g.attr.id] === (g.attr.id === attrId ? value : selected[g.attr.id]))
-      ) ?? variants.find((v) => v.image && v.options[attrId] === value)
-    )?.image ?? null;
-
-  const image = variantImage(product, selectedVariant);
-  const price = variantPrice(product, selectedVariant);
-  const stock = withVariants ? selectedVariant?.stock ?? 0 : product.stock;
-  const isOutOfStock = product.stock <= 0;
-  const isSelectionUnavailable = !isOutOfStock && stock <= 0;
-  const isLowStock = stock > 0 && stock <= 3;
+  const {
+    variants,
+    withVariants,
+    groups,
+    selected,
+    selectOption,
+    fallbackVariantId,
+    setFallbackVariantId,
+    selectedVariant,
+    isValueAvailable,
+    optionImage,
+    image,
+    price,
+    stock,
+    isOutOfStock,
+    isSelectionUnavailable,
+    isLowStock,
+  } = useVariantSelection(product, category);
   const specs = fixedAttributesSummary(product, category);
+  // El detalle abre con la misma variante que se eligió en la tarjeta
+  const detailPath = productPath(product, selectedVariant);
 
   const defaultBadge = product.badgeType ? badgeConfig[product.badgeType] : null;
   const badge = isOutOfStock
@@ -272,24 +239,26 @@ function ProductCard({
           backgroundColor: "var(--muted)",
         }}
       >
-        <img
-          src={image}
-          alt={selectedVariant ? `${product.name} (${variantLabel(selectedVariant, category)})` : product.alt || product.name}
-          style={{
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            transition: "transform 0.6s ease",
-            display: "block",
-            filter: isOutOfStock ? "grayscale(40%)" : "none",
-          }}
-          onMouseEnter={(e) => {
-            if (!isOutOfStock) e.currentTarget.style.transform = "scale(1.04)";
-          }}
-          onMouseLeave={(e) => {
-            if (!isOutOfStock) e.currentTarget.style.transform = "scale(1)";
-          }}
-        />
+        <Link to={detailPath} aria-label={`Ver detalle de ${product.name}`} style={{ display: "block", height: "100%" }}>
+          <img
+            src={image}
+            alt={selectedVariant ? `${product.name} (${variantLabel(selectedVariant, category)})` : product.alt || product.name}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              transition: "transform 0.6s ease",
+              display: "block",
+              filter: isOutOfStock ? "grayscale(40%)" : "none",
+            }}
+            onMouseEnter={(e) => {
+              if (!isOutOfStock) e.currentTarget.style.transform = "scale(1.04)";
+            }}
+            onMouseLeave={(e) => {
+              if (!isOutOfStock) e.currentTarget.style.transform = "scale(1)";
+            }}
+          />
+        </Link>
 
         {/* Number tag */}
         <div
@@ -383,7 +352,9 @@ function ProductCard({
               margin: 0,
             }}
           >
-            {product.name}
+            <Link to={detailPath} style={{ color: "inherit", textDecoration: "none" }}>
+              {product.name}
+            </Link>
           </h3>
           {specs && (
             <p style={{ fontSize: "0.68rem", color: "var(--muted-foreground)", margin: "0.3rem 0 0", lineHeight: 1.4 }}>
@@ -410,7 +381,7 @@ function ProductCard({
                         <button
                           key={value}
                           type="button"
-                          onClick={() => setSelected((prev) => ({ ...prev, [g.attr.id]: value }))}
+                          onClick={() => selectOption(g.attr.id, value)}
                           title={available ? value : `${value} (sin stock)`}
                           style={{
                             display: "inline-flex",

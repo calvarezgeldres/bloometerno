@@ -148,6 +148,8 @@ interface StoreContextType {
   isCheckoutOpen: boolean;
   isAdminOpen: boolean;
   isCloudConnected: boolean;
+  /** Ya se intentó cargar el catálogo desde la API (con o sin éxito) */
+  isCatalogLoaded: boolean;
   setIsCartOpen: (open: boolean) => void;
   setIsCheckoutOpen: (open: boolean) => void;
   setIsAdminOpen: (open: boolean) => void;
@@ -336,6 +338,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isCloudConnected, setIsCloudConnected] = useState(false);
+  // Hasta que esto sea true, los productos pueden ser los guardados en el navegador
+  // o la semilla: la página de detalle espera antes de decir "no encontrado".
+  const [isCatalogLoaded, setIsCatalogLoaded] = useState(false);
 
   // Persistencia en localStorage
   useEffect(() => {
@@ -415,13 +420,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   useEffect(() => {
     // Verificar conexión y cargar datos al montar
-    checkApiConnection().then((connected) => {
+    checkApiConnection().then(async (connected) => {
       if (connected) {
         fetchNeonCategories();
-        fetchNeonProducts();
         fetchNeonOrders();
         fetchNeonSettings();
+        await fetchNeonProducts();
       }
+      setIsCatalogLoaded(true);
     });
   }, [fetchNeonCategories, fetchNeonProducts, fetchNeonOrders, fetchNeonSettings]);
 
@@ -750,6 +756,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         isCheckoutOpen,
         isAdminOpen,
         isCloudConnected,
+        isCatalogLoaded,
         setIsCartOpen,
         setIsCheckoutOpen,
         setIsAdminOpen,
