@@ -26,6 +26,8 @@ export type ProductVariant = {
   stock: number;
   /** null = usa el precio del producto */
   price?: number | null;
+  /** Foto de esta variante (ej: el alambre en Dorado). null = usa la foto del producto */
+  image?: string | null;
 };
 
 export type Product = {

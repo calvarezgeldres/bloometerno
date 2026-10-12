@@ -1,7 +1,7 @@
 import React from "react";
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Truck } from "lucide-react";
 import { useStore } from "../context/StoreContext";
-import { cartKey, variantPrice } from "../../lib/catalog";
+import { cartKey, variantImage, variantPrice } from "../../lib/catalog";
 
 function formatCLP(amount: number): string {
   return `$${amount.toLocaleString("es-CL")}`;
@@ -301,7 +301,7 @@ export const CartDrawer: React.FC = () => {
                     }}
                   >
                     <img
-                      src={product.image}
+                      src={variantImage(product, variant)}
                       alt={product.name}
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                     />

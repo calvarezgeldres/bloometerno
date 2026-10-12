@@ -32,6 +32,11 @@ export function variantPrice(product: Product, variant?: ProductVariant | null):
   return variant?.price != null ? variant.price : product.price;
 }
 
+/** Foto a mostrar: la de la variante elegida si tiene una propia; si no, la del producto. */
+export function variantImage(product: Product, variant?: ProductVariant | null): string {
+  return variant?.image || product.image;
+}
+
 export function hasVariants(product: Product): boolean {
   return (product.variants?.length ?? 0) > 0;
 }

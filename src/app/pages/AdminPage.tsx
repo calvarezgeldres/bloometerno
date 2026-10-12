@@ -101,7 +101,9 @@ export const AdminPage: React.FC = () => {
   const [newPrice, setNewPrice] = useState("2990");
   const [newStock, setNewStock] = useState("15");
   const [newImage, setNewImage] = useState("");
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingMainImage, setIsUploadingMainImage] = useState(false);
+  const [isUploadingVariantImage, setIsUploadingVariantImage] = useState(false);
+  const isUploadingImage = isUploadingMainImage || isUploadingVariantImage;
   const [newBadge, setNewBadge] = useState("");
   const [newDescription, setNewDescription] = useState("");
 
@@ -761,6 +763,7 @@ export const AdminPage: React.FC = () => {
                   onVariantsChange={setNewVariants}
                   basePrice={parseInt(newPrice, 10) || 0}
                   suggestions={attributeSuggestions}
+                  onUploadingChange={setIsUploadingVariantImage}
                 />
 
                 <div>
@@ -772,7 +775,7 @@ export const AdminPage: React.FC = () => {
                     onChange={setNewImage}
                     folder="productos"
                     rules={IMAGE_RULES.product}
-                    onUploadingChange={setIsUploadingImage}
+                    onUploadingChange={setIsUploadingMainImage}
                   />
                 </div>
 

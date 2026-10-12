@@ -181,3 +181,10 @@ ON CONFLICT (name) DO NOTHING;
 UPDATE products p SET category_id = c.id
 FROM categories c
 WHERE p.category_id IS NULL AND c.name = p.category;
+
+-- ==============================================================================
+-- Foto propia por variante
+-- (mismo contenido que neon/migration_imagen_variantes.sql)
+-- ==============================================================================
+-- NULL = la variante usa la foto principal del producto.
+ALTER TABLE product_variants ADD COLUMN IF NOT EXISTS image TEXT;

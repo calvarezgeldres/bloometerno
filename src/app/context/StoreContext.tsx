@@ -197,6 +197,7 @@ function mapDbProduct(row: any): Product {
       options: v.options ?? {},
       stock: v.stock ?? 0,
       price: v.price ?? null,
+      image: v.image ?? null,
     })),
     badge: row.badge ?? null,
     badgeType: row.badge_type ?? null,
@@ -235,7 +236,13 @@ function toDbProductInput(p: Partial<Product>): Partial<DbProductInput> {
   if (p.alt !== undefined)         out.alt         = p.alt;
   if (p.description !== undefined) out.description = p.description;
   if (p.variants !== undefined) {
-    out.variants = p.variants.map((v) => ({ id: v.id, options: v.options, stock: v.stock, price: v.price ?? null }));
+    out.variants = p.variants.map((v) => ({
+      id: v.id,
+      options: v.options,
+      stock: v.stock,
+      price: v.price ?? null,
+      image: v.image ?? null,
+    }));
   }
   return out;
 }
