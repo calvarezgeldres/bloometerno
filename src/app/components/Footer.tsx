@@ -26,7 +26,7 @@ const navColumns = [
 
 const contactLinks = [
   { Icon: MessageCircle, label: "WhatsApp: +56 9 1234 5678", href: "https://wa.me/56912345678" },
-  { Icon: Instagram, label: "@bloometerno", href: "https://instagram.com" },
+  { Icon: Instagram, label: "@bloometernocl", href: "https://instagram.com/bloometernocl" },
   { Icon: Mail, label: "hola@bloometerno.cl", href: "mailto:hola@bloometerno.cl" },
 ];
 
@@ -81,7 +81,7 @@ export function Footer() {
           {/* Social links */}
           <div style={{ display: "flex", gap: "0.6rem", marginBottom: "1.5rem" }}>
             {[
-              { Icon: Instagram, href: "https://instagram.com", label: "Instagram" },
+              { Icon: Instagram, href: "https://instagram.com/bloometernocl", label: "Instagram" },
               { Icon: MessageCircle, href: "https://wa.me/56912345678", label: "WhatsApp" },
             ].map(({ Icon, href, label }) => (
               <a

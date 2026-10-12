@@ -13,8 +13,8 @@ const contactChannels = [
   {
     Icon: Instagram,
     label: "Instagram",
-    value: "@bloometerno",
-    href: "https://instagram.com",
+    value: "@bloometernocl",
+    href: "https://instagram.com/bloometernocl",
   },
   {
     Icon: Mail,
