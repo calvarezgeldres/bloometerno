@@ -37,14 +37,13 @@ export const AdminPage: React.FC = () => {
     categories: storeCategories,
     orders,
     settings,
-    isCloudConnected,
+    apiStatus,
     addProduct,
     updateStock,
     updateProduct,
     deleteProduct,
     updateOrderStatus,
     updateSettings,
-    resetCatalog,
     refreshOrders,
   } = useStore();
 
@@ -117,6 +116,18 @@ export const AdminPage: React.FC = () => {
   const [whatsappNumber, setWhatsappNumber] = useState(settings.whatsappNumber);
   const [freeShippingThreshold, setFreeShippingThreshold] = useState(String(settings.freeShippingThreshold));
   const [savedSettingsMsg, setSavedSettingsMsg] = useState(false);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
+
+  useEffect(() => {
+    setBankName(settings.bankName);
+    setAccountType(settings.accountType);
+    setAccountNumber(settings.accountNumber);
+    setAccountRut(settings.accountRut);
+    setAccountHolder(settings.accountHolder);
+    setContactEmail(settings.contactEmail);
+    setWhatsappNumber(settings.whatsappNumber);
+    setFreeShippingThreshold(String(settings.freeShippingThreshold));
+  }, [settings]);
 
   const totalStockUnits = products.reduce((acc, p) => acc + p.stock, 0);
   const outOfStockCount = products.filter((p) => p.stock === 0).length;
@@ -240,9 +251,15 @@ export const AdminPage: React.FC = () => {
     window.scrollTo({ top: 200, behavior: "smooth" });
   };
 
-  const handleSaveSettings = (e: React.FormEvent) => {
+  const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateSettings({
+    if (apiStatus !== "connected") {
+      alert("No hay conexión con la base de datos: la configuración no se puede guardar ahora.");
+      return;
+    }
+    setIsSavingSettings(true);
+    try {
+      await updateSettings({
       bankName,
       accountType,
       accountNumber,
@@ -251,9 +268,14 @@ export const AdminPage: React.FC = () => {
       contactEmail,
       whatsappNumber,
       freeShippingThreshold: parseInt(freeShippingThreshold, 10) || 35000,
-    });
-    setSavedSettingsMsg(true);
-    setTimeout(() => setSavedSettingsMsg(false), 2500);
+      });
+      setSavedSettingsMsg(true);
+      setTimeout(() => setSavedSettingsMsg(false), 2500);
+    } catch (err) {
+      alert(`No se pudo guardar la configuración: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setIsSavingSettings(false);
+    }
   };
 
   if (!authChecked) {
@@ -405,11 +427,16 @@ export const AdminPage: React.FC = () => {
                   width: "8px",
                   height: "8px",
                   borderRadius: "50%",
-                  backgroundColor: isCloudConnected ? "#4ade80" : "#fbbf24",
+                  backgroundColor:
+                    apiStatus === "connected" ? "#4ade80" : apiStatus === "error" ? "#f87171" : "#d1d5db",
                 }}
               />
               <span style={{ opacity: 0.9 }}>
-                {isCloudConnected ? "Neon PostgreSQL (Cloud)" : "Modo Local (Navegador Activo)"}
+                {apiStatus === "connected"
+                  ? "Conectado a la base de datos"
+                  : apiStatus === "error"
+                  ? "Sin conexión con la base de datos: los cambios no se guardarán"
+                  : "Conectando…"}
               </span>
             </div>
           </div>
@@ -1329,6 +1356,7 @@ export const AdminPage: React.FC = () => {
               <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginTop: "1rem" }}>
                 <button
                   type="submit"
+                  disabled={isSavingSettings}
                   style={{
                     backgroundColor: "var(--primary)",
                     color: "var(--primary-foreground)",
@@ -1340,7 +1368,7 @@ export const AdminPage: React.FC = () => {
                     cursor: "pointer",
                   }}
                 >
-                  Guardar Configuración
+                  {isSavingSettings ? "Guardando…" : "Guardar Configuración"}
                 </button>
                 {savedSettingsMsg && (
                   <span style={{ fontSize: "0.82rem", color: "var(--primary)", fontWeight: 600 }}>
@@ -1349,34 +1377,6 @@ export const AdminPage: React.FC = () => {
                 )}
               </div>
             </form>
-
-            {/* Zona de Restablecimiento */}
-            <div style={{ marginTop: "4rem", paddingTop: "2rem", borderTop: "1px solid var(--border)" }}>
-              <h3 style={{ fontSize: "0.95rem", color: "var(--destructive)", margin: "0 0 0.4rem" }}>
-                Zona de Restablecimiento
-              </h3>
-              <p style={{ fontSize: "0.78rem", color: "var(--muted-foreground)", margin: "0 0 1rem" }}>
-                Puedes restablecer el catálogo de productos y los datos a sus valores iniciales si deseas reiniciar las pruebas.
-              </p>
-              <button
-                onClick={() => {
-                  if (confirm("¿Estás seguro de que deseas restablecer el catálogo y pedidos al estado original?")) {
-                    resetCatalog();
-                  }
-                }}
-                style={{
-                  backgroundColor: "transparent",
-                  border: "1px solid var(--destructive)",
-                  color: "var(--destructive)",
-                  padding: "0.55rem 1.25rem",
-                  borderRadius: "2rem",
-                  fontSize: "0.78rem",
-                  cursor: "pointer",
-                }}
-              >
-                Restablecer Catálogo Original
-              </button>
-            </div>
           </div>
         )}
       </main>

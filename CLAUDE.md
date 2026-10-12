@@ -74,7 +74,7 @@ logos/                    Archivos fuente del logo (no se sirven)
 
 **Imágenes.** `ImageUploader` valida el peso, las medidas mínimas y la proporción (las reglas están en `IMAGE_RULES`), achica y convierte a WebP en el navegador, y sube directo a Vercel Blob. `/api/upload` solo emite el token, con tipo y tamaño acotados.
 
-**Fallback a localStorage.** `StoreContext` persiste productos, carrito, pedidos y settings en `localStorage`. Si `/api` no responde, la tienda sigue funcionando con datos locales y semilla (`isCloudConnected = false`). Ojo: esto puede ocultar errores de API mientras se desarrolla.
+**Sin modo local.** Catálogo, categorías, pedidos y configuración se leen y escriben **siempre** en Neon vía `/api`. No hay datos semilla en el frontend. Solo el carrito se guarda en `localStorage`. `StoreContext` expone `apiStatus` (`connecting` | `connected` | `error`): si la API no responde, la tienda muestra un aviso y el panel indica que los cambios no se guardarán. Cada escritura va primero al servidor y el estado se actualiza solo si responde OK. Los errores se propagan (o se avisan con `alert` en los botones que no esperan la promesa); nunca se "guarda" en silencio solo en el navegador. Antes existía un fallback a `localStorage` que dejó ediciones de producción guardadas solo en un navegador. No lo reintroduzcas.
 
 ## Reglas importantes (aprendidas a golpes)
 
@@ -96,7 +96,7 @@ npm install
 npm run dev          # solo Vite (http://localhost:5173). Las funciones /api NO corren acá
 ```
 
-- Con `npm run dev` las llamadas a `/api` fallan y la app usa el **fallback de localStorage**. Sirve para trabajar UI.
+- Con `npm run dev` las llamadas a `/api` fallan y la tienda aparece **sin productos** ("No pudimos cargar el catálogo"). Para ver datos hay que usar `vercel dev`.
 - Para probar el backend real hay que usar `vercel dev` (Vercel CLI, `npm i -g vercel` y `vercel link`), con un `.env` que tenga `DATABASE_URL` apuntando a una **branch de desarrollo de Neon** (no a producción).
 - Las variables de entorno están documentadas en `.env.example`. Las reales viven en Vercel → Project Settings → Environment Variables. **No se commitean.**
 - Para crear el primer admin: `node --env-file=.env scripts/create-admin-user.mjs <usuario> <contraseña>`.

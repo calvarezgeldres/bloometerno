@@ -189,13 +189,3 @@ export const db = {
       apiFetch("/api/auth", { method: "DELETE" }),
   },
 };
-
-/** Verifica si la API responde correctamente (para el indicador en el Admin) */
-export async function checkApiConnection(): Promise<boolean> {
-  try {
-    const res = await fetch("/api/products");
-    return res.ok;
-  } catch {
-    return false;
-  }
-}

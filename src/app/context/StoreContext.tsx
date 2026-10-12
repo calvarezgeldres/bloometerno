@@ -1,142 +1,22 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { Product, CartItem, Order, StoreSettings, Category, ProductVariant } from "../types/store";
-import { db, checkApiConnection, DbProductInput } from "../../lib/db";
+import { db, DbProductInput } from "../../lib/db";
 import { cartKey, variantPrice } from "../../lib/catalog";
 
-export const DEFAULT_PRODUCTS: Product[] = [
-  {
-    id: 1,
-    num: "01",
-    name: "Mostacilla rosado pálido 2mm",
-    price: 1490,
-    stock: 25,
-    badge: "Más vendido",
-    badgeType: "hot",
-    image: "https://images.unsplash.com/photo-1560847133-e6f64dc352ea?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Mostacillas rosadas ensartadas",
-    category: "Mostacillas",
-    description: "Mostacillas de vidrio seleccionadas de 2mm, terminación mate satinada ideal para pulseras delicadas.",
-    isActive: true,
-  },
-  {
-    id: 2,
-    num: "02",
-    name: "Piedra ojo de tigre natural",
-    price: 3900,
-    stock: 14,
-    badge: "Nuevo",
-    badgeType: "new",
-    image: "https://images.unsplash.com/photo-1766038844075-d997429c85ef?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Piedra ojo de tigre pulida natural",
-    category: "Piedras",
-    description: "Piedra semipreciosa ojo de tigre con vetas doradas naturales y pulido suave de alta durabilidad.",
-    isActive: true,
-  },
-  {
-    id: 3,
-    num: "03",
-    name: "Cristal facetado verde oliva",
-    price: 2200,
-    stock: 18,
-    badge: "Nuevo",
-    badgeType: "new",
-    image: "https://images.unsplash.com/photo-1556376752-19770d78207f?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Cristales facetados color verde",
-    category: "Cristales",
-    description: "Cuentas de cristal con facetas reflectantes en tonalidad verde oliva, destellos cálidos al sol.",
-    isActive: true,
-  },
-  {
-    id: 4,
-    num: "04",
-    name: "Kit pulsera floral completo",
-    price: 8990,
-    stock: 5,
-    badge: "Ed. Limitada",
-    badgeType: "limited",
-    image: "https://images.unsplash.com/photo-1660911866937-9399bf71af1e?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Kit completo para pulsera floral",
-    category: "Kits",
-    description: "Incluye hilo elástico resistente, dijes de brote botánico, piedras y mostacillas seleccionadas.",
-    isActive: true,
-  },
-  {
-    id: 5,
-    num: "05",
-    name: "Separadores dorado suave x20",
-    price: 2490,
-    stock: 30,
-    badge: "Más vendido",
-    badgeType: "hot",
-    image: "https://images.unsplash.com/photo-1658915250017-bee8f8f0d9a6?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Separadores dorados para bisutería artesanal",
-    category: "Herramientas",
-    description: "Pack de 20 separadores metálicos con baño dorado libre de níquel, resistentes al uso diario.",
-    isActive: true,
-  },
-  {
-    id: 6,
-    num: "06",
-    name: "Mix mostacillas crema y beige",
-    price: 3200,
-    stock: 20,
-    badge: null,
-    badgeType: null,
-    image: "https://images.unsplash.com/photo-1510229955695-588e1612a69b?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Mix de mostacillas en tonos crema",
-    category: "Mostacillas",
-    description: "Variedad de tonalidades orgánicas crema, marfil y beige tostado para creaciones sobrias y elegantes.",
-    isActive: true,
-  },
-  {
-    id: 7,
-    num: "07",
-    name: "Cuarzo rosa rodado natural",
-    price: 4500,
-    stock: 8,
-    badge: "Nuevo",
-    badgeType: "new",
-    image: "https://images.unsplash.com/photo-1568551732226-3ad05aac9a76?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Cuarzo rosa rodado sobre superficie natural",
-    category: "Piedras",
-    description: "Piedra rodada suave al tacto con tonalidad rosa traslúcida y energía armonizadora.",
-    isActive: true,
-  },
-  {
-    id: 8,
-    num: "08",
-    name: "Set iniciación bisutería natural",
-    price: 12900,
-    stock: 3,
-    badge: "Ed. Limitada",
-    badgeType: "limited",
-    image: "https://images.unsplash.com/photo-1560847133-95f64e08e02a?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Set completo de iniciación en bisutería natural",
-    category: "Kits",
-    description: "Caja organizadora con pinzas de precisión, 6 variedades de piedras, hilos y fornituras completas.",
-    isActive: true,
-  },
-];
-
-/** Categorías del modo local (sin API). En Neon se siembran las mismas en neon/migration_categorias.sql. */
-export const DEFAULT_CATEGORIES: Category[] = [
-  { id: "cat-piedras", name: "Piedras", description: "Cuarzo, ámbar, ojo de tigre", image: "https://images.unsplash.com/photo-1560427450-00fa9481f01e?w=900&h=1100&fit=crop&auto=format&q=80", attributes: [], sortOrder: 1 },
-  { id: "cat-mostacillas", name: "Mostacillas", description: "Decenas de colores y tamaños", image: "https://images.unsplash.com/photo-1560847133-e6f64dc352ea?w=600&h=500&fit=crop&auto=format&q=80", attributes: [], sortOrder: 2 },
-  { id: "cat-cristales", name: "Cristales", description: "Facetados y brillantes", image: "https://images.unsplash.com/photo-1556376752-19770d78207f?w=600&h=500&fit=crop&auto=format&q=80", attributes: [], sortOrder: 3 },
-  { id: "cat-kits", name: "Kits", description: "Para empezar a crear hoy", image: "https://images.unsplash.com/photo-1660911866937-9399bf71af1e?w=600&h=500&fit=crop&auto=format&q=80", attributes: [], sortOrder: 4 },
-  { id: "cat-herramientas", name: "Herramientas", description: "Hilos, cierres y accesorios", image: "https://images.unsplash.com/photo-1658915250017-bee8f8f0d9a6?w=600&h=500&fit=crop&auto=format&q=80", attributes: [], sortOrder: 5 },
-];
-
-export const DEFAULT_SETTINGS: StoreSettings = {
-  bankName: "Banco Santander",
-  accountType: "Cuenta Corriente",
-  accountNumber: "87-65432-1",
-  accountRut: "76.980.123-K",
-  accountHolder: "Bloom Eterno SpA",
-  contactEmail: "pagos@bloometerno.cl",
-  whatsappNumber: "+56912345678",
+/** Valores mientras carga la configuración real desde Neon. */
+const EMPTY_SETTINGS: StoreSettings = {
+  bankName: "",
+  accountType: "",
+  accountNumber: "",
+  accountRut: "",
+  accountHolder: "",
+  contactEmail: "",
+  whatsappNumber: "",
   freeShippingThreshold: 35000,
 };
+
+/** Estado de la conexión con la API (Neon). Ya no existe un "modo local": sin API no se guarda nada. */
+export type ApiStatus = "connecting" | "connected" | "error";
 
 interface StoreContextType {
   products: Product[];
@@ -147,7 +27,7 @@ interface StoreContextType {
   isCartOpen: boolean;
   isCheckoutOpen: boolean;
   isAdminOpen: boolean;
-  isCloudConnected: boolean;
+  apiStatus: ApiStatus;
   setIsCartOpen: (open: boolean) => void;
   setIsCheckoutOpen: (open: boolean) => void;
   setIsAdminOpen: (open: boolean) => void;
@@ -166,20 +46,23 @@ interface StoreContextType {
   updateCategory: (id: string, updates: Partial<Omit<Category, "id" | "productCount">>) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
   updateOrderStatus: (orderId: string, newStatus: Order["status"]) => Promise<void>;
-  updateSettings: (newSettings: Partial<StoreSettings>) => void;
-  resetCatalog: () => void;
+  updateSettings: (newSettings: Partial<StoreSettings>) => Promise<void>;
   refreshOrders: () => Promise<void>;
 }
 
 const StoreContext = createContext<StoreContextType | null>(null);
 
-const STORAGE_KEYS = {
-  PRODUCTS: "bloom_products_v2",
-  CART: "bloom_cart_v2",
-  ORDERS: "bloom_orders_v2",
-  SETTINGS: "bloom_settings_v2",
-  CATEGORIES: "bloom_categories_v1",
-};
+// Solo el carrito vive en el navegador. Catálogo, pedidos y configuración se
+// leen y escriben siempre en Neon (las claves viejas bloom_products_v2, etc.
+// quedan sin uso en los navegadores que las tengan).
+const CART_STORAGE_KEY = "bloom_cart_v2";
+
+/** Avisa en el panel que un cambio no se guardó (los botones no esperan la promesa). */
+function reportSaveError(action: string, e: unknown) {
+  console.error(`Error al ${action}:`, e);
+  const detail = e instanceof Error ? e.message : String(e);
+  alert(`No se pudo ${action}. El cambio NO quedó guardado.\n\n${detail}`);
+}
 
 /** Convierte una fila de la API (snake_case) al tipo Product (camelCase) */
 function mapDbProduct(row: any): Product {
@@ -287,100 +170,58 @@ export function mapDbOrder(o: any): Order {
 }
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-      return saved ? JSON.parse(saved) : DEFAULT_PRODUCTS;
-    } catch {
-      return DEFAULT_PRODUCTS;
-    }
-  });
-
-  const [categories, setCategories] = useState<Category[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.CATEGORIES);
-      return saved ? JSON.parse(saved) : DEFAULT_CATEGORIES;
-    } catch {
-      return DEFAULT_CATEGORIES;
-    }
-  });
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [settings, setSettings] = useState<StoreSettings>(EMPTY_SETTINGS);
 
   const [cart, setCart] = useState<CartItem[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEYS.CART);
+      const saved = localStorage.getItem(CART_STORAGE_KEY);
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
-    }
-  });
-
-  const [orders, setOrders] = useState<Order[]>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.ORDERS);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  const [settings, setSettings] = useState<StoreSettings>(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEYS.SETTINGS);
-      return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
-    } catch {
-      return DEFAULT_SETTINGS;
     }
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
-  const [isCloudConnected, setIsCloudConnected] = useState(false);
-
-  // Persistencia en localStorage
-  useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products)); } catch { /* noop */ }
-  }, [products]);
+  const [apiStatus, setApiStatus] = useState<ApiStatus>("connecting");
 
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories)); } catch { /* noop */ }
-  }, [categories]);
-
-  useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEYS.CART, JSON.stringify(cart)); } catch { /* noop */ }
+    try { localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart)); } catch { /* noop */ }
   }, [cart]);
 
-  useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(orders)); } catch { /* noop */ }
-  }, [orders]);
-
-  useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings)); } catch { /* noop */ }
-  }, [settings]);
-
-  // Carga inicial desde la API de Neon
+  // Carga inicial desde la API de Neon. El catálogo define si hay conexión.
   const fetchNeonProducts = useCallback(async () => {
     try {
-      // Si la API responde, Neon manda aunque el catálogo venga vacío: antes un
-      // catálogo vacío dejaba el panel en "modo local" y lo que se editaba
-      // quedaba solo en el navegador, sin llegar nunca a la base de datos.
       const rows = await db.products.list();
-      if (Array.isArray(rows)) {
-        setProducts(rows.map(mapDbProduct));
-        setIsCloudConnected(true);
-      }
+      setProducts(Array.isArray(rows) ? rows.map(mapDbProduct) : []);
+      setApiStatus("connected");
     } catch (e) {
-      console.warn("API Neon no disponible, usando almacenamiento local:", e);
-      setIsCloudConnected(false);
+      console.error("No se pudo cargar el catálogo desde Neon:", e);
+      setApiStatus("error");
     }
   }, []);
+
+  // Un carrito guardado puede traer productos que ya no existen (ej. los de
+  // ejemplo del antiguo modo local): se descartan para que el pedido no falle.
+  useEffect(() => {
+    if (apiStatus !== "connected") return;
+    const ids = new Set(products.map((p) => String(p.id)));
+    setCart((prev) => {
+      const valid = prev.filter((i) => ids.has(String(i.product.id)));
+      return valid.length === prev.length ? prev : valid;
+    });
+  }, [apiStatus, products]);
 
   const fetchNeonCategories = useCallback(async () => {
     try {
       const rows = await db.categories.list();
       if (rows) setCategories(rows.map(mapDbCategory));
     } catch (e) {
-      console.warn("Error cargando categorías de Neon:", e);
+      console.error("Error cargando categorías de Neon:", e);
     }
   }, []);
 
@@ -389,7 +230,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const rows = await db.orders.list();
       if (rows) setOrders(rows.map(mapDbOrder));
     } catch (e) {
-      console.warn("Error cargando pedidos de Neon:", e);
+      // 401 esperado en la tienda pública: los pedidos solo los ve el admin
+      console.warn("Pedidos no disponibles:", e);
     }
   }, []);
 
@@ -409,20 +251,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         });
       }
     } catch (e) {
-      console.warn("Error cargando configuración de Neon:", e);
+      console.error("Error cargando configuración de Neon:", e);
     }
   }, []);
 
   useEffect(() => {
-    // Verificar conexión y cargar datos al montar
-    checkApiConnection().then((connected) => {
-      if (connected) {
-        fetchNeonCategories();
-        fetchNeonProducts();
-        fetchNeonOrders();
-        fetchNeonSettings();
-      }
-    });
+    fetchNeonCategories();
+    fetchNeonProducts();
+    fetchNeonOrders();
+    fetchNeonSettings();
   }, [fetchNeonCategories, fetchNeonProducts, fetchNeonOrders, fetchNeonSettings]);
 
   // Cálculos de carrito (el precio puede venir de la variante elegida)
@@ -481,179 +318,119 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const clearCart = () => setCart([]);
 
-  // Crear pedido — Neon descuenta el stock en el servidor
+  // Crear pedido: el servidor lo guarda y descuenta el stock. Si falla, el
+  // error llega al checkout (nunca se da por hecho un pedido que no existe).
   const createOrder = async (
     orderData: Omit<Order, "id" | "orderNumber" | "createdAt" | "status">
   ): Promise<Order> => {
     const randomSuffix = Math.floor(1000 + Math.random() * 9000);
     const orderNumber = `BLOOM-${randomSuffix}`;
-    const now = new Date().toISOString();
 
-    // Descontar stock localmente (optimistic update), por variante cuando corresponde
-    setProducts((prev) =>
-      prev.map((prod) => {
-        const orderedItems = orderData.items.filter((i) => String(i.productId) === String(prod.id));
-        if (orderedItems.length === 0) return prod;
-        if (prod.variants && prod.variants.length > 0) {
-          return withVariantStock({
-            ...prod,
-            variants: prod.variants.map((v) => {
-              const qty = orderedItems.filter((i) => i.variantId === v.id).reduce((acc, i) => acc + i.quantity, 0);
-              return qty > 0 ? { ...v, stock: Math.max(0, v.stock - qty) } : v;
-            }),
-          });
-        }
-        const qty = orderedItems.reduce((acc, i) => acc + i.quantity, 0);
-        return { ...prod, stock: Math.max(0, prod.stock - qty) };
-      })
-    );
+    const created = await db.orders.create({
+      order_number: orderNumber,
+      customer_name: orderData.customer.name,
+      customer_rut: orderData.customer.rut,
+      customer_email: orderData.customer.email,
+      customer_phone: orderData.customer.phone,
+      region: orderData.customer.region,
+      comuna: orderData.customer.comuna,
+      address: orderData.customer.address,
+      notes: orderData.customer.notes ?? "",
+      shipping_method: orderData.shippingMethod,
+      shipping_cost: orderData.shippingCost,
+      subtotal: orderData.subtotal,
+      total: orderData.total,
+      payment_method: orderData.paymentMethod,
+      items: orderData.items.map((i) => ({
+        product_id: String(i.productId),
+        product_name: i.productName,
+        price: i.price,
+        quantity: i.quantity,
+        image: i.image,
+        variant_id: i.variantId ?? null,
+        variant_label: i.variantLabel ?? null,
+      })),
+    });
 
-    const newOrder: Order = {
-      ...orderData,
-      id: `local-${Date.now()}`,
-      orderNumber,
-      status: "Pendiente de transferencia",
-      createdAt: now,
-    };
-
-    // Sincronizar con Neon
-    if (isCloudConnected) {
-      try {
-        const apiPayload = {
-          order_number: orderNumber,
-          customer_name: orderData.customer.name,
-          customer_rut: orderData.customer.rut,
-          customer_email: orderData.customer.email,
-          customer_phone: orderData.customer.phone,
-          region: orderData.customer.region,
-          comuna: orderData.customer.comuna,
-          address: orderData.customer.address,
-          notes: orderData.customer.notes ?? "",
-          shipping_method: orderData.shippingMethod,
-          shipping_cost: orderData.shippingCost,
-          subtotal: orderData.subtotal,
-          total: orderData.total,
-          payment_method: orderData.paymentMethod,
-          items: orderData.items.map((i) => ({
-            product_id: typeof i.productId === "string" && i.productId.includes("-") ? i.productId : null,
-            product_name: i.productName,
-            price: i.price,
-            quantity: i.quantity,
-            image: i.image,
-            variant_id: i.variantId ?? null,
-            variant_label: i.variantLabel ?? null,
-          })),
-        };
-
-        const created = await db.orders.create(apiPayload);
-        newOrder.id = created.id;
-      } catch (err) {
-        console.warn("Fallo al sincronizar orden con Neon:", err);
-      }
-    }
-
+    const newOrder = mapDbOrder(created);
     setOrders((prev) => [newOrder, ...prev]);
     clearCart();
+    // El stock lo descontó el servidor: se recarga el catálogo para reflejarlo
+    fetchNeonProducts();
     return newOrder;
   };
 
+  // Productos: un error se propaga para que el panel lo muestre
   const addProduct = async (productData: Omit<Product, "id">): Promise<Product> => {
-    const nextNum = String(products.length + 1).padStart(2, "0");
-    const localId = `prod-${Date.now()}`;
-
-    let newProd: Product = withVariantStock({
+    const draft = withVariantStock({
       ...productData,
-      id: localId,
-      num: productData.num || nextNum,
+      id: "",
+      num: productData.num || String(products.length + 1).padStart(2, "0"),
       isActive: true,
     });
-
-    // Con la API conectada, un error se propaga para que el panel lo muestre
-    if (isCloudConnected) {
-      const created = await db.products.create({
-        ...toDbProductInput(newProd),
-        alt: newProd.alt ?? newProd.name,
-        description: newProd.description ?? null,
-        badge: newProd.badge ?? null,
-        badge_type: newProd.badgeType ?? null,
-      } as DbProductInput);
-      newProd = mapDbProduct(created);
-    }
-
+    const created = await db.products.create({
+      ...toDbProductInput(draft),
+      alt: draft.alt ?? draft.name,
+      description: draft.description ?? null,
+      badge: draft.badge ?? null,
+      badge_type: draft.badgeType ?? null,
+    } as DbProductInput);
+    const newProd = mapDbProduct(created);
     setProducts((prev) => [newProd, ...prev]);
     return newProd;
   };
 
   const updateStock = async (id: string | number, newStock: number) => {
     const validStock = Math.max(0, newStock);
-    setProducts((prev) =>
-      prev.map((p) => (String(p.id) === String(id) ? { ...p, stock: validStock } : p))
-    );
-
-    if (isCloudConnected) {
-      try {
-        await db.products.update(String(id), { stock: validStock });
-      } catch (e) {
-        console.warn("Error actualizando stock en Neon:", e);
-      }
+    try {
+      await db.products.update(String(id), { stock: validStock });
+      setProducts((prev) => prev.map((p) => (String(p.id) === String(id) ? { ...p, stock: validStock } : p)));
+    } catch (e) {
+      reportSaveError("actualizar el stock", e);
     }
   };
 
+  // El producto queda tal como lo devuelve el servidor (ids reales de las
+  // variantes y stock recalculado)
   const updateProduct = async (id: string | number, updates: Partial<Product>) => {
-    // Con la API conectada, el producto queda tal como lo devuelve el servidor
-    // (ids reales de las variantes y stock recalculado); un error se propaga al panel.
-    if (isCloudConnected) {
-      const { category: _ignored, num: _num, ...rest } = updates;
-      const updated = await db.products.update(String(id), toDbProductInput(rest));
-      setProducts((prev) => prev.map((p) => (String(p.id) === String(id) ? mapDbProduct(updated) : p)));
-      return;
-    }
+    const { category: _ignored, num: _num, ...rest } = updates;
+    const updated = await db.products.update(String(id), toDbProductInput(rest));
+    setProducts((prev) => prev.map((p) => (String(p.id) === String(id) ? mapDbProduct(updated) : p)));
+  };
 
-    setProducts((prev) =>
-      prev.map((p) => (String(p.id) === String(id) ? withVariantStock({ ...p, ...updates }) : p))
-    );
+  const deleteProduct = async (id: string | number) => {
+    try {
+      await db.products.delete(String(id));
+      setProducts((prev) => prev.filter((p) => String(p.id) !== String(id)));
+    } catch (e) {
+      reportSaveError("eliminar el producto", e);
+    }
   };
 
   // ─── Categorías ──────────────────────────────────────────────────────────────
 
   const addCategory = async (data: Omit<Category, "id" | "sortOrder" | "productCount">): Promise<Category> => {
-    let newCat: Category = {
-      ...data,
-      id: `cat-${Date.now()}`,
-      sortOrder: categories.reduce((max, c) => Math.max(max, c.sortOrder), 0) + 1,
-      productCount: 0,
-    };
-
-    if (isCloudConnected) {
-      const created = await db.categories.create({
-        name: data.name,
-        description: data.description ?? null,
-        image: data.image ?? null,
-        attributes: data.attributes,
-      });
-      newCat = mapDbCategory(created);
-    } else if (categories.some((c) => c.name.toLowerCase() === data.name.trim().toLowerCase())) {
-      throw new Error(`Ya existe una categoría llamada "${data.name}"`);
-    }
-
+    const created = await db.categories.create({
+      name: data.name,
+      description: data.description ?? null,
+      image: data.image ?? null,
+      attributes: data.attributes,
+    });
+    const newCat = mapDbCategory(created);
     setCategories((prev) => [...prev, newCat]);
     return newCat;
   };
 
   const updateCategory = async (id: string, updates: Partial<Omit<Category, "id" | "productCount">>) => {
     const current = categories.find((c) => c.id === id);
-    let next: Category = { ...current!, ...updates };
-
-    if (isCloudConnected) {
-      const updated = await db.categories.update(id, {
-        name: updates.name,
-        description: updates.description,
-        image: updates.image,
-        attributes: updates.attributes,
-        sort_order: updates.sortOrder,
-      });
-      next = mapDbCategory(updated);
-    }
+    const updated = await db.categories.update(id, {
+      name: updates.name,
+      description: updates.description,
+      image: updates.image,
+      attributes: updates.attributes,
+      sort_order: updates.sortOrder,
+    });
+    const next = mapDbCategory(updated);
 
     setCategories((prev) => prev.map((c) => (c.id === id ? next : c)));
     // El nombre de la categoría se copia en cada producto
@@ -675,67 +452,35 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       );
     }
 
-    if (isCloudConnected) await db.categories.delete(id);
+    await db.categories.delete(id);
     setCategories((prev) => prev.filter((c) => c.id !== id));
   };
 
-  const deleteProduct = async (id: string | number) => {
-    setProducts((prev) => prev.filter((p) => String(p.id) !== String(id)));
-
-    if (isCloudConnected) {
-      try {
-        await db.products.delete(String(id));
-      } catch (e) {
-        console.warn("Error eliminando producto de Neon:", e);
-      }
-    }
-  };
+  // ─── Pedidos y configuración ────────────────────────────────────────────────
 
   const updateOrderStatus = async (orderId: string, newStatus: Order["status"]) => {
-    setOrders((prev) =>
-      prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
-    );
-
-    if (isCloudConnected) {
-      try {
-        await db.orders.updateStatus(orderId, newStatus);
-      } catch (e) {
-        console.warn("Error actualizando estado en Neon:", e);
-      }
+    try {
+      await db.orders.updateStatus(orderId, newStatus);
+      setOrders((prev) => prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o)));
+    } catch (e) {
+      reportSaveError("cambiar el estado del pedido", e);
     }
   };
 
-  const updateSettings = (newSettings: Partial<StoreSettings>) => {
+  // Un error se propaga para que el formulario no muestre "guardado"
+  const updateSettings = async (newSettings: Partial<StoreSettings>) => {
+    const dbSettings: Record<string, any> = {};
+    if (newSettings.bankName !== undefined)              dbSettings.bank_name               = newSettings.bankName;
+    if (newSettings.accountType !== undefined)           dbSettings.account_type            = newSettings.accountType;
+    if (newSettings.accountNumber !== undefined)         dbSettings.account_number          = newSettings.accountNumber;
+    if (newSettings.accountRut !== undefined)            dbSettings.account_rut             = newSettings.accountRut;
+    if (newSettings.accountHolder !== undefined)         dbSettings.account_holder          = newSettings.accountHolder;
+    if (newSettings.contactEmail !== undefined)          dbSettings.contact_email           = newSettings.contactEmail;
+    if (newSettings.whatsappNumber !== undefined)        dbSettings.whatsapp_number         = newSettings.whatsappNumber;
+    if (newSettings.freeShippingThreshold !== undefined) dbSettings.free_shipping_threshold = newSettings.freeShippingThreshold;
+
+    await db.settings.update(dbSettings);
     setSettings((prev) => ({ ...prev, ...newSettings }));
-
-    if (isCloudConnected) {
-      const dbSettings: Record<string, any> = {};
-      if (newSettings.bankName !== undefined)              dbSettings.bank_name               = newSettings.bankName;
-      if (newSettings.accountType !== undefined)           dbSettings.account_type            = newSettings.accountType;
-      if (newSettings.accountNumber !== undefined)         dbSettings.account_number          = newSettings.accountNumber;
-      if (newSettings.accountRut !== undefined)            dbSettings.account_rut             = newSettings.accountRut;
-      if (newSettings.accountHolder !== undefined)         dbSettings.account_holder          = newSettings.accountHolder;
-      if (newSettings.contactEmail !== undefined)          dbSettings.contact_email           = newSettings.contactEmail;
-      if (newSettings.whatsappNumber !== undefined)        dbSettings.whatsapp_number         = newSettings.whatsappNumber;
-      if (newSettings.freeShippingThreshold !== undefined) dbSettings.free_shipping_threshold = newSettings.freeShippingThreshold;
-
-      db.settings.update(dbSettings).catch((e) =>
-        console.warn("Error guardando configuración en Neon:", e)
-      );
-    }
-  };
-
-  const resetCatalog = () => {
-    setProducts(DEFAULT_PRODUCTS);
-    setCategories(DEFAULT_CATEGORIES);
-    setCart([]);
-    setOrders([]);
-    setSettings(DEFAULT_SETTINGS);
-    localStorage.removeItem(STORAGE_KEYS.PRODUCTS);
-    localStorage.removeItem(STORAGE_KEYS.CATEGORIES);
-    localStorage.removeItem(STORAGE_KEYS.CART);
-    localStorage.removeItem(STORAGE_KEYS.ORDERS);
-    localStorage.removeItem(STORAGE_KEYS.SETTINGS);
   };
 
   return (
@@ -749,7 +494,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         isCartOpen,
         isCheckoutOpen,
         isAdminOpen,
-        isCloudConnected,
+        apiStatus,
         setIsCartOpen,
         setIsCheckoutOpen,
         setIsAdminOpen,
@@ -769,7 +514,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         deleteCategory,
         updateOrderStatus,
         updateSettings,
-        resetCatalog,
         refreshOrders: fetchNeonOrders,
       }}
     >

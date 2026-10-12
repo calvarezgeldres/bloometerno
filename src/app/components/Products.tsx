@@ -24,7 +24,7 @@ function formatCLP(n: number) {
 }
 
 export function Products({ initialCategory }: { initialCategory?: string } = {}) {
-  const { products, categories: storeCategories, addToCart } = useStore();
+  const { products, categories: storeCategories, addToCart, apiStatus } = useStore();
   const [searchParams] = useSearchParams();
   const [wishlist, setWishlist] = useState<Set<string | number>>(new Set());
   const [added, setAdded] = useState<Set<string | number>>(new Set());
@@ -146,7 +146,13 @@ export function Products({ initialCategory }: { initialCategory?: string } = {})
         {/* Product grid */}
         {filteredProducts.length === 0 ? (
           <div style={{ textAlign: "center", padding: "4rem 1rem", color: "var(--muted-foreground)" }}>
-            <p>No hay productos en esta categoría en este momento.</p>
+            <p>
+              {apiStatus === "connecting"
+                ? "Cargando productos…"
+                : apiStatus === "error"
+                ? "No pudimos cargar el catálogo. Recarga la página en unos minutos."
+                : "No hay productos en esta categoría en este momento."}
+            </p>
           </div>
         ) : (
           <div
