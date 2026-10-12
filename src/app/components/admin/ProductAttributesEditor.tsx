@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { X } from "lucide-react";
 import { Category, ProductVariant } from "../../types/store";
-import { combineOptions, fixedAttributes, newLocalId, sameOptions, variantAttributes } from "../../../lib/catalog";
+import { combineOptions, fixedAttributes, newLocalId, sameOptions, variantAttributes, variantLabel } from "../../../lib/catalog";
+import { VariantImageInput } from "./VariantImageInput";
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
@@ -29,7 +30,7 @@ const sectionStyle: React.CSSProperties = {
 /**
  * Parte del formulario de producto que depende de la categoría: valores de las
  * características fijas y, para las características variantes, las opciones del
- * producto (ej: colores de un alambre) con el stock y precio de cada combinación.
+ * producto (ej: colores de un alambre) con el stock, precio y foto de cada combinación.
  *
  * Se debe montar con key = producto + categoría: el estado inicial sale de las props.
  */
@@ -42,9 +43,19 @@ export const ProductAttributesEditor: React.FC<{
   basePrice: number;
   /** Valores ya usados en otros productos de la categoría, para sugerir */
   suggestions: Record<string, string[]>;
-}> = ({ category, attributes, onAttributesChange, variants, onVariantsChange, basePrice, suggestions }) => {
+  /** Avisa al formulario mientras se sube alguna foto de variante, para no guardar a medias */
+  onUploadingChange?: (uploading: boolean) => void;
+}> = ({ category, attributes, onAttributesChange, variants, onVariantsChange, basePrice, suggestions, onUploadingChange }) => {
   const fixed = fixedAttributes(category);
   const variantAttrs = variantAttributes(category);
+
+  // Se pueden subir fotos de varias variantes a la vez: el formulario queda
+  // bloqueado hasta que termine la última.
+  const uploadsInProgress = useRef(0);
+  const trackUpload = (uploading: boolean) => {
+    uploadsInProgress.current += uploading ? 1 : -1;
+    onUploadingChange?.(uploadsInProgress.current > 0);
+  };
 
   // Opciones cargadas por característica variante, en el orden en que aparecen en las variantes
   const [values, setValues] = useState<Record<string, string[]>>(() => {
@@ -56,13 +67,14 @@ export const ProductAttributesEditor: React.FC<{
   });
   const [drafts, setDrafts] = useState<Record<string, string>>({});
 
-  // Regenera las combinaciones conservando stock/precio (y el id) de las que ya existían
+  // Regenera las combinaciones conservando stock/precio/foto (y el id) de las que ya existían
   const applyValues = (next: Record<string, string[]>) => {
     setValues(next);
     const combos = combineOptions(variantAttrs, next);
     onVariantsChange(
       combos.map(
-        (options) => variants.find((v) => sameOptions(v.options, options)) ?? { id: newLocalId("var"), options, stock: 0, price: null }
+        (options) =>
+          variants.find((v) => sameOptions(v.options, options)) ?? { id: newLocalId("var"), options, stock: 0, price: null, image: null }
       )
     );
   };
@@ -136,6 +148,7 @@ export const ProductAttributesEditor: React.FC<{
           <p style={{ fontSize: "0.74rem", color: "var(--muted-foreground)", margin: "0 0 0.85rem" }}>
             Carga las opciones que tienes de este producto (puedes escribir varias separadas por coma). El cliente elegirá una
             al comprar y cada opción lleva su propio stock. Si no cargas opciones, el producto se vende sin variantes.
+            Sube una foto por opción para que el cliente vea el color que elige; sin foto se muestra la foto principal.
           </p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
@@ -219,6 +232,7 @@ export const ProductAttributesEditor: React.FC<{
                       {a.name}
                     </th>
                   ))}
+                  <th style={{ padding: "0.5rem 0.4rem" }}>Foto</th>
                   <th style={{ padding: "0.5rem 0.4rem" }}>Stock</th>
                   <th style={{ padding: "0.5rem 0.4rem" }}>Precio CLP (opcional)</th>
                 </tr>
@@ -231,6 +245,14 @@ export const ProductAttributesEditor: React.FC<{
                         {v.options[a.id] ?? "—"}
                       </td>
                     ))}
+                    <td style={{ padding: "0.4rem" }}>
+                      <VariantImageInput
+                        value={v.image}
+                        onChange={(image) => setVariant(v.id, { image })}
+                        label={variantLabel(v, category)}
+                        onUploadingChange={trackUpload}
+                      />
+                    </td>
                     <td style={{ padding: "0.4rem" }}>
                       <input
                         type="number"
@@ -257,7 +279,7 @@ export const ProductAttributesEditor: React.FC<{
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={variantAttrs.length} style={{ padding: "0.5rem 0.4rem", fontWeight: 600, textAlign: "right" }}>
+                  <td colSpan={variantAttrs.length + 1} style={{ padding: "0.5rem 0.4rem", fontWeight: 600, textAlign: "right" }}>
                     Stock total:
                   </td>
                   <td colSpan={2} style={{ padding: "0.5rem 0.4rem", fontWeight: 700 }}>

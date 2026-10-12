@@ -94,18 +94,20 @@ async function syncVariants(sql: any, productId: string, raw: unknown) {
     const stock = Math.max(0, Math.floor(Number(v?.stock) || 0));
     const price =
       v?.price === null || v?.price === undefined || v?.price === "" ? null : Math.max(0, Math.floor(Number(v.price) || 0));
+    // Sin foto propia (NULL) la tienda muestra la foto principal del producto
+    const image = typeof v?.image === "string" && v.image.trim() ? v.image.trim() : null;
 
     if (v?.id && existingIds.has(v.id)) {
       await sql`
         UPDATE product_variants
-        SET options = ${options}::jsonb, stock = ${stock}, price = ${price}, sort_order = ${i}
+        SET options = ${options}::jsonb, stock = ${stock}, price = ${price}, image = ${image}, sort_order = ${i}
         WHERE id = ${v.id}
       `;
       keep.add(v.id);
     } else {
       const rows = await sql`
-        INSERT INTO product_variants (product_id, options, stock, price, sort_order)
-        VALUES (${productId}, ${options}::jsonb, ${stock}, ${price}, ${i})
+        INSERT INTO product_variants (product_id, options, stock, price, image, sort_order)
+        VALUES (${productId}, ${options}::jsonb, ${stock}, ${price}, ${image}, ${i})
         RETURNING id
       `;
       keep.add(rows[0].id);

@@ -4,7 +4,7 @@ import { useStore } from "../context/StoreContext";
 import { CHILE_REGIONS, SHIPPING_METHODS } from "../data/chileData";
 import { formatRut, isValidRut } from "../../lib/rut";
 import { db } from "../../lib/db";
-import { variantPrice } from "../../lib/catalog";
+import { variantImage, variantPrice } from "../../lib/catalog";
 
 function formatCLP(amount: number): string {
   return `$${amount.toLocaleString("es-CL")}`;
@@ -106,7 +106,7 @@ export const CheckoutModal: React.FC = () => {
             product_name: i.product.name,
             price: variantPrice(i.product, i.variant),
             quantity: i.quantity,
-            image: i.product.image,
+            image: variantImage(i.product, i.variant),
             variant_id: i.variant?.id ?? null,
             variant_label: i.variantLabel ?? null,
           })),
@@ -136,7 +136,7 @@ export const CheckoutModal: React.FC = () => {
           productName: i.product.name,
           price: variantPrice(i.product, i.variant),
           quantity: i.quantity,
-          image: i.product.image,
+          image: variantImage(i.product, i.variant),
           variantId: i.variant?.id ?? null,
           variantLabel: i.variantLabel ?? null,
         })),

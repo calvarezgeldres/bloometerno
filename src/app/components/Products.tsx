@@ -8,6 +8,7 @@ import {
   fixedAttributesSummary,
   hasVariants,
   variantAttributes,
+  variantImage,
   variantLabel,
   variantPrice,
 } from "../../lib/catalog";
@@ -226,6 +227,17 @@ function ProductCard({
       (v) => v.stock > 0 && groups.every((g) => v.options[g.attr.id] === (g.attr.id === attrId ? value : selected[g.attr.id]))
     );
 
+  // Foto de cada opción para el botón: la de la combinación que quedaría elegida o,
+  // si esa no tiene, la de cualquier variante con esa opción (ej: la foto del Dorado
+  // aunque el largo elegido no tenga foto propia).
+  const optionImage = (attrId: string, value: string) =>
+    (
+      variants.find(
+        (v) => v.image && groups.every((g) => v.options[g.attr.id] === (g.attr.id === attrId ? value : selected[g.attr.id]))
+      ) ?? variants.find((v) => v.image && v.options[attrId] === value)
+    )?.image ?? null;
+
+  const image = variantImage(product, selectedVariant);
   const price = variantPrice(product, selectedVariant);
   const stock = withVariants ? selectedVariant?.stock ?? 0 : product.stock;
   const isOutOfStock = product.stock <= 0;
@@ -261,8 +273,8 @@ function ProductCard({
         }}
       >
         <img
-          src={product.image}
-          alt={product.alt || product.name}
+          src={image}
+          alt={selectedVariant ? `${product.name} (${variantLabel(selectedVariant, category)})` : product.alt || product.name}
           style={{
             width: "100%",
             height: "100%",
@@ -393,6 +405,7 @@ function ProductCard({
                     {g.values.map((value) => {
                       const isSel = selected[g.attr.id] === value;
                       const available = isValueAvailable(g.attr.id, value);
+                      const thumb = optionImage(g.attr.id, value);
                       return (
                         <button
                           key={value}
@@ -400,9 +413,12 @@ function ProductCard({
                           onClick={() => setSelected((prev) => ({ ...prev, [g.attr.id]: value }))}
                           title={available ? value : `${value} (sin stock)`}
                           style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.3rem",
                             fontFamily: "var(--font-body)",
                             fontSize: "0.65rem",
-                            padding: "0.22rem 0.6rem",
+                            padding: thumb ? "0.15rem 0.6rem 0.15rem 0.15rem" : "0.22rem 0.6rem",
                             borderRadius: "1rem",
                             cursor: "pointer",
                             border: isSel ? "1px solid var(--primary)" : "1px solid var(--border)",
@@ -412,6 +428,13 @@ function ProductCard({
                             textDecoration: available ? "none" : "line-through",
                           }}
                         >
+                          {thumb && (
+                            <img
+                              src={thumb}
+                              alt=""
+                              style={{ width: "1.2rem", height: "1.2rem", borderRadius: "50%", objectFit: "cover", display: "block" }}
+                            />
+                          )}
                           {value}
                         </button>
                       );

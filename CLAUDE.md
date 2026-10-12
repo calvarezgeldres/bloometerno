@@ -55,7 +55,7 @@ logos/                    Archivos fuente del logo (no se sirven)
 
 - `products`: precio y stock en **INTEGER (CLP)**. `category` (texto) se mantiene **sincronizado** con `category_id` (FK). `attributes` JSONB guarda las características fijas `{ "<idCaracterística>": "valor" }`. `is_active` sirve de borrado lógico.
 - `categories`: `attributes` JSONB `[{ id, name, isVariant }]` define qué características tienen sus productos.
-- `product_variants`: una fila por combinación de opciones `{ "<idCaracterística>": "Dorado" }`, con stock propio y `price` opcional (NULL = usa el precio del producto). **Si un producto tiene variantes, `products.stock` es la suma del stock de sus variantes** (lo recalcula `syncVariants` en `api/products.ts`).
+- `product_variants`: una fila por combinación de opciones `{ "<idCaracterística>": "Dorado" }`, con stock propio, `price` opcional (NULL = usa el precio del producto) e `image` opcional (NULL = usa la foto del producto; helper `variantImage` en `src/lib/catalog.ts`). **Si un producto tiene variantes, `products.stock` es la suma del stock de sus variantes** (lo recalcula `syncVariants` en `api/products.ts`).
 - `orders` + `order_items`: los ítems guardan copia de nombre, precio, imagen y `variant_label`, para que el historial sobreviva si se borra el producto o la variante. `status` es texto libre, validado contra una lista en `api/orders.ts` (ver estados en `src/app/types/store.ts`).
 - `store_settings`: una sola fila con `id = 'default'`.
 - `admin_users`: contraseñas con `scrypt` en formato `salt:hash`.

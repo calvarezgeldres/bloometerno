@@ -48,11 +48,18 @@ export interface DbVariant {
   options: Record<string, string>;
   stock: number;
   price: number | null;
+  image: string | null;
   sort_order: number;
 }
 
 /** Variante tal como se envía a la API: sin id (o con un id que la API no conoce) = variante nueva. */
-export type DbVariantInput = { id?: string; options: Record<string, string>; stock: number; price: number | null };
+export type DbVariantInput = {
+  id?: string;
+  options: Record<string, string>;
+  stock: number;
+  price: number | null;
+  image: string | null;
+};
 
 export type DbProductInput = Omit<DbProduct, "id" | "created_at" | "is_active" | "variants"> & {
   variants?: DbVariantInput[];
