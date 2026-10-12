@@ -361,8 +361,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Carga inicial desde la API de Neon
   const fetchNeonProducts = useCallback(async () => {
     try {
+      // Si la API responde, Neon manda aunque el catálogo venga vacío: antes un
+      // catálogo vacío dejaba el panel en "modo local" y lo que se editaba
+      // quedaba solo en el navegador, sin llegar nunca a la base de datos.
       const rows = await db.products.list();
-      if (rows && rows.length > 0) {
+      if (Array.isArray(rows)) {
         setProducts(rows.map(mapDbProduct));
         setIsCloudConnected(true);
       }
