@@ -32,6 +32,12 @@ export function variantPrice(product: Product, variant?: ProductVariant | null):
   return variant?.price != null ? variant.price : product.price;
 }
 
+/** URL de la página de detalle; con variante, la página abre con esa opción elegida. */
+export function productPath(product: Pick<Product, "id">, variant?: ProductVariant | null): string {
+  const base = `/producto/${encodeURIComponent(String(product.id))}`;
+  return variant ? `${base}?variante=${encodeURIComponent(variant.id)}` : base;
+}
+
 /** Foto a mostrar: la de la variante elegida si tiene una propia; si no, la del producto. */
 export function variantImage(product: Product, variant?: ProductVariant | null): string {
   return variant?.image || product.image;
