@@ -1,11 +1,21 @@
+# Bloom Eterno
 
-  # Diseño tienda online Bloom Eterno
+Tienda online de insumos para bisutería artesanal en Chile: piedras naturales, mostacillas, cristales, kits y herramientas. Incluye panel de administración en `/admin`.
 
-  This is a code bundle for Diseño tienda online Bloom Eterno. The original project is available at https://www.figma.com/design/80Ruv2mYLeOUTmck0B7CEk/Dise%C3%B1o-tienda-online-Bloom-Eterno.
+**Stack:** React 18 + Vite + TypeScript · Vercel Serverless Functions · Neon (Postgres) · Vercel Blob · Mercado Pago.
 
-  ## Running the code
+## Documentación
 
-  Run `npm i` to install the dependencies.
+- [docs/NEGOCIO.md](docs/NEGOCIO.md): de qué se trata el negocio, flujo de compra y operación.
+- [CLAUDE.md](CLAUDE.md): arquitectura, modelo de datos, flujos y reglas técnicas.
+- [AGENTS.md](AGENTS.md): punto de entrada para asistentes de IA (Claude Code, Cursor, Codex, Copilot…).
 
-  Run `npm run dev` to start the development server.
-  
+## Correr en local
+
+```bash
+npm install
+cp .env.example .env   # completa las variables (ver comentarios del archivo)
+npm run dev            # solo frontend; para las funciones /api usa `vercel dev`
+```
+
+Diseño original en Figma: https://www.figma.com/design/80Ruv2mYLeOUTmck0B7CEk/Dise%C3%B1o-tienda-online-Bloom-Eterno
