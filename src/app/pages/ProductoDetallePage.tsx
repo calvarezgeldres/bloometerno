@@ -23,11 +23,6 @@ export const ProductoDetallePage: React.FC = () => {
 
   const product = products.find((p) => String(p.id) === id);
 
-  // Al llegar desde otra página (o desde un relacionado) se parte desde arriba
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [id]);
-
   return (
     <PageLayout>
       <main style={{ backgroundColor: "var(--background)", minHeight: "60vh" }}>
