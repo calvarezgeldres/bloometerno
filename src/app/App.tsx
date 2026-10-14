@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router";
 import { StoreProvider } from "./context/StoreContext";
 import { PageLayout } from "./components/PageLayout";
+import { ScrollToTop } from "./components/ScrollToTop";
 import { StorePage } from "./pages/StorePage";
 import { ProductosPage } from "./pages/ProductosPage";
 import { ProductoDetallePage } from "./pages/ProductoDetallePage";
@@ -23,6 +24,7 @@ export default function App() {
   return (
     <StoreProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <div
           style={{
             fontFamily: "var(--font-body)",
