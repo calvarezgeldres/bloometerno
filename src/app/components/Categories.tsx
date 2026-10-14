@@ -64,14 +64,14 @@ export function Categories() {
                 fontFamily: "var(--font-display)",
                 fontSize: "clamp(1.8rem, 3vw, 2.6rem)",
                 fontWeight: 400,
-                color: "var(--foreground)",
+                color: "var(--heading)",
                 lineHeight: 1.1,
                 margin: 0,
               }}
             >
               Todo lo que necesitas
               <br />
-              <em style={{ color: "var(--primary)", fontStyle: "italic" }}>para crear</em>
+              <em style={{ color: "var(--accent-italic)", fontStyle: "italic" }}>para crear</em>
             </h2>
           </div>
           <Link
@@ -175,7 +175,7 @@ function BentoCard({
         style={{
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(to top, rgba(31,46,31,0.8) 0%, rgba(31,46,31,0.2) 40%, transparent 70%)",
+          background: "linear-gradient(to top, rgba(5,60,41,0.8) 0%, rgba(5,60,41,0.2) 40%, transparent 70%)",
         }}
       />
 

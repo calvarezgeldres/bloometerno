@@ -377,10 +377,10 @@ export const AdminPage: React.FC = () => {
           {/* Brand & Title */}
           <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
             <Link to="/" style={{ display: "flex", alignItems: "center", gap: "0.6rem", textDecoration: "none", color: "inherit" }}>
-              <img src="/logos/bloom-monogram-light.png" alt="Bloom" style={{ height: "34px", width: "auto" }} />
+              <img src="/logos/bloom-isotipo-light.png" alt="Bloom Eterno" style={{ height: "34px", width: "auto" }} />
               <div>
                 <div style={{ fontFamily: "var(--font-display)", fontSize: "1.25rem", fontWeight: 600, lineHeight: 1 }}>
-                  Bloom <em style={{ color: "var(--gold-light)", fontStyle: "italic" }}>Eterno</em>
+                  Bloom <em style={{ color: "var(--accent-italic)", fontStyle: "italic" }}>Eterno</em>
                 </div>
                 <div style={{ fontSize: "0.6rem", letterSpacing: "0.14em", textTransform: "uppercase", opacity: 0.8, marginTop: "0.15rem" }}>
                   Panel de Administración
@@ -648,7 +648,7 @@ export const AdminPage: React.FC = () => {
                   display: "flex",
                   alignItems: "center",
                   gap: "0.5rem",
-                  boxShadow: "0 4px 12px rgba(74, 92, 46, 0.25)",
+                  boxShadow: "0 4px 12px rgba(5, 60, 41, 0.25)",
                 }}
               >
                 <Plus size={18} />
@@ -965,7 +965,7 @@ export const AdminPage: React.FC = () => {
                               ¡Solo {p.stock} un!
                             </span>
                           ) : (
-                            <span style={{ fontSize: "0.72rem", backgroundColor: "rgba(74, 92, 46, 0.15)", color: "var(--primary)", padding: "0.2rem 0.65rem", borderRadius: "1rem", fontWeight: 600 }}>
+                            <span style={{ fontSize: "0.72rem", backgroundColor: "rgba(5, 60, 41, 0.15)", color: "var(--primary)", padding: "0.2rem 0.65rem", borderRadius: "1rem", fontWeight: 600 }}>
                               En Stock
                             </span>
                           )}
@@ -1015,7 +1015,7 @@ export const AdminPage: React.FC = () => {
             {orders.length === 0 ? (
               <div style={{ textAlign: "center", padding: "4rem 1rem", color: "var(--muted-foreground)", backgroundColor: "var(--card)", borderRadius: "1rem", border: "1px solid var(--border)" }}>
                 <ShoppingCart size={40} style={{ margin: "0 auto 0.75rem", opacity: 0.4 }} />
-                <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", color: "var(--foreground)" }}>
+                <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", color: "var(--heading)" }}>
                   No hay pedidos registrados aún
                 </h3>
                 <p style={{ fontSize: "0.85rem", maxWidth: "360px", margin: "0 auto" }}>
@@ -1106,7 +1106,7 @@ export const AdminPage: React.FC = () => {
                             fontWeight: 600,
                             backgroundColor:
                               o.status === "Enviado"
-                                ? "rgba(74, 92, 46, 0.15)"
+                                ? "rgba(5, 60, 41, 0.15)"
                                 : o.status === "Comprobante recibido"
                                 ? "rgba(184, 144, 78, 0.2)"
                                 : o.status === "Pagado con Mercado Pago"

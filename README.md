@@ -1,6 +1,6 @@
 # Bloom Eterno
 
-Tienda online de insumos para bisutería artesanal en Chile: piedras naturales, mostacillas, cristales, kits y herramientas. Incluye panel de administración en `/admin`.
+Tienda online de insumos para bisutería artesanal en Chile: piedras naturales, mostacillas, cristales y herramientas. Incluye panel de administración en `/admin`.
 
 **Stack:** React 18 + Vite + TypeScript · Vercel Serverless Functions · Neon (Postgres) · Vercel Blob · Mercado Pago.
 

@@ -113,11 +113,9 @@ VALUES
     ('01', 'Mostacilla rosado pálido 2mm', 1490, 25, 'Mostacillas', 'Más vendido', 'hot', 'https://images.unsplash.com/photo-1560847133-e6f64dc352ea?w=600&h=700&fit=crop&auto=format&q=80', 'Mostacillas rosadas ensartadas'),
     ('02', 'Piedra ojo de tigre natural', 3900, 14, 'Piedras', 'Nuevo', 'new', 'https://images.unsplash.com/photo-1766038844075-d997429c85ef?w=600&h=700&fit=crop&auto=format&q=80', 'Piedra ojo de tigre pulida natural'),
     ('03', 'Cristal facetado verde oliva', 2200, 18, 'Cristales', 'Nuevo', 'new', 'https://images.unsplash.com/photo-1556376752-19770d78207f?w=600&h=700&fit=crop&auto=format&q=80', 'Cristales facetados color verde'),
-    ('04', 'Kit pulsera floral completo', 8990, 6, 'Kits', 'Ed. Limitada', 'limited', 'https://images.unsplash.com/photo-1660911866937-9399bf71af1e?w=600&h=700&fit=crop&auto=format&q=80', 'Kit completo para pulsera floral'),
     ('05', 'Separadores dorado suave x20', 2490, 30, 'Herramientas', 'Más vendido', 'hot', 'https://images.unsplash.com/photo-1658915250017-bee8f8f0d9a6?w=600&h=700&fit=crop&auto=format&q=80', 'Separadores dorados para bisutería artesanal'),
     ('06', 'Mix mostacillas crema y beige', 3200, 20, 'Mostacillas', NULL, NULL, 'https://images.unsplash.com/photo-1510229955695-588e1612a69b?w=600&h=700&fit=crop&auto=format&q=80', 'Mix de mostacillas en tonos crema'),
-    ('07', 'Cuarzo rosa rodado natural', 4500, 8, 'Piedras', 'Nuevo', 'new', 'https://images.unsplash.com/photo-1568551732226-3ad05aac9a76?w=600&h=700&fit=crop&auto=format&q=80', 'Cuarzo rosa rodado sobre superficie natural'),
-    ('08', 'Set iniciación bisutería natural', 12900, 4, 'Kits', 'Ed. Limitada', 'limited', 'https://images.unsplash.com/photo-1560847133-95f64e08e02a?w=600&h=700&fit=crop&auto=format&q=80', 'Set completo de iniciación en bisutería natural');
+    ('07', 'Cuarzo rosa rodado natural', 4500, 8, 'Piedras', 'Nuevo', 'new', 'https://images.unsplash.com/photo-1568551732226-3ad05aac9a76?w=600&h=700&fit=crop&auto=format&q=80', 'Cuarzo rosa rodado sobre superficie natural');
 
 -- ==============================================================================
 -- Categorías administrables, características y variantes de producto
@@ -167,7 +165,6 @@ INSERT INTO categories (name, description, image, sort_order) VALUES
     ('Piedras', 'Cuarzo, ámbar, ojo de tigre', 'https://images.unsplash.com/photo-1560427450-00fa9481f01e?w=900&h=1100&fit=crop&auto=format&q=80', 1),
     ('Mostacillas', 'Decenas de colores y tamaños', 'https://images.unsplash.com/photo-1560847133-e6f64dc352ea?w=600&h=500&fit=crop&auto=format&q=80', 2),
     ('Cristales', 'Facetados y brillantes', 'https://images.unsplash.com/photo-1556376752-19770d78207f?w=600&h=500&fit=crop&auto=format&q=80', 3),
-    ('Kits', 'Para empezar a crear hoy', 'https://images.unsplash.com/photo-1660911866937-9399bf71af1e?w=600&h=500&fit=crop&auto=format&q=80', 4),
     ('Herramientas', 'Hilos, cierres y accesorios', 'https://images.unsplash.com/photo-1658915250017-bee8f8f0d9a6?w=600&h=500&fit=crop&auto=format&q=80', 5)
 ON CONFLICT (name) DO NOTHING;
 

@@ -2,13 +2,13 @@
 
 ## Qué es
 
-**Bloom Eterno** es una tienda online chilena que vende **insumos para bisutería artesanal**: piedras naturales, mostacillas, cristales, herramientas y **kits** para crear piezas a mano.
+**Bloom Eterno** es una tienda online chilena que vende **insumos para bisutería artesanal**: piedras naturales, mostacillas, cristales y herramientas para crear piezas a mano.
 
-El nombre ("flor eterna") viene de lo que se hace con esos materiales: **flores tejidas con mostacillas** (ramos de lirios, tulipanes, macetas con suculentas) que no se marchitan. En la web aparecen como "Creaciones reales" (fotos en `public/gallery/`). Sirven de inspiración y muestran lo que se puede hacer con los kits.
+El nombre ("flor eterna") viene de lo que se hace con esos materiales: **flores tejidas con mostacillas** (ramos de lirios, tulipanes, macetas con suculentas) que no se marchitan. En la web aparecen como "Creaciones reales" (fotos en `public/gallery/`). Sirven de inspiración y muestran lo que se puede hacer con los materiales.
 
 - **Mercado:** solo Chile. Precios en pesos chilenos (CLP, sin decimales) y RUT del cliente obligatorio.
 - **Taller / origen de despachos:** Vitacura, Región Metropolitana (Santiago).
-- **Público:** personas que hacen bisutería o manualidades, desde principiantes (con kits) hasta quienes compran insumos sueltos.
+- **Público:** personas que hacen bisutería o manualidades, desde principiantes hasta quienes ya tienen experiencia.
 - **Tono de marca:** cálido, artesanal, "natural con intención". Todo el texto está en español de Chile y trata al cliente de "tú".
 
 ## Catálogo
@@ -20,7 +20,6 @@ Las categorías se administran desde el panel. Estas son las iniciales:
 | Piedras | Cuarzo, ámbar, ojo de tigre… |
 | Mostacillas | Decenas de colores y tamaños |
 | Cristales | Facetados y brillantes |
-| Kits | Todo lo necesario para empezar (ej: kit pulsera floral) |
 | Herramientas | Hilos, alambres, cierres, separadores, accesorios |
 
 - Cada categoría define sus **características** (ej: "Calibre", "Color").
@@ -61,7 +60,7 @@ Requiere usuario y contraseña. Tiene 4 pestañas:
 
 ## Canales de contacto
 
-- **WhatsApp:** canal principal para comprobantes, coordinación de regiones, retiros y personalización de colores de kits.
+- **WhatsApp:** canal principal para comprobantes, coordinación de regiones, retiros y personalización de colores.
 - Instagram y email aparecen en la web.
 
 ## Estado actual y pendientes conocidos (octubre 2026)

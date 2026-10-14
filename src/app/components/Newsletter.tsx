@@ -20,20 +20,6 @@ export function Newsletter() {
       }}
     >
       <div style={{ maxWidth: "1280px", margin: "0 auto" }}>
-        {/* Hairline top */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "1rem",
-            marginBottom: "4rem",
-          }}
-        >
-          <div style={{ flex: 1, height: "1px", backgroundColor: "var(--border)" }} />
-          <span style={{ color: "var(--gold)", fontSize: "0.6rem", letterSpacing: "0.01em" }}>✦</span>
-          <div style={{ flex: 1, height: "1px", backgroundColor: "var(--border)" }} />
-        </div>
-
         {/* Content */}
         <div
           style={{
@@ -64,14 +50,14 @@ export function Newsletter() {
                 fontFamily: "var(--font-display)",
                 fontSize: "clamp(2rem, 4vw, 3.5rem)",
                 fontWeight: 400,
-                color: "var(--foreground)",
+                color: "var(--heading)",
                 lineHeight: 1.05,
                 letterSpacing: "-0.01em",
                 margin: "0 0 1.25rem",
               }}
             >
               Inspírate con{" "}
-              <em style={{ fontStyle: "italic", color: "var(--primary)" }}>
+              <em style={{ fontStyle: "italic", color: "var(--accent-italic)" }}>
                 Bloom Eterno
               </em>
             </h2>

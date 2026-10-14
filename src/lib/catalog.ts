@@ -32,6 +32,36 @@ export function variantPrice(product: Product, variant?: ProductVariant | null):
   return variant?.price != null ? variant.price : product.price;
 }
 
+/** Texto en minúsculas y sin tildes, para buscar sin importar cómo se escriba ("lavanda" = "Lavanda"). */
+export function normalizeText(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+/**
+ * ¿El producto calza con la búsqueda? Busca en nombre, categoría, descripción,
+ * características fijas y opciones de las variantes (ej: "lavanda" encuentra el
+ * alambre que tiene ese color). Cada palabra buscada tiene que aparecer en algún lado.
+ */
+export function productMatchesSearch(product: Product, query: string): boolean {
+  const words = normalizeText(query).split(/\s+/).filter(Boolean);
+  if (words.length === 0) return true;
+  const haystack = normalizeText(
+    [
+      product.name,
+      product.category,
+      product.description ?? "",
+      product.num,
+      ...Object.values(product.attributes ?? {}),
+      ...(product.variants ?? []).flatMap((v) => Object.values(v.options)),
+    ].join(" ")
+  );
+  return words.every((w) => haystack.includes(w));
+}
+
 /** URL de la página de detalle; con variante, la página abre con esa opción elegida. */
 export function productPath(product: Pick<Product, "id">, variant?: ProductVariant | null): string {
   const base = `/producto/${encodeURIComponent(String(product.id))}`;

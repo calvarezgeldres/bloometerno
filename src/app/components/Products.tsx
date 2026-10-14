@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router";
 import { Heart, ShoppingBag, Check, AlertCircle } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { Category, Product, ProductVariant } from "../types/store";
-import { findCategory, fixedAttributesSummary, productPath, variantLabel } from "../../lib/catalog";
+import { findCategory, fixedAttributesSummary, productMatchesSearch, productPath, variantLabel } from "../../lib/catalog";
 import { useVariantSelection } from "../hooks/useVariantSelection";
 
 export const badgeConfig: Record<string, { label: string; bg: string; color: string }> = {
@@ -18,7 +18,9 @@ export function formatCLP(n: number) {
 
 export function Products({ initialCategory }: { initialCategory?: string } = {}) {
   const { products, categories: storeCategories, addToCart } = useStore();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  // Búsqueda del encabezado (/productos?buscar=…): se combina con el filtro de categoría
+  const searchTerm = (searchParams.get("buscar") ?? "").trim();
   const [wishlist, setWishlist] = useState<Set<string | number>>(new Set());
   const [added, setAdded] = useState<Set<string | number>>(new Set());
   const [activeCategory, setActiveCategory] = useState(
@@ -55,15 +57,23 @@ export function Products({ initialCategory }: { initialCategory?: string } = {})
     ...Array.from(usedCategoryNames).filter((name) => !storeCategories.some((c) => c.name === name)),
   ];
 
-  const filteredProducts =
+  const filteredProducts = (
     activeCategory === "Todos"
       ? products
-      : products.filter((p) => p.category.toLowerCase() === activeCategory.toLowerCase());
+      : products.filter((p) => p.category.toLowerCase() === activeCategory.toLowerCase())
+  ).filter((p) => productMatchesSearch(p, searchTerm));
+
+  const clearSearch = () =>
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.delete("buscar");
+      return next;
+    });
 
   return (
     <section
       id="productos"
-      style={{ backgroundColor: "var(--cream-deep)", paddingTop: "5rem", paddingBottom: "5rem" }}
+      style={{ backgroundColor: "var(--background)", paddingTop: "5rem", paddingBottom: "5rem" }}
     >
       <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 2rem" }}>
         {/* Section header */}
@@ -98,12 +108,12 @@ export function Products({ initialCategory }: { initialCategory?: string } = {})
                 fontFamily: "var(--font-display)",
                 fontSize: "clamp(1.8rem, 3vw, 2.6rem)",
                 fontWeight: 400,
-                color: "var(--foreground)",
+                color: "var(--heading)",
                 lineHeight: 1.1,
                 margin: 0,
               }}
             >
-              Nuestros <em style={{ fontStyle: "italic", color: "var(--primary)" }}>materiales</em>
+              Nuestros <em style={{ fontStyle: "italic", color: "var(--accent-italic)" }}>materiales</em>
             </h2>
           </div>
 
@@ -136,10 +146,49 @@ export function Products({ initialCategory }: { initialCategory?: string } = {})
           </div>
         </div>
 
+        {searchTerm && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "0.75rem",
+              marginBottom: "1.75rem",
+              fontSize: "0.85rem",
+              color: "var(--foreground)",
+            }}
+          >
+            <span>
+              Resultados para <strong style={{ color: "var(--heading)" }}>"{searchTerm}"</strong>
+              <span style={{ color: "var(--muted-foreground)" }}> · {filteredProducts.length} {filteredProducts.length === 1 ? "producto" : "productos"}</span>
+            </span>
+            <button
+              type="button"
+              onClick={clearSearch}
+              style={{
+                background: "none",
+                border: "1px solid var(--border)",
+                borderRadius: "2rem",
+                padding: "0.35rem 0.9rem",
+                fontSize: "0.72rem",
+                color: "var(--foreground)",
+                cursor: "pointer",
+              }}
+            >
+              Limpiar búsqueda ✕
+            </button>
+          </div>
+        )}
+
         {/* Product grid */}
         {filteredProducts.length === 0 ? (
           <div style={{ textAlign: "center", padding: "4rem 1rem", color: "var(--muted-foreground)" }}>
-            <p>No hay productos en esta categoría en este momento.</p>
+            <p>
+              {searchTerm
+                ? `No encontramos productos para "${searchTerm}"${activeCategory !== "Todos" ? ` en ${activeCategory}` : ""}.`
+                : "No hay productos en esta categoría en este momento."}
+            </p>
           </div>
         ) : (
           <div
@@ -270,7 +319,7 @@ export function ProductCard({
             fontSize: "0.6rem",
             letterSpacing: "0.08em",
             color: "rgba(255,252,249,0.85)",
-            backgroundColor: "rgba(31,46,31,0.55)",
+            backgroundColor: "rgba(5,60,41,0.55)",
             backdropFilter: "blur(4px)",
             padding: "0.25rem 0.5rem",
             borderRadius: "0.25rem",
@@ -347,7 +396,7 @@ export function ProductCard({
               fontFamily: "var(--font-display)",
               fontSize: "1rem",
               fontWeight: 500,
-              color: "var(--foreground)",
+              color: "var(--heading)",
               lineHeight: 1.25,
               margin: 0,
             }}

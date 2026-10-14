@@ -79,7 +79,7 @@ export const PagoResultadoPage: React.FC = () => {
         {estado !== "aprobado" && (
           <>
             <Clock size={44} color="var(--gold)" style={{ margin: "0 auto 1.5rem" }} />
-            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.7rem", color: "var(--foreground)", margin: "0 0 0.75rem" }}>
+            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.7rem", color: "var(--heading)", margin: "0 0 0.75rem" }}>
               {agotado ? "Estamos confirmando tu pago" : "Confirmando tu pago…"}
             </h1>
             <p style={{ color: "var(--muted-foreground)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
@@ -97,7 +97,7 @@ export const PagoResultadoPage: React.FC = () => {
                 width: "4.5rem",
                 height: "4.5rem",
                 borderRadius: "50%",
-                backgroundColor: "rgba(74, 92, 46, 0.15)",
+                backgroundColor: "rgba(5, 60, 41, 0.15)",
                 color: "var(--primary)",
                 display: "flex",
                 alignItems: "center",
@@ -108,7 +108,7 @@ export const PagoResultadoPage: React.FC = () => {
               <CheckCircle2 size={42} />
             </div>
 
-            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.7rem", color: "var(--foreground)", margin: "0 0 0.5rem" }}>
+            <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.7rem", color: "var(--heading)", margin: "0 0 0.5rem" }}>
               ¡Gracias por tu pedido{mappedOrder ? `, ${mappedOrder.customer.name}` : ""}!
             </h1>
 

@@ -71,7 +71,7 @@ export function Benefits() {
             }}
           >
             Creado con{" "}
-            <em style={{ fontStyle: "italic", color: "var(--gold-light)" }}>intención</em>
+            <em style={{ fontStyle: "italic", color: "var(--accent-italic)" }}>intención</em>
           </h2>
         </div>
 

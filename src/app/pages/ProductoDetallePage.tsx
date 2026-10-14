@@ -84,7 +84,7 @@ const sectionTitleStyle: React.CSSProperties = {
   fontFamily: "var(--font-display)",
   fontSize: "clamp(1.4rem, 2.5vw, 1.9rem)",
   fontWeight: 400,
-  color: "var(--foreground)",
+  color: "var(--heading)",
   margin: "0 0 1.5rem",
 };
 
@@ -319,7 +319,7 @@ function ProductDetail({
                   fontSize: "clamp(1.8rem, 3.2vw, 2.5rem)",
                   fontWeight: 400,
                   lineHeight: 1.15,
-                  color: "var(--foreground)",
+                  color: "var(--heading)",
                   margin: 0,
                 }}
               >
@@ -553,7 +553,7 @@ function ProductDetail({
       </section>
 
       {/* Más información */}
-      <section style={{ backgroundColor: "var(--cream-deep)", padding: "3.5rem 2rem" }}>
+      <section style={{ backgroundColor: "var(--background)", padding: "3.5rem 2rem" }}>
         <div style={{ maxWidth: "760px", margin: "0 auto" }}>
           <p style={{ ...eyebrowStyle, marginBottom: "0.5rem" }}>Ficha técnica</p>
           <h2 style={sectionTitleStyle}>Más información</h2>
@@ -591,7 +591,7 @@ function RelatedProducts({ products, categories }: { products: Product[]; catego
       <div style={{ maxWidth: "1180px", margin: "0 auto" }}>
         <p style={{ ...eyebrowStyle, marginBottom: "0.5rem" }}>De la misma categoría</p>
         <h2 style={sectionTitleStyle}>
-          También te puede <em style={{ fontStyle: "italic", color: "var(--primary)" }}>gustar</em>
+          También te puede <em style={{ fontStyle: "italic", color: "var(--accent-italic)" }}>gustar</em>
         </h2>
         <div
           style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1.5rem" }}

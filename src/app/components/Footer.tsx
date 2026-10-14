@@ -8,7 +8,6 @@ const navColumns = [
       { label: "Piedras naturales", href: "/productos?categoria=Piedras" },
       { label: "Mostacillas", href: "/productos?categoria=Mostacillas" },
       { label: "Cristales y dijes", href: "/productos?categoria=Cristales" },
-      { label: "Kits creativos", href: "/kits" },
       { label: "Herramientas", href: "/productos?categoria=Herramientas" },
     ],
   },
@@ -34,7 +33,7 @@ export function Footer() {
   return (
     <footer
       id="footer"
-      style={{ backgroundColor: "#152A1C", color: "var(--background)" }}
+      style={{ backgroundColor: "var(--olive-dark)", color: "var(--background)" }}
     >
       {/* Main footer */}
       <div
@@ -53,10 +52,10 @@ export function Footer() {
           {/* Official brand logo */}
           <div style={{ marginBottom: "1.75rem" }}>
             <img
-              src="/logos/bloom-logo-full-light.png"
+              src="/logos/bloom-isotipo-light.png"
               alt="Bloom Eterno"
               style={{
-                height: "54px",
+                height: "64px",
                 width: "auto",
                 objectFit: "contain",
                 display: "block",

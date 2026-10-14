@@ -2,15 +2,19 @@
 
 :root {
   --font-size: 16px;
-  --background: #FFFCF9;
+  --background: #FFFCF3;
   --foreground: #1F2E1F;
+  /* Títulos: verde de marca; el acento de los títulos es la cursiva, no otro color */
+  --heading: #053C29;
+  /* Palabra en cursiva que hace de acento en los títulos (ej: "Piezas *reales*") */
+  --accent-italic: #929F78;
   --card: #FFFFFF;
   --card-foreground: #1F2E1F;
   --popover: #FFFFFF;
   --popover-foreground: #1F2E1F;
-  --primary: #2B6237;
+  --primary: #053C29;
   --primary-foreground: #FFFCF9;
-  --secondary: #3E583F;
+  --secondary: #053C29;
   --secondary-foreground: #FFFFFF;
   --muted: #F4F4F4;
   --muted-foreground: #6B7563;
@@ -22,12 +26,12 @@
   --input: transparent;
   --input-background: #F4F4F4;
   --switch-background: #D8DED4;
-  --gold: #7A2331;
-  --gold-light: #9C3D4B;
-  --gold-muted: #B97E86;
+  --gold: #D9A526;
+  --gold-light: #D9A526;
+  --gold-muted: #D9A526;
   --pale-pink: #E9D8D6;
   --cream-deep: #F7F2E7;
-  --olive-dark: #1E3524;
+  --olive-dark: #053C29;
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body: 'Jost', system-ui, sans-serif;
   --font-weight-medium: 500;
@@ -149,24 +153,28 @@
     font-size: var(--text-2xl);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
+    color: var(--heading);
   }
 
   h2 {
     font-size: var(--text-xl);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
+    color: var(--heading);
   }
 
   h3 {
     font-size: var(--text-lg);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
+    color: var(--heading);
   }
 
   h4 {
     font-size: var(--text-base);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
+    color: var(--heading);
   }
 
   label {
