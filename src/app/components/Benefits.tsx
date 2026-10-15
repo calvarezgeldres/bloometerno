@@ -1,4 +1,5 @@
 import { Gem, Truck, MessageCircleHeart, Lightbulb } from "lucide-react";
+import { Accent, SectionHeading } from "./SectionHeading";
 
 const benefits = [
   {
@@ -25,17 +26,7 @@ const benefits = [
 
 export function Benefits() {
   return (
-    <section style={{ backgroundColor: "var(--primary)", position: "relative", overflow: "hidden" }}>
-      {/* Grain */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E")`,
-          opacity: 0.3,
-          pointerEvents: "none",
-        }}
-      />
+    <section style={{ backgroundColor: "var(--background)", position: "relative" }}>
 
       <div
         style={{
@@ -45,35 +36,9 @@ export function Benefits() {
           position: "relative",
         }}
       >
-        {/* Header */}
-        <div style={{ marginBottom: "3.5rem" }}>
-          <p
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "0.65rem",
-              letterSpacing: "0.2em",
-              color: "var(--gold-muted)",
-              fontWeight: 500,
-              textTransform: "uppercase" as const,
-              marginBottom: "0.75rem",
-            }}
-          >
-            Por qué elegirnos
-          </p>
-          <h2
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(1.8rem, 3vw, 2.6rem)",
-              fontWeight: 400,
-              color: "var(--primary-foreground)",
-              lineHeight: 1.1,
-              margin: 0,
-            }}
-          >
-            Creado con{" "}
-            <em style={{ fontStyle: "italic", color: "var(--accent-italic)" }}>intención</em>
-          </h2>
-        </div>
+        <SectionHeading eyebrow="Por qué elegirnos">
+          Creado con <Accent>intención</Accent>
+        </SectionHeading>
 
         {/* Benefits grid */}
         <div
@@ -81,7 +46,7 @@ export function Benefits() {
             display: "grid",
             gridTemplateColumns: "repeat(4, 1fr)",
             gap: "0",
-            borderTop: "1px solid rgba(255,252,249,0.12)",
+            borderTop: "1px solid var(--border)",
           }}
           className="max-lg:grid-cols-2"
         >
@@ -93,8 +58,8 @@ export function Benefits() {
                 key={i}
                 style={{
                   padding: "2.5rem 2rem",
-                  borderRight: !isLast ? "1px solid rgba(255,252,249,0.12)" : "none",
-                  borderBottom: "1px solid rgba(255,252,249,0.12)",
+                  borderRight: !isLast ? "1px solid var(--border)" : "none",
+                  borderBottom: "1px solid var(--border)",
                 }}
                 className={i >= 2 ? "max-lg:border-b-0" : ""}
               >
@@ -103,15 +68,15 @@ export function Benefits() {
                     width: "2.5rem",
                     height: "2.5rem",
                     borderRadius: "0.5rem",
-                    backgroundColor: "rgba(255,252,249,0.1)",
+                    backgroundColor: "var(--card)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     marginBottom: "1.25rem",
-                    border: "1px solid rgba(255,252,249,0.15)",
+                    border: "1px solid var(--border)",
                   }}
                 >
-                  <Icon size={18} strokeWidth={1.5} color="var(--gold-light)" />
+                  <Icon size={18} strokeWidth={1.5} color="var(--gold)" />
                 </div>
 
                 <h3
@@ -119,7 +84,7 @@ export function Benefits() {
                     fontFamily: "var(--font-display)",
                     fontSize: "1.1rem",
                     fontWeight: 500,
-                    color: "var(--primary-foreground)",
+                    color: "var(--heading)",
                     margin: "0 0 0.6rem",
                     lineHeight: 1.2,
                   }}
@@ -129,7 +94,7 @@ export function Benefits() {
                 <p
                   style={{
                     fontFamily: "var(--font-body)",
-                    color: "rgba(255,252,249,0.5)",
+                    color: "var(--muted-foreground)",
                     fontSize: "0.85rem",
                     lineHeight: 1.7,
                     fontWeight: 300,

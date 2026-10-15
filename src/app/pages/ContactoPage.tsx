@@ -2,6 +2,7 @@ import React from "react";
 import { MessageCircle, Instagram, Mail } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
 import { PageHeader } from "../components/PageHeader";
+import { CONTACT_EMAIL } from "../data/contact";
 
 const contactChannels = [
   {
@@ -19,8 +20,8 @@ const contactChannels = [
   {
     Icon: Mail,
     label: "Email",
-    value: "hola@bloometerno.cl",
-    href: "mailto:hola@bloometerno.cl",
+    value: CONTACT_EMAIL,
+    href: `mailto:${CONTACT_EMAIL}`,
   },
 ];
 
@@ -72,18 +73,20 @@ export const ContactoPage: React.FC = () => {
                   e.currentTarget.style.transform = "translateY(0)";
                 }}
               >
+                {/* Mismo formato que los íconos de "Por qué elegirnos" (Benefits); trazo en el verde de las cursivas */}
                 <div
                   style={{
-                    width: "3rem",
-                    height: "3rem",
-                    borderRadius: "50%",
-                    backgroundColor: "var(--accent)",
+                    width: "2.5rem",
+                    height: "2.5rem",
+                    borderRadius: "0.5rem",
+                    backgroundColor: "var(--card)",
+                    border: "1px solid var(--border)",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <Icon size={20} strokeWidth={1.5} color="var(--primary)" />
+                  <Icon size={18} strokeWidth={1.5} color="var(--accent-italic)" />
                 </div>
                 <div>
                   <p
@@ -103,7 +106,7 @@ export const ContactoPage: React.FC = () => {
                     style={{
                       fontFamily: "var(--font-display)",
                       fontSize: "1.05rem",
-                      color: "var(--foreground)",
+                      color: "var(--heading)",
                       margin: 0,
                     }}
                   >

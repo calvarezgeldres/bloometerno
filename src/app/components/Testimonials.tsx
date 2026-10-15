@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { Accent, SectionHeading } from "./SectionHeading";
 
 const testimonials = [
   {
@@ -29,61 +30,35 @@ export function Testimonials() {
   return (
     <section style={{ backgroundColor: "var(--background)", paddingTop: "5rem", paddingBottom: "5rem" }}>
       <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 2rem" }}>
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
-            <div style={{ width: "2rem", height: "1px", backgroundColor: "var(--gold)" }} />
-            <span
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: "0.65rem",
-                letterSpacing: "0.2em",
-                color: "var(--gold)",
-                fontWeight: 500,
-                textTransform: "uppercase" as const,
-              }}
-            >
-              Lo que dicen nuestras creadoras
-            </span>
-            <div style={{ width: "2rem", height: "1px", backgroundColor: "var(--gold)" }} />
-          </div>
-          <h2
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(1.8rem, 3vw, 2.6rem)",
-              fontWeight: 400,
-              color: "var(--heading)",
-              lineHeight: 1.1,
-              margin: "0 0 1.25rem",
-            }}
-          >
-            Confianza que <em style={{ fontStyle: "italic", color: "var(--accent-italic)" }}>florece</em>
-          </h2>
-
-          {/* Rating summary */}
-          <div style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
-            <Stars size={15} />
-            <span
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: "0.85rem",
-                fontWeight: 500,
-                color: "var(--foreground)",
-              }}
-            >
-              4.9 de 5
-            </span>
-            <span
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: "0.8rem",
-                color: "var(--muted-foreground)",
-              }}
-            >
-              · +500 piezas creadas con amor
-            </span>
-          </div>
-        </div>
+        <SectionHeading
+          eyebrow="Lo que dicen nuestras creadoras"
+          below={
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "0.6rem" }}>
+              <Stars size={15} />
+              <span
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.85rem",
+                  fontWeight: 500,
+                  color: "var(--foreground)",
+                }}
+              >
+                4.9 de 5
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.8rem",
+                  color: "var(--muted-foreground)",
+                }}
+              >
+                · +500 piezas creadas con amor
+              </span>
+            </div>
+          }
+        >
+          Confianza que <Accent>florece</Accent>
+        </SectionHeading>
 
         {/* Cards */}
         <div

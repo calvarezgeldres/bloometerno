@@ -7,6 +7,9 @@ import { ProductosPage } from "./pages/ProductosPage";
 import { ProductoDetallePage } from "./pages/ProductoDetallePage";
 import { NosotrosPage } from "./pages/NosotrosPage";
 import { ContactoPage } from "./pages/ContactoPage";
+import { PoliticaEnviosPage } from "./pages/PoliticaEnviosPage";
+import { CambiosDevolucionesPage } from "./pages/CambiosDevolucionesPage";
+import { PrivacidadPage } from "./pages/PrivacidadPage";
 import { AdminPage } from "./pages/AdminPage";
 import { PagoResultadoPage } from "./pages/PagoResultadoPage";
 import { PagoErrorPage } from "./pages/PagoErrorPage";
@@ -48,20 +51,6 @@ export default function App() {
             ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 3px; }
             ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
 
-            @media (max-width: 768px) {
-              .bento-grid {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-              }
-              .bento-card-featured {
-                grid-column: 1 / -1 !important;
-                grid-row: auto !important;
-              }
-              .bento-card-small {
-                grid-column: span 1 !important;
-              }
-            }
-
             @media (max-width: 1024px) {
               .max-lg\\:grid-cols-1 { grid-template-columns: 1fr !important; }
               .max-lg\\:grid-cols-2 { grid-template-columns: 1fr 1fr !important; }
@@ -80,6 +69,9 @@ export default function App() {
             <Route path="/producto/:id" element={<ProductoDetallePage />} />
             <Route path="/nosotros" element={<NosotrosPage />} />
             <Route path="/contacto" element={<ContactoPage />} />
+            <Route path="/politica-de-envios" element={<PoliticaEnviosPage />} />
+            <Route path="/cambios-y-devoluciones" element={<CambiosDevolucionesPage />} />
+            <Route path="/privacidad" element={<PrivacidadPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/pago-resultado" element={<PagoResultadoPage />} />
             <Route path="/pago-error" element={<PagoErrorPage />} />
