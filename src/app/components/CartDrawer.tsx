@@ -83,7 +83,7 @@ export const CartDrawer: React.FC = () => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            backgroundColor: "var(--card)",
+            backgroundColor: "var(--background)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
@@ -93,7 +93,7 @@ export const CartDrawer: React.FC = () => {
                 fontFamily: "var(--font-display)",
                 fontSize: "1.3rem",
                 fontWeight: 600,
-                color: "var(--foreground)",
+                color: "var(--heading)",
                 margin: 0,
               }}
             >
@@ -230,7 +230,7 @@ export const CartDrawer: React.FC = () => {
                 style={{
                   fontFamily: "var(--font-display)",
                   fontSize: "1.3rem",
-                  color: "var(--foreground)",
+                  color: "var(--heading)",
                   marginBottom: "0.4rem",
                 }}
               >
@@ -245,7 +245,7 @@ export const CartDrawer: React.FC = () => {
                   margin: "0 0 1.5rem",
                 }}
               >
-                Descubre nuestra colección de piedras naturales, cristales y kits hechos a mano.
+                Descubre nuestra colección de piedras naturales, mostacillas y cristales.
               </p>
               <button
                 onClick={() => {
@@ -326,7 +326,7 @@ export const CartDrawer: React.FC = () => {
                         margin: "0.15rem 0 0.35rem",
                         fontSize: "0.88rem",
                         fontFamily: "var(--font-display)",
-                        color: "var(--foreground)",
+                        color: "var(--heading)",
                         whiteSpace: "nowrap",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
@@ -453,7 +453,7 @@ export const CartDrawer: React.FC = () => {
             style={{
               padding: "1.25rem 1.5rem",
               borderTop: "1px solid var(--border)",
-              backgroundColor: "var(--card)",
+              backgroundColor: "var(--background)",
             }}
           >
             <div

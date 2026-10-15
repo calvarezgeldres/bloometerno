@@ -1,25 +1,27 @@
 import React from "react";
 import { Hero } from "../components/Hero";
 import { RealCreations } from "../components/RealCreations";
-import { Marquee } from "../components/Marquee";
 import { Categories } from "../components/Categories";
-import { PromoBanner } from "../components/PromoBanner";
 import { Testimonials } from "../components/Testimonials";
 import { Benefits } from "../components/Benefits";
 import { FAQ } from "../components/FAQ";
 import { Newsletter } from "../components/Newsletter";
+import { SectionDivider } from "../components/SectionDivider";
 
 export const StorePage: React.FC = () => {
   return (
     <main>
       <Hero />
       <RealCreations />
-      <Marquee />
+      <SectionDivider />
       <Categories />
+      <SectionDivider />
       <Testimonials />
-      <PromoBanner />
+      <SectionDivider spaceBelow />
       <Benefits />
+      <SectionDivider spaceAbove />
       <FAQ />
+      <SectionDivider />
       <Newsletter />
     </main>
   );

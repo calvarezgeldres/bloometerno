@@ -233,7 +233,7 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
         <div
           style={{
             padding: "1.25rem 1.75rem",
-            backgroundColor: "var(--card)",
+            backgroundColor: "var(--background)",
             borderBottom: "1px solid var(--border)",
             display: "flex",
             alignItems: "center",
@@ -258,7 +258,7 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                 fontFamily: "var(--font-display)",
                 fontSize: "1.4rem",
                 fontWeight: 600,
-                color: "var(--foreground)",
+                color: "var(--heading)",
                 margin: 0,
               }}
             >
@@ -292,7 +292,7 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                   width: "4.5rem",
                   height: "4.5rem",
                   borderRadius: "50%",
-                  backgroundColor: "rgba(74, 92, 46, 0.15)",
+                  backgroundColor: "rgba(5, 60, 41, 0.15)",
                   color: "var(--primary)",
                   display: "flex",
                   alignItems: "center",
@@ -307,7 +307,7 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                 style={{
                   fontFamily: "var(--font-display)",
                   fontSize: "1.6rem",
-                  color: "var(--foreground)",
+                  color: "var(--heading)",
                   margin: "0 0 0.5rem",
                 }}
               >
@@ -491,7 +491,7 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                     fontFamily: "var(--font-display)",
                     fontSize: "1.05rem",
                     margin: "0 0 0.8rem",
-                    color: "var(--foreground)",
+                    color: "var(--heading)",
                     display: "flex",
                     alignItems: "center",
                     gap: "0.4rem",
@@ -612,7 +612,7 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                     fontFamily: "var(--font-display)",
                     fontSize: "1.05rem",
                     margin: "0 0 0.8rem",
-                    color: "var(--foreground)",
+                    color: "var(--heading)",
                     display: "flex",
                     alignItems: "center",
                     gap: "0.4rem",
@@ -724,7 +724,7 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                     fontFamily: "var(--font-display)",
                     fontSize: "1.05rem",
                     margin: "0 0 0.8rem",
-                    color: "var(--foreground)",
+                    color: "var(--heading)",
                     display: "flex",
                     alignItems: "center",
                     gap: "0.4rem",
@@ -751,7 +751,7 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                           padding: "0.75rem 1rem",
                           borderRadius: "0.5rem",
                           border: isSelected ? "2px solid var(--primary)" : "1px solid var(--border)",
-                          backgroundColor: isSelected ? "rgba(74, 92, 46, 0.05)" : "var(--card)",
+                          backgroundColor: isSelected ? "rgba(5, 60, 41, 0.05)" : "var(--card)",
                           cursor: "pointer",
                         }}
                       >
@@ -813,7 +813,7 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                     fontFamily: "var(--font-display)",
                     fontSize: "1.05rem",
                     margin: "0 0 0.8rem",
-                    color: "var(--foreground)",
+                    color: "var(--heading)",
                     display: "flex",
                     alignItems: "center",
                     gap: "0.4rem",
@@ -841,7 +841,7 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                           padding: "0.75rem 1rem",
                           borderRadius: "0.5rem",
                           border: isSelected ? "2px solid var(--primary)" : "1px solid var(--border)",
-                          backgroundColor: isSelected ? "rgba(74, 92, 46, 0.05)" : "var(--card)",
+                          backgroundColor: isSelected ? "rgba(5, 60, 41, 0.05)" : "var(--card)",
                           cursor: "pointer",
                         }}
                       >
@@ -922,7 +922,7 @@ Hola, adjunto comprobante de pago o deseo coordinar mi pedido. ¡Muchas gracias!
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "0.5rem",
-                  boxShadow: "0 4px 14px rgba(74, 92, 46, 0.3)",
+                  boxShadow: "0 4px 14px rgba(5, 60, 41, 0.3)",
                 }}
               >
                 <ShieldCheck size={18} />

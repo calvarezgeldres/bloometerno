@@ -1,6 +1,6 @@
 # Bloom Eterno: contexto técnico
 
-Tienda online chilena de **insumos para bisutería** (piedras, mostacillas, cristales, kits, herramientas), con panel de administración propio. Si necesitas el contexto de negocio (qué se vende, cómo compra el cliente, estados de pedido, pendientes), está en **[docs/NEGOCIO.md](docs/NEGOCIO.md)**: léelo primero.
+Tienda online chilena de **insumos para bisutería** (piedras, mostacillas, cristales, herramientas), con panel de administración propio. Si necesitas el contexto de negocio (qué se vende, cómo compra el cliente, estados de pedido, pendientes), está en **[docs/NEGOCIO.md](docs/NEGOCIO.md)**: léelo primero.
 
 Todo el código, los comentarios, los commits y la UI están en **español de Chile**. Mantén ese idioma.
 
@@ -33,7 +33,7 @@ api/                      Funciones serverless (una por archivo = un endpoint)
 src/
   main.tsx, app/App.tsx   Entrada y rutas
   app/context/StoreContext.tsx   Estado global: catálogo, carrito, pedidos, settings, auth admin
-  app/pages/              StorePage (/), Productos, Kits, Nosotros, Contacto, Admin, PagoResultado, PagoError
+  app/pages/              StorePage (/), Productos, ProductoDetalle (/producto/:id), Nosotros, Contacto, Admin, PagoResultado, PagoError
   app/components/         Secciones de la landing, CartDrawer, CheckoutModal, EtiquetaDespachoModal
   app/components/admin/   CategoriesManager, ProductAttributesEditor (variantes), ImageUploader
   app/data/chileData.ts   Regiones/comunas de Chile y métodos de despacho (costos hardcodeados)

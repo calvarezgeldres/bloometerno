@@ -12,14 +12,6 @@ const SLIDES = [
     cta: { label: "Ver productos", to: "/productos" },
   },
   {
-    image: "/gallery/suculentas-macetero.webp",
-    focus: "center 35%",
-    eyebrow: "Kits creativos",
-    title: "Arma tu primera pieza hoy mismo",
-    subtitle: "Kits completos con todo lo necesario para empezar a crear, incluso si es tu primera vez.",
-    cta: { label: "Ver kits", to: "/kits" },
-  },
-  {
     image: "/gallery/lilium-azul-lazo.webp",
     focus: "center 18%",
     eyebrow: "Hecho a mano",
@@ -104,7 +96,7 @@ export function Hero() {
               maxWidth: "1280px",
               margin: "0 auto",
               padding: "0 clamp(1.5rem, 5vw, 4rem)",
-              textShadow: "0 2px 12px rgba(20,35,24,0.65), 0 1px 3px rgba(20,35,24,0.5)",
+              textShadow: "0 2px 12px rgba(5,60,41,0.65), 0 1px 3px rgba(5,60,41,0.5)",
             }}
           >
             <div style={{ maxWidth: "480px" }}>

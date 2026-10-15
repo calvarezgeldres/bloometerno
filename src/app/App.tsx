@@ -5,7 +5,6 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { StorePage } from "./pages/StorePage";
 import { ProductosPage } from "./pages/ProductosPage";
 import { ProductoDetallePage } from "./pages/ProductoDetallePage";
-import { KitsPage } from "./pages/KitsPage";
 import { NosotrosPage } from "./pages/NosotrosPage";
 import { ContactoPage } from "./pages/ContactoPage";
 import { AdminPage } from "./pages/AdminPage";
@@ -30,7 +29,9 @@ export default function App() {
             fontFamily: "var(--font-body)",
             backgroundColor: "var(--background)",
             color: "var(--foreground)",
-            overflowX: "hidden",
+            // "clip" y no "hidden": hidden convierte este div en contenedor de scroll y el
+            // encabezado sticky deja de quedarse fijo arriba al bajar.
+            overflowX: "clip",
             minHeight: "100vh",
           }}
         >
@@ -77,7 +78,6 @@ export default function App() {
             <Route path="/" element={<StoreLayout />} />
             <Route path="/productos" element={<ProductosPage />} />
             <Route path="/producto/:id" element={<ProductoDetallePage />} />
-            <Route path="/kits" element={<KitsPage />} />
             <Route path="/nosotros" element={<NosotrosPage />} />
             <Route path="/contacto" element={<ContactoPage />} />
             <Route path="/admin" element={<AdminPage />} />

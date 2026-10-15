@@ -116,7 +116,7 @@ export function BrandStory() {
             }}
           >
             <img
-              src="/logos/bloom-monogram-light.png"
+              src="/logos/bloom-isotipo-light.png"
               alt="Bloom Eterno"
               style={{
                 height: "2.2rem",

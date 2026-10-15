@@ -44,7 +44,7 @@ export function RealCreations() {
     <section
       id="creaciones"
       style={{
-        backgroundColor: "var(--cream-deep)",
+        backgroundColor: "var(--background)",
         padding: "5rem 0",
       }}
     >
@@ -80,12 +80,12 @@ export function RealCreations() {
                 fontFamily: "var(--font-display)",
                 fontSize: "clamp(2rem, 4vw, 3rem)",
                 fontWeight: 400,
-                color: "var(--foreground)",
+                color: "var(--heading)",
                 margin: 0,
                 lineHeight: 1.1,
               }}
             >
-              Piezas <em style={{ fontStyle: "italic", color: "var(--primary)" }}>reales</em>, hechas a mano
+              Piezas <em style={{ fontStyle: "italic", color: "var(--accent-italic)" }}>reales</em>, hechas a mano
             </h2>
           </div>
 

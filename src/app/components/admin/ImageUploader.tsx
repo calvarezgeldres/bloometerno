@@ -86,7 +86,7 @@ export const ImageUploader: React.FC<{
             flex: 1,
             border: `2px dashed ${dragOver ? "var(--primary)" : "var(--border)"}`,
             borderRadius: "0.5rem",
-            backgroundColor: dragOver ? "rgba(74, 92, 46, 0.06)" : "var(--background)",
+            backgroundColor: dragOver ? "rgba(5, 60, 41, 0.06)" : "var(--background)",
             display: "flex",
             flexDirection: "column",
             alignItems: "center",

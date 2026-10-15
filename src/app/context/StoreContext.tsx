@@ -47,20 +47,6 @@ export const DEFAULT_PRODUCTS: Product[] = [
     isActive: true,
   },
   {
-    id: 4,
-    num: "04",
-    name: "Kit pulsera floral completo",
-    price: 8990,
-    stock: 5,
-    badge: "Ed. Limitada",
-    badgeType: "limited",
-    image: "https://images.unsplash.com/photo-1660911866937-9399bf71af1e?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Kit completo para pulsera floral",
-    category: "Kits",
-    description: "Incluye hilo elástico resistente, dijes de brote botánico, piedras y mostacillas seleccionadas.",
-    isActive: true,
-  },
-  {
     id: 5,
     num: "05",
     name: "Separadores dorado suave x20",
@@ -102,20 +88,6 @@ export const DEFAULT_PRODUCTS: Product[] = [
     description: "Piedra rodada suave al tacto con tonalidad rosa traslúcida y energía armonizadora.",
     isActive: true,
   },
-  {
-    id: 8,
-    num: "08",
-    name: "Set iniciación bisutería natural",
-    price: 12900,
-    stock: 3,
-    badge: "Ed. Limitada",
-    badgeType: "limited",
-    image: "https://images.unsplash.com/photo-1560847133-95f64e08e02a?w=600&h=700&fit=crop&auto=format&q=80",
-    alt: "Set completo de iniciación en bisutería natural",
-    category: "Kits",
-    description: "Caja organizadora con pinzas de precisión, 6 variedades de piedras, hilos y fornituras completas.",
-    isActive: true,
-  },
 ];
 
 /** Categorías del modo local (sin API). En Neon se siembran las mismas en neon/migration_categorias.sql. */
@@ -123,7 +95,6 @@ export const DEFAULT_CATEGORIES: Category[] = [
   { id: "cat-piedras", name: "Piedras", description: "Cuarzo, ámbar, ojo de tigre", image: "https://images.unsplash.com/photo-1560427450-00fa9481f01e?w=900&h=1100&fit=crop&auto=format&q=80", attributes: [], sortOrder: 1 },
   { id: "cat-mostacillas", name: "Mostacillas", description: "Decenas de colores y tamaños", image: "https://images.unsplash.com/photo-1560847133-e6f64dc352ea?w=600&h=500&fit=crop&auto=format&q=80", attributes: [], sortOrder: 2 },
   { id: "cat-cristales", name: "Cristales", description: "Facetados y brillantes", image: "https://images.unsplash.com/photo-1556376752-19770d78207f?w=600&h=500&fit=crop&auto=format&q=80", attributes: [], sortOrder: 3 },
-  { id: "cat-kits", name: "Kits", description: "Para empezar a crear hoy", image: "https://images.unsplash.com/photo-1660911866937-9399bf71af1e?w=600&h=500&fit=crop&auto=format&q=80", attributes: [], sortOrder: 4 },
   { id: "cat-herramientas", name: "Herramientas", description: "Hilos, cierres y accesorios", image: "https://images.unsplash.com/photo-1658915250017-bee8f8f0d9a6?w=600&h=500&fit=crop&auto=format&q=80", attributes: [], sortOrder: 5 },
 ];
 

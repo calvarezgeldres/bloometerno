@@ -8,12 +8,6 @@ const testimonials = [
       "Los materiales son preciosos y llegan súper bien embalados. Hice un ramo de lirios en mostacillas para el cumpleaños de mi mamá y quedó espectacular.",
   },
   {
-    name: "Camila R.",
-    location: "Viña del Mar",
-    quote:
-      "Compré el kit creativo para empezar y venía todo lo necesario, hasta la guía. Ahora hago pedidos personalizados para amigas.",
-  },
-  {
     name: "Fernanda S.",
     location: "Concepción",
     quote:
@@ -58,12 +52,12 @@ export function Testimonials() {
               fontFamily: "var(--font-display)",
               fontSize: "clamp(1.8rem, 3vw, 2.6rem)",
               fontWeight: 400,
-              color: "var(--foreground)",
+              color: "var(--heading)",
               lineHeight: 1.1,
               margin: "0 0 1.25rem",
             }}
           >
-            Confianza que <em style={{ fontStyle: "italic", color: "var(--primary)" }}>florece</em>
+            Confianza que <em style={{ fontStyle: "italic", color: "var(--accent-italic)" }}>florece</em>
           </h2>
 
           {/* Rating summary */}
@@ -93,7 +87,7 @@ export function Testimonials() {
 
         {/* Cards */}
         <div
-          style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}
+          style={{ display: "grid", gridTemplateColumns: `repeat(${testimonials.length}, 1fr)`, gap: "1.5rem" }}
           className="max-lg:grid-cols-1"
         >
           {testimonials.map((t) => (

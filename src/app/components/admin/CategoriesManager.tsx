@@ -178,7 +178,7 @@ export const CategoriesManager: React.FC = () => {
             display: "flex",
             alignItems: "center",
             gap: "0.5rem",
-            boxShadow: "0 4px 12px rgba(74, 92, 46, 0.25)",
+            boxShadow: "0 4px 12px rgba(5, 60, 41, 0.25)",
           }}
         >
           <Plus size={18} />

@@ -20,7 +20,7 @@ export const PagoErrorPage: React.FC = () => {
       <div style={{ maxWidth: 480, width: "100%", textAlign: "center" }}>
         <XCircle size={44} color="var(--destructive)" style={{ margin: "0 auto 1.5rem" }} />
 
-        <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.7rem", color: "var(--foreground)", margin: "0 0 0.75rem" }}>
+        <h1 style={{ fontFamily: "var(--font-display)", fontSize: "1.7rem", color: "var(--heading)", margin: "0 0 0.75rem" }}>
           El pago no se pudo procesar
         </h1>
         <p style={{ color: "var(--muted-foreground)", fontSize: "0.9rem", marginBottom: "1.5rem" }}>

@@ -7,7 +7,7 @@ const faqs = [
     a: "Los despachos a la Región Metropolitana llegan en 1 a 3 días hábiles, y a regiones entre 3 y 6 días hábiles. Te enviamos el número de seguimiento apenas tu pedido sale de nuestro taller.",
   },
   {
-    q: "¿Puedo personalizar los colores de un kit o ramo?",
+    q: "¿Puedo personalizar los colores de un ramo?",
     a: "Sí. Escríbenos por WhatsApp o Instagram antes de comprar y te ayudamos a elegir la combinación de piedras y mostacillas que más te guste.",
   },
   {
@@ -26,7 +26,7 @@ const faqs = [
 
 export function FAQ() {
   return (
-    <section style={{ backgroundColor: "var(--cream-deep)", paddingTop: "5rem", paddingBottom: "5rem" }}>
+    <section style={{ backgroundColor: "var(--background)", paddingTop: "5rem", paddingBottom: "5rem" }}>
       <div style={{ maxWidth: "820px", margin: "0 auto", padding: "0 2rem" }}>
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: "3rem" }}>
@@ -48,12 +48,12 @@ export function FAQ() {
               fontFamily: "var(--font-display)",
               fontSize: "clamp(1.8rem, 3vw, 2.6rem)",
               fontWeight: 400,
-              color: "var(--foreground)",
+              color: "var(--heading)",
               lineHeight: 1.1,
               margin: 0,
             }}
           >
-            Resolvemos tus <em style={{ fontStyle: "italic", color: "var(--primary)" }}>dudas</em>
+            Resolvemos tus <em style={{ fontStyle: "italic", color: "var(--accent-italic)" }}>dudas</em>
           </h2>
         </div>
 

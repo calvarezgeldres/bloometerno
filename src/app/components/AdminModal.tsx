@@ -26,7 +26,6 @@ const PRESET_IMAGES = [
   { label: "Perlas Naturales", url: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&h=700&fit=crop&auto=format&q=80" },
   { label: "Mostacillas Doradas", url: "https://images.unsplash.com/photo-1611591475883-9b63a03fb7b9?w=600&h=700&fit=crop&auto=format&q=80" },
   { label: "Ágata Turquesa", url: "https://images.unsplash.com/photo-1617042375876-a13e36732a04?w=600&h=700&fit=crop&auto=format&q=80" },
-  { label: "Kit Macramé", url: "https://images.unsplash.com/photo-1620656798579-1984d9e87dfa?w=600&h=700&fit=crop&auto=format&q=80" },
 ];
 
 export const AdminModal: React.FC = () => {
@@ -203,7 +202,7 @@ export const AdminModal: React.FC = () => {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            <img src="/logos/bloom-monogram-light.png" alt="Bloom" style={{ height: "30px" }} />
+            <img src="/logos/bloom-isotipo-light.png" alt="Bloom Eterno" style={{ height: "30px" }} />
             <div>
               <h2 style={{ fontFamily: "var(--font-display)", fontSize: "1.2rem", margin: 0, fontWeight: 600 }}>
                 Panel de Administración · Bloom Eterno
@@ -422,7 +421,6 @@ export const AdminModal: React.FC = () => {
                         <option value="Mostacillas">Mostacillas</option>
                         <option value="Piedras">Piedras</option>
                         <option value="Cristales">Cristales</option>
-                        <option value="Kits">Kits</option>
                         <option value="Herramientas">Herramientas</option>
                         <option value="Dijes">Dijes</option>
                       </select>
@@ -657,7 +655,7 @@ export const AdminModal: React.FC = () => {
                                 ¡{p.stock} un!
                               </span>
                             ) : (
-                              <span style={{ fontSize: "0.68rem", backgroundColor: "rgba(74, 92, 46, 0.15)", color: "var(--primary)", padding: "0.15rem 0.5rem", borderRadius: "1rem", fontWeight: 600 }}>
+                              <span style={{ fontSize: "0.68rem", backgroundColor: "rgba(5, 60, 41, 0.15)", color: "var(--primary)", padding: "0.15rem 0.5rem", borderRadius: "1rem", fontWeight: 600 }}>
                                 En Stock
                               </span>
                             )}
@@ -760,7 +758,7 @@ export const AdminModal: React.FC = () => {
                               fontWeight: 600,
                               backgroundColor:
                                 o.status === "Enviado"
-                                  ? "rgba(74, 92, 46, 0.15)"
+                                  ? "rgba(5, 60, 41, 0.15)"
                                   : o.status === "Comprobante recibido"
                                   ? "rgba(184, 144, 78, 0.2)"
                                   : "var(--background)",
