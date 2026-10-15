@@ -48,20 +48,6 @@ export default function App() {
             ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 3px; }
             ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
 
-            @media (max-width: 768px) {
-              .bento-grid {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-              }
-              .bento-card-featured {
-                grid-column: 1 / -1 !important;
-                grid-row: auto !important;
-              }
-              .bento-card-small {
-                grid-column: span 1 !important;
-              }
-            }
-
             @media (max-width: 1024px) {
               .max-lg\\:grid-cols-1 { grid-template-columns: 1fr !important; }
               .max-lg\\:grid-cols-2 { grid-template-columns: 1fr 1fr !important; }

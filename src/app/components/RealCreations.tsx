@@ -1,36 +1,52 @@
-import { useRef } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Accent, SectionHeading } from "./SectionHeading";
 
 const PIECES = [
   {
     src: "/gallery/ramo-mixto.webp",
     alt: "Ramo mixto de flores en mostacillas: lirios, tulipanes y flor de nube",
-    title: "Ramo Mixto",
+    title: "Arreglo Floral | Tamaño M",
   },
   {
     src: "/gallery/lilium-azul-mano.webp",
     alt: "Ramo de lirios azules tejidos en mostacillas",
-    title: "Lirios Azules",
-  },
-  {
-    src: "/gallery/lilium-azul-lazo.webp",
-    alt: "Ramo de lirios azules con lazo de regalo",
-    title: "Lirios de Regalo",
+    title: "Arreglo Floral | Tamaño S",
   },
   {
     src: "/gallery/suculentas-macetero.webp",
     alt: "Macetero con suculentas tejidas en mostacillas",
-    title: "Suculentas en Macetero",
+    title: "Suculentas | Tamaño M",
   },
   {
-    src: "/gallery/suculentas-manos.webp",
-    alt: "Macetero artesanal de suculentas sostenido en las manos",
-    title: "Suculentas Artesanales",
+    src: "/gallery/lengua-de-suegra.webp",
+    alt: "Lengua de suegra tejida en mostacillas verdes, en macetero rosado con el isotipo de Bloom Eterno",
+    title: "Lengua de Suegra | Tamaño S",
+  },
+  {
+    src: "/gallery/suculenta-s.webp",
+    alt: "Suculenta tejida en mostacillas verdes en un macetero de cemento gris con pintas blancas",
+    title: "Suculenta | Tamaño S",
   },
 ];
 
 export function RealCreations() {
   const scrollerRef = useRef<HTMLDivElement>(null);
+
+  // Qué flechas sirven según dónde va el carrusel (la que no sirve se ve apagada)
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(true);
+  const updateArrows = () => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setCanPrev(el.scrollLeft > 4);
+    setCanNext(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+  };
+  useEffect(() => {
+    updateArrows();
+    window.addEventListener("resize", updateArrows);
+    return () => window.removeEventListener("resize", updateArrows);
+  }, []);
 
   const scrollByCard = (direction: 1 | -1) => {
     const el = scrollerRef.current;
@@ -49,140 +65,103 @@ export function RealCreations() {
       }}
     >
       <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 2rem" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-end",
-            flexWrap: "wrap",
-            gap: "1.5rem",
-            marginBottom: "2.5rem",
-          }}
-        >
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1.25rem" }}>
-              <div style={{ width: "2rem", height: "1px", backgroundColor: "var(--gold)" }} />
-              <span
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "0.65rem",
-                  letterSpacing: "0.2em",
-                  color: "var(--gold)",
-                  fontWeight: 500,
-                  textTransform: "uppercase" as const,
-                }}
-              >
-                Hecho con nuestros materiales
-              </span>
-            </div>
-            <h2
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(2rem, 4vw, 3rem)",
-                fontWeight: 400,
-                color: "var(--heading)",
-                margin: 0,
-                lineHeight: 1.1,
-              }}
-            >
-              Piezas <em style={{ fontStyle: "italic", color: "var(--accent-italic)" }}>reales</em>, hechas a mano
-            </h2>
-          </div>
+        <SectionHeading eyebrow="Productos destacados">
+          Hecho a <Accent>mano</Accent>. Hecho para <Accent>siempre</Accent>
+        </SectionHeading>
 
-          {/* Nav buttons */}
-          <div style={{ display: "flex", gap: "0.6rem" }}>
-            <button
-              onClick={() => scrollByCard(-1)}
-              aria-label="Anterior"
-              style={{
-                width: "2.75rem",
-                height: "2.75rem",
-                borderRadius: "50%",
-                border: "1px solid var(--border)",
-                backgroundColor: "var(--background)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                color: "var(--foreground)",
-              }}
-            >
-              <ArrowLeft size={16} />
-            </button>
-            <button
-              onClick={() => scrollByCard(1)}
-              aria-label="Siguiente"
-              style={{
-                width: "2.75rem",
-                height: "2.75rem",
-                borderRadius: "50%",
-                border: "1px solid var(--border)",
-                backgroundColor: "var(--background)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                color: "var(--foreground)",
-              }}
-            >
-              <ArrowRight size={16} />
-            </button>
-          </div>
-        </div>
+        {/* Carrusel con flechas a los costados (como "Featured Products" de johnbead.com):
+            centradas en la altura de la foto y apagadas cuando no hay más hacia ese lado */}
+        <div style={{ position: "relative" }}>
+          <CarouselArrow direction="prev" enabled={canPrev} onClick={() => scrollByCard(-1)} />
+          <CarouselArrow direction="next" enabled={canNext} onClick={() => scrollByCard(1)} />
 
-        {/* Scroll-snap carousel */}
-        <div
-          ref={scrollerRef}
-          style={{
-            display: "flex",
-            gap: "1.25rem",
-            overflowX: "auto",
-            scrollSnapType: "x mandatory",
-            paddingBottom: "0.5rem",
-            scrollbarWidth: "none",
-          }}
-        >
-          {PIECES.map((piece) => (
-            <div
-              key={piece.src}
-              data-card
-              style={{
-                flex: "0 0 auto",
-                width: "min(78vw, 300px)",
-                scrollSnapAlign: "start",
-              }}
-            >
+          {/* Scroll-snap carousel */}
+          <div
+            ref={scrollerRef}
+            onScroll={updateArrows}
+            style={{
+              display: "flex",
+              gap: "1.25rem",
+              overflowX: "auto",
+              scrollSnapType: "x mandatory",
+              paddingBottom: "0.5rem",
+              scrollbarWidth: "none",
+            }}
+          >
+            {PIECES.map((piece) => (
               <div
+                key={piece.src}
+                data-card
                 style={{
-                  borderRadius: "0.9rem",
-                  overflow: "hidden",
-                  aspectRatio: "3/4",
-                  backgroundColor: "var(--muted)",
-                  border: "1px solid var(--border)",
+                  flex: "0 0 auto",
+                  width: CARD_WIDTH,
+                  scrollSnapAlign: "start",
                 }}
               >
-                <img
-                  src={piece.src}
-                  alt={piece.alt}
-                  loading="lazy"
-                  style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                />
+                <div
+                  style={{
+                    borderRadius: "0.9rem",
+                    overflow: "hidden",
+                    aspectRatio: "3/4",
+                    backgroundColor: "var(--muted)",
+                    border: "1px solid var(--border)",
+                  }}
+                >
+                  <img
+                    src={piece.src}
+                    alt={piece.alt}
+                    loading="lazy"
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                  />
+                </div>
+                <p
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                    color: "var(--foreground)",
+                    margin: "0.85rem 0 0",
+                  }}
+                >
+                  {piece.title}
+                </p>
               </div>
-              <p
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "0.8rem",
-                  fontWeight: 600,
-                  color: "var(--foreground)",
-                  margin: "0.85rem 0 0",
-                }}
-              >
-                {piece.title}
-              </p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
+  );
+}
+
+// Alto de la foto = ancho de la tarjeta × 4/3; la flecha va a la mitad de esa altura
+const CARD_WIDTH = "min(78vw, 300px)";
+
+function CarouselArrow({ direction, enabled, onClick }: { direction: "prev" | "next"; enabled: boolean; onClick: () => void }) {
+  const Icon = direction === "prev" ? ChevronLeft : ChevronRight;
+  const style: React.CSSProperties = {
+    position: "absolute",
+    top: `calc(${CARD_WIDTH} * 2 / 3)`,
+    [direction === "prev" ? "left" : "right"]: "-0.6rem",
+    transform: "translateY(-50%)",
+    zIndex: 2,
+    width: "2.75rem",
+    height: "2.75rem",
+    borderRadius: "50%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    border: enabled ? "none" : "1px solid var(--border)",
+    backgroundColor: enabled ? "var(--primary)" : "var(--background)",
+    color: enabled ? "var(--primary-foreground)" : "var(--muted-foreground)",
+    opacity: enabled ? 1 : 0.6,
+    cursor: enabled ? "pointer" : "default",
+    boxShadow: enabled ? "0 4px 14px rgba(5,60,41,0.25)" : "none",
+    transition: "background-color 0.2s ease, opacity 0.2s ease",
+  };
+  return (
+    <button type="button" onClick={onClick} disabled={!enabled} aria-label={direction === "prev" ? "Anterior" : "Siguiente"} style={style}>
+      <Icon size={20} strokeWidth={1.75} />
+    </button>
   );
 }

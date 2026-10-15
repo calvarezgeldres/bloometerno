@@ -1,5 +1,6 @@
 import * as AccordionPrimitive from "@radix-ui/react-accordion";
 import { Plus } from "lucide-react";
+import { Accent, SectionHeading } from "./SectionHeading";
 
 const faqs = [
   {
@@ -28,34 +29,9 @@ export function FAQ() {
   return (
     <section style={{ backgroundColor: "var(--background)", paddingTop: "5rem", paddingBottom: "5rem" }}>
       <div style={{ maxWidth: "820px", margin: "0 auto", padding: "0 2rem" }}>
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-          <p
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: "0.65rem",
-              letterSpacing: "0.2em",
-              color: "var(--gold)",
-              fontWeight: 500,
-              textTransform: "uppercase" as const,
-              marginBottom: "0.75rem",
-            }}
-          >
-            Preguntas frecuentes
-          </p>
-          <h2
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(1.8rem, 3vw, 2.6rem)",
-              fontWeight: 400,
-              color: "var(--heading)",
-              lineHeight: 1.1,
-              margin: 0,
-            }}
-          >
-            Resolvemos tus <em style={{ fontStyle: "italic", color: "var(--accent-italic)" }}>dudas</em>
-          </h2>
-        </div>
+        <SectionHeading eyebrow="Preguntas frecuentes">
+          Resolvemos tus <Accent>dudas</Accent>
+        </SectionHeading>
 
         {/* Accordion */}
         <AccordionPrimitive.Root type="single" collapsible style={{ display: "flex", flexDirection: "column" }}>

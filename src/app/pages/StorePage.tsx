@@ -17,9 +17,9 @@ export const StorePage: React.FC = () => {
       <Categories />
       <SectionDivider />
       <Testimonials />
-      <SectionDivider spaceBelow />
+      <SectionDivider />
       <Benefits />
-      <SectionDivider spaceAbove />
+      <SectionDivider />
       <FAQ />
       <SectionDivider />
       <Newsletter />
