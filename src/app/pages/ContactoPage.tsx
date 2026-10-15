@@ -2,6 +2,7 @@ import React from "react";
 import { MessageCircle, Instagram, Mail } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
 import { PageHeader } from "../components/PageHeader";
+import { CONTACT_EMAIL } from "../data/contact";
 
 const contactChannels = [
   {
@@ -19,8 +20,8 @@ const contactChannels = [
   {
     Icon: Mail,
     label: "Email",
-    value: "hola@bloometerno.cl",
-    href: "mailto:hola@bloometerno.cl",
+    value: CONTACT_EMAIL,
+    href: `mailto:${CONTACT_EMAIL}`,
   },
 ];
 

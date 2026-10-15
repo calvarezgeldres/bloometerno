@@ -9,6 +9,11 @@ const PIECES = [
     title: "Arreglo Floral | Tamaño M",
   },
   {
+    src: "/gallery/ramo-de-novia.webp",
+    alt: "Ramo de novia tejido en mostacillas: girasol, tulipanes naranjos y fucsia, flor de nube y mango con cinta blanca",
+    title: "Ramo de Novia",
+  },
+  {
     src: "/gallery/lilium-azul-mano.webp",
     alt: "Ramo de lirios azules tejidos en mostacillas",
     title: "Arreglo Floral | Tamaño S",

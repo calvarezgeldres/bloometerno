@@ -7,6 +7,9 @@ import { ProductosPage } from "./pages/ProductosPage";
 import { ProductoDetallePage } from "./pages/ProductoDetallePage";
 import { NosotrosPage } from "./pages/NosotrosPage";
 import { ContactoPage } from "./pages/ContactoPage";
+import { PoliticaEnviosPage } from "./pages/PoliticaEnviosPage";
+import { CambiosDevolucionesPage } from "./pages/CambiosDevolucionesPage";
+import { PrivacidadPage } from "./pages/PrivacidadPage";
 import { AdminPage } from "./pages/AdminPage";
 import { PagoResultadoPage } from "./pages/PagoResultadoPage";
 import { PagoErrorPage } from "./pages/PagoErrorPage";
@@ -66,6 +69,9 @@ export default function App() {
             <Route path="/producto/:id" element={<ProductoDetallePage />} />
             <Route path="/nosotros" element={<NosotrosPage />} />
             <Route path="/contacto" element={<ContactoPage />} />
+            <Route path="/politica-de-envios" element={<PoliticaEnviosPage />} />
+            <Route path="/cambios-y-devoluciones" element={<CambiosDevolucionesPage />} />
+            <Route path="/privacidad" element={<PrivacidadPage />} />
             <Route path="/admin" element={<AdminPage />} />
             <Route path="/pago-resultado" element={<PagoResultadoPage />} />
             <Route path="/pago-error" element={<PagoErrorPage />} />

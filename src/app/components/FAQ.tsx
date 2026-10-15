@@ -5,7 +5,7 @@ import { Accent, SectionHeading } from "./SectionHeading";
 const faqs = [
   {
     q: "¿Cuánto demora el envío?",
-    a: "Los despachos a la Región Metropolitana llegan en 1 a 3 días hábiles, y a regiones entre 3 y 6 días hábiles. Te enviamos el número de seguimiento apenas tu pedido sale de nuestro taller.",
+    a: "En Santiago (RM) despachamos a domicilio en 24 a 48 horas hábiles. A regiones coordinamos el envío contigo por WhatsApp y te enviamos el número de seguimiento del courier. También puedes retirar sin costo en nuestro taller de Vitacura. Más detalles en nuestra política de envíos.",
   },
   {
     q: "¿Puedo personalizar los colores de un ramo?",
@@ -17,7 +17,7 @@ const faqs = [
   },
   {
     q: "¿Aceptan cambios o devoluciones?",
-    a: "Sí, tienes 7 días desde que recibes tu pedido para solicitar un cambio si el producto llega en mal estado o no corresponde a lo comprado.",
+    a: "Sí. Tienes 10 días desde que recibes tu pedido para retractarte de la compra (con el producto sin uso y en su embalaje original) y 6 meses de garantía legal si un producto tiene una falla. Más detalles en nuestra política de cambios y devoluciones.",
   },
   {
     q: "¿Qué medios de pago aceptan?",
@@ -27,7 +27,7 @@ const faqs = [
 
 export function FAQ() {
   return (
-    <section style={{ backgroundColor: "var(--background)", paddingTop: "5rem", paddingBottom: "5rem" }}>
+    <section id="preguntas-frecuentes" style={{ backgroundColor: "var(--background)", paddingTop: "5rem", paddingBottom: "5rem", scrollMarginTop: "4rem" }}>
       <div style={{ maxWidth: "820px", margin: "0 auto", padding: "0 2rem" }}>
         <SectionHeading eyebrow="Preguntas frecuentes">
           Resolvemos tus <Accent>dudas</Accent>
