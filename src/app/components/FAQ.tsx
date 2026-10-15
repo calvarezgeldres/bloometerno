@@ -21,7 +21,7 @@ const faqs = [
   },
   {
     q: "¿Qué medios de pago aceptan?",
-    a: "Webpay, Mercado Pago, transferencia bancaria y efectivo en retiro coordinado.",
+    a: "Transferencia bancaria y Mercado Pago (tarjetas de crédito, débito y otros medios).",
   },
 ];
 

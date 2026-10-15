@@ -67,9 +67,7 @@ Requiere usuario y contraseña. Tiene 4 pestañas:
 
 - El sitio está desplegado en Vercel, pero tiene `noindex, nofollow` en `index.html`, así que **todavía no está abierto a buscadores**.
 - Los valores por defecto de `store_settings` en `neon/schema.sql` (banco, cuenta, RUT, WhatsApp `+56912345678`) son **de ejemplo**. Los reales se cargan desde el panel.
-- **Hay textos de la web que no calzan con lo implementado:**
-  - Las FAQ mencionan Webpay y efectivo, pero hoy solo hay transferencia y Mercado Pago.
-  - Las FAQ dicen "a regiones 3 a 6 días", pero el despacho a regiones se coordina a mano.
-  - Hay un formulario de newsletter que no está conectado a nada.
+- Hay un formulario de newsletter que no está conectado a nada.
+- Las páginas de políticas (`/politica-de-envios`, `/cambios-y-devoluciones`, `/privacidad`) son una propuesta **sin revisión legal**; falta agregar razón social y RUT en privacidad.
 - Parte del catálogo semilla usa fotos de Unsplash. Las fotos reales se suben desde el panel.
-- El diseño visual tomó como referencia el estilo de *Elle Blooming*: verde oliva/bosque, coral/burdeo y crema, con tipografías Playfair Display + Jost.
+- Identidad visual: verde `#053C29`, acento dorado `#D9A526`, cursivas de acento `#929F78` y fondo crema `#FFFCF3`, con tipografías Playfair Display + Jost. Logo: isotipo "BE". Referencias de diseño: johnbead.com y kingcrafts.cl.
