@@ -96,18 +96,19 @@ async function syncVariants(sql: any, productId: string, raw: unknown) {
       v?.price === null || v?.price === undefined || v?.price === "" ? null : Math.max(0, Math.floor(Number(v.price) || 0));
     // Sin foto propia (NULL) la tienda muestra la foto principal del producto
     const image = typeof v?.image === "string" && v.image.trim() ? v.image.trim() : null;
+    const sku = typeof v?.sku === "string" && v.sku.trim() ? v.sku.trim().slice(0, 64) : null;
 
     if (v?.id && existingIds.has(v.id)) {
       await sql`
         UPDATE product_variants
-        SET options = ${options}::jsonb, stock = ${stock}, price = ${price}, image = ${image}, sort_order = ${i}
+        SET options = ${options}::jsonb, stock = ${stock}, price = ${price}, image = ${image}, sku = ${sku}, sort_order = ${i}
         WHERE id = ${v.id}
       `;
       keep.add(v.id);
     } else {
       const rows = await sql`
-        INSERT INTO product_variants (product_id, options, stock, price, image, sort_order)
-        VALUES (${productId}, ${options}::jsonb, ${stock}, ${price}, ${image}, ${i})
+        INSERT INTO product_variants (product_id, options, stock, price, image, sku, sort_order)
+        VALUES (${productId}, ${options}::jsonb, ${stock}, ${price}, ${image}, ${sku}, ${i})
         RETURNING id
       `;
       keep.add(rows[0].id);
@@ -214,7 +215,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (!id) return res.status(400).json({ error: "Falta el campo id" });
 
       const allowed = [
-        "name", "category_id", "price", "stock", "badge", "badge_type", "image", "alt", "description", "is_active",
+        "num", "name", "category_id", "price", "stock", "badge", "badge_type", "image", "alt", "description", "is_active",
         "attributes", "variants",
       ] as const;
       type AllowedKey = typeof allowed[number];
@@ -235,6 +236,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       // Actualizar campo a campo usando tagged template (neon no soporta SET dinámico en un solo query)
       for (const field of fields) {
         const value = updates[field];
+        if (field === "num")          await sql`UPDATE products SET num          = ${String(value ?? "").trim().slice(0, 64) || null} WHERE id = ${id}`;
         if (field === "name")         await sql`UPDATE products SET name         = ${value} WHERE id = ${id}`;
         if (field === "price")        await sql`UPDATE products SET price        = ${Number(value)} WHERE id = ${id}`;
         if (field === "stock")        await sql`UPDATE products SET stock        = ${Number(value)} WHERE id = ${id}`;

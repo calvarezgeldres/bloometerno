@@ -185,3 +185,10 @@ WHERE p.category_id IS NULL AND c.name = p.category;
 -- ==============================================================================
 -- NULL = la variante usa la foto principal del producto.
 ALTER TABLE product_variants ADD COLUMN IF NOT EXISTS image TEXT;
+
+-- ==============================================================================
+-- SKU por variante y SKU de producto más largo
+-- (mismo contenido que neon/migration_sku.sql)
+-- ==============================================================================
+ALTER TABLE products ALTER COLUMN num TYPE VARCHAR(64);
+ALTER TABLE product_variants ADD COLUMN IF NOT EXISTS sku VARCHAR(64);

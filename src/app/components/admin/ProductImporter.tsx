@@ -57,8 +57,9 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
     let nextNum = products.length + 1;
     for (const p of ready) {
       try {
-        await addProduct({ ...p.data, num: String(nextNum).padStart(2, "0"), isActive: true });
-        nextNum++;
+        // Con SKU, el código del producto es su SKU; si no, el correlativo
+        await addProduct({ ...p.data, num: p.sku ?? String(nextNum).padStart(2, "0"), isActive: true });
+        if (!p.sku) nextNum++;
         out.push({ name: p.data.name, ok: true });
       } catch (err: any) {
         out.push({ name: p.data.name, ok: false, error: err?.message || "Error desconocido" });
@@ -100,7 +101,7 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
           <p style={{ fontSize: "0.82rem", color: "var(--muted-foreground)", margin: 0, maxWidth: "640px", lineHeight: 1.6 }}>
             Carga muchos productos de una vez desde una planilla. <strong>Una fila por variante:</strong> las filas con el mismo
             nombre y categoría forman un solo producto. Cada característica de la categoría (ej: Color) es una columna con su
-            nombre. En Excel, guarda como <strong>CSV (delimitado por punto y coma)</strong>; en Google Sheets, Archivo →
+            nombre. La columna <strong>sku</strong> es el SKU de la variante de esa fila, o del producto si no tiene variantes. En Excel, guarda como <strong>CSV (delimitado por punto y coma)</strong>; en Google Sheets, Archivo →
             Descargar → CSV.
           </p>
         </div>
@@ -165,7 +166,10 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
                           <td style={{ padding: "0.6rem 0.75rem" }}>
                             {ok ? <CheckCircle2 size={16} color="var(--primary)" /> : <XCircle size={16} color="var(--destructive)" />}
                           </td>
-                          <td style={{ padding: "0.6rem 0.75rem", fontWeight: 500, minWidth: "180px" }}>{p.data.name || "—"}</td>
+                          <td style={{ padding: "0.6rem 0.75rem", fontWeight: 500, minWidth: "180px" }}>
+                            {p.data.name || "—"}
+                            {p.sku && <div style={{ fontWeight: 400, fontSize: "0.72rem", color: "var(--muted-foreground)" }}>SKU {p.sku}</div>}
+                          </td>
                           <td style={{ padding: "0.6rem 0.75rem", whiteSpace: "nowrap" }}>{p.data.category || "—"}</td>
                           <td style={{ padding: "0.6rem 0.75rem", whiteSpace: "nowrap" }}>{formatCLP(p.data.price)}</td>
                           <td style={{ padding: "0.6rem 0.75rem", minWidth: "160px" }}>
@@ -173,7 +177,7 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
                               <>
                                 {(p.data.variants ?? []).length} variante{(p.data.variants ?? []).length === 1 ? "" : "s"} · {p.data.stock} un.
                                 <div style={{ color: "var(--muted-foreground)", fontSize: "0.72rem", marginTop: "0.2rem" }}>
-                                  {(p.data.variants ?? []).map((v) => variantLabel(v, cat)).join(" · ")}
+                                  {(p.data.variants ?? []).map((v) => variantLabel(v, cat) + (v.sku ? ` (SKU ${v.sku})` : "")).join(" · ")}
                                 </div>
                               </>
                             ) : (

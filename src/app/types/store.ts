@@ -28,10 +28,13 @@ export type ProductVariant = {
   price?: number | null;
   /** Foto de esta variante (ej: el alambre en Dorado). null = usa la foto del producto */
   image?: string | null;
+  /** SKU de esta variante (ej: el código del proveedor para ese color) */
+  sku?: string | null;
 };
 
 export type Product = {
   id: string | number;
+  /** "Código" que muestra la tienda: el SKU del producto o, si no tiene, un correlativo */
   num: string;
   name: string;
   price: number;

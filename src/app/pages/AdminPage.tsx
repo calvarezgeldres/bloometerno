@@ -97,6 +97,7 @@ export const AdminPage: React.FC = () => {
 
   // Formulario de Producto
   const [newName, setNewName] = useState("");
+  const [newSku, setNewSku] = useState("");
   const [newCategoryId, setNewCategoryId] = useState("");
   const [newAttributes, setNewAttributes] = useState<Record<string, string>>({});
   const [newVariants, setNewVariants] = useState<ProductVariant[]>([]);
@@ -153,6 +154,7 @@ export const AdminPage: React.FC = () => {
 
   const resetProductForm = () => {
     setNewName("");
+    setNewSku("");
     setNewPrice("2990");
     setNewStock("15");
     setNewBadge("");
@@ -185,6 +187,26 @@ export const AdminPage: React.FC = () => {
       return;
     }
 
+    // SKU: no se puede repetir entre productos ni entre variantes (de este u otros productos)
+    const sku = newSku.trim();
+    const norm = (v?: string | null) => (v ?? "").trim().toLowerCase();
+    const others = products.filter((p) => String(p.id) !== String(editingProductId));
+    if (sku && others.some((p) => norm(p.num) === norm(sku))) {
+      alert(`El SKU «${sku}» ya lo usa otro producto.`);
+      return;
+    }
+    const variantSkus = newVariants.map((v) => norm(v.sku)).filter(Boolean);
+    const takenSkus = new Set([
+      ...others.map((p) => norm(p.num)),
+      ...others.flatMap((p) => (p.variants ?? []).map((v) => norm(v.sku))),
+      norm(sku),
+    ].filter(Boolean));
+    const repeated = variantSkus.find((v, i) => variantSkus.indexOf(v) !== i || takenSkus.has(v));
+    if (repeated) {
+      alert(`El SKU de variante «${repeated}» está repetido o ya lo usa otro producto.`);
+      return;
+    }
+
     let badgeType: Product["badgeType"] = null;
     if (newBadge === "Nuevo") badgeType = "new";
     if (newBadge === "Más vendido") badgeType = "hot";
@@ -214,10 +236,10 @@ export const AdminPage: React.FC = () => {
     setIsSavingProduct(true);
     try {
       if (editingProductId) {
-        await updateProduct(editingProductId, data);
+        await updateProduct(editingProductId, sku ? { ...data, num: sku } : data);
         setEditingProductId(null);
       } else {
-        await addProduct({ ...data, num: String(products.length + 1).padStart(2, "0"), isActive: true });
+        await addProduct({ ...data, num: sku || String(products.length + 1).padStart(2, "0"), isActive: true });
       }
       resetProductForm();
       setShowAddForm(false);
@@ -231,6 +253,7 @@ export const AdminPage: React.FC = () => {
   const startEditProduct = (p: Product) => {
     setEditingProductId(p.id);
     setNewName(p.name);
+    setNewSku(p.num ?? "");
     setNewCategoryId(findCategory(p, storeCategories)?.id ?? "");
     setNewAttributes(p.attributes ?? {});
     setNewVariants(p.variants ?? []);
@@ -785,6 +808,23 @@ export const AdminPage: React.FC = () => {
                       style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "0.4rem", border: "1px solid var(--border)", fontSize: "0.85rem", boxSizing: "border-box" }}
                     />
                   </div>
+                </div>
+
+                <div style={{ maxWidth: "320px" }}>
+                  <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 600, marginBottom: "0.3rem" }}>
+                    SKU del producto
+                  </label>
+                  <input
+                    type="text"
+                    value={newSku}
+                    onChange={(e) => setNewSku(e.target.value)}
+                    maxLength={64}
+                    placeholder="Ej: 66443245B (opcional)"
+                    style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "0.4rem", border: "1px solid var(--border)", fontSize: "0.85rem", boxSizing: "border-box" }}
+                  />
+                  <p style={{ fontSize: "0.7rem", color: "var(--muted-foreground)", margin: "0.3rem 0 0" }}>
+                    Si cada color tiene su propio SKU, cárgalo en la tabla de variantes. Sin SKU se usa un código correlativo.
+                  </p>
                 </div>
 
                 <ProductAttributesEditor
