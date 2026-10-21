@@ -48,7 +48,7 @@ export type ImportIssue = { row: number | null; product?: string; message: strin
 export type PlannedProduct = {
   key: string;
   rows: number[];
-  /** SKU del producto (solo si no tiene variantes); null = código correlativo */
+  /** SKU del producto (solo si no tiene variantes); null = sin SKU */
   sku: string | null;
   data: Omit<Product, "id" | "num" | "isActive">;
   usesPlaceholder: boolean;

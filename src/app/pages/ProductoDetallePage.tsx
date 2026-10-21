@@ -170,7 +170,7 @@ function ProductDetail({
 
   // Tabla "Más información": SKU, categoría, características fijas y opciones disponibles
   const infoRows: [string, string][] = [
-    ["SKU", sku],
+    ...(sku ? [["SKU", sku] as [string, string]] : []),
     ["Categoría", product.category],
     ...fixedAttributes(category)
       .filter((a) => product.attributes?.[a.id])
@@ -328,9 +328,11 @@ function ProductDetail({
               >
                 {product.name}
               </h1>
-              <p style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "var(--muted-foreground)", margin: "0.6rem 0 0" }}>
-                SKU {sku}
-              </p>
+              {sku && (
+                <p style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "var(--muted-foreground)", margin: "0.6rem 0 0" }}>
+                  SKU {sku}
+                </p>
+              )}
             </div>
 
             <div style={{ display: "flex", alignItems: "baseline", gap: "1rem", flexWrap: "wrap" }}>
@@ -540,7 +542,7 @@ function ProductDetail({
                   <span>
                     ¿Dudas con este producto?{" "}
                     <a
-                      href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hola! Tengo una consulta sobre "${product.name}" (SKU ${sku})`)}`}
+                      href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hola! Tengo una consulta sobre "${product.name}"${sku ? ` (SKU ${sku})` : ""}`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color: "var(--primary)", fontWeight: 600 }}

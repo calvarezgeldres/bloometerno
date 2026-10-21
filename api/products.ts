@@ -184,7 +184,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const rows = await sql`
         INSERT INTO products (num, name, category, category_id, price, stock, badge, badge_type, image, alt, description, attributes, is_active)
         VALUES (
-          ${num ?? null},
+          ${typeof num === "string" && num.trim() ? num.trim().slice(0, 64) : null},
           ${name},
           ${cat.name},
           ${cat.id},
