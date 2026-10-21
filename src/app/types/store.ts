@@ -34,7 +34,7 @@ export type ProductVariant = {
 
 export type Product = {
   id: string | number;
-  /** "Código" que muestra la tienda: el SKU del producto o, si no tiene, un correlativo */
+  /** SKU del producto ("" si no tiene; es opcional y nunca se asigna solo) */
   num: string;
   name: string;
   price: number;

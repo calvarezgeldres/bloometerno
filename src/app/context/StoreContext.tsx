@@ -158,7 +158,7 @@ const STORAGE_KEYS = {
 function mapDbProduct(row: any): Product {
   return {
     id: row.id,
-    num: row.num ?? "00",
+    num: row.num ?? "",
     name: row.name,
     price: row.price,
     stock: row.stock ?? 0,
@@ -537,13 +537,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const addProduct = async (productData: Omit<Product, "id">): Promise<Product> => {
-    const nextNum = String(products.length + 1).padStart(2, "0");
     const localId = `prod-${Date.now()}`;
 
     let newProd: Product = withVariantStock({
       ...productData,
       id: localId,
-      num: productData.num || nextNum,
+      // Sin SKU queda vacío: no se inventa un código correlativo
+      num: productData.num ?? "",
       isActive: true,
     });
 

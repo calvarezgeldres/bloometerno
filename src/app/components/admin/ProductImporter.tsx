@@ -52,14 +52,10 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
     setImporting(true);
     setProgress(0);
     const out: Result[] = [];
-    // El código correlativo sigue al último producto; se calcula acá porque
-    // addProduct lo derivaría del catálogo antes de esta carga.
-    let nextNum = products.length + 1;
     for (const p of ready) {
       try {
-        // Con SKU, el código del producto es su SKU; si no, el correlativo
-        await addProduct({ ...p.data, num: p.sku ?? String(nextNum).padStart(2, "0"), isActive: true });
-        if (!p.sku) nextNum++;
+        // Sin SKU el producto queda sin código (no se asigna uno automático)
+        await addProduct({ ...p.data, num: p.sku ?? "", isActive: true });
         out.push({ name: p.data.name, ok: true });
       } catch (err: any) {
         out.push({ name: p.data.name, ok: false, error: err?.message || "Error desconocido" });

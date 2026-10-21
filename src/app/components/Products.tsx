@@ -3,7 +3,7 @@ import { Link, useSearchParams } from "react-router";
 import { Heart, ShoppingBag, Check, AlertCircle } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { Category, Product, ProductVariant } from "../types/store";
-import { findCategory, fixedAttributesSummary, productMatchesSearch, productPath, variantLabel } from "../../lib/catalog";
+import { findCategory, fixedAttributesSummary, productMatchesSearch, productPath, sortByCategory, variantLabel } from "../../lib/catalog";
 import { useVariantSelection } from "../hooks/useVariantSelection";
 
 export const badgeConfig: Record<string, { label: string; bg: string; color: string }> = {
@@ -57,11 +57,14 @@ export function Products({ initialCategory }: { initialCategory?: string } = {})
     ...Array.from(usedCategoryNames).filter((name) => !storeCategories.some((c) => c.name === name)),
   ];
 
-  const filteredProducts = (
-    activeCategory === "Todos"
+  // Ordenados por categoría y nombre, no por orden de carga
+  const filteredProducts = sortByCategory(
+    (activeCategory === "Todos"
       ? products
       : products.filter((p) => p.category.toLowerCase() === activeCategory.toLowerCase())
-  ).filter((p) => productMatchesSearch(p, searchTerm));
+    ).filter((p) => productMatchesSearch(p, searchTerm)),
+    storeCategories
+  );
 
   const clearSearch = () =>
     setSearchParams((prev) => {
@@ -309,24 +312,26 @@ export function ProductCard({
           />
         </Link>
 
-        {/* Number tag */}
-        <div
-          style={{
-            position: "absolute",
-            top: "0.75rem",
-            left: "0.75rem",
-            fontFamily: "var(--font-body)",
-            fontSize: "0.6rem",
-            letterSpacing: "0.08em",
-            color: "rgba(255,252,249,0.85)",
-            backgroundColor: "rgba(5,60,41,0.55)",
-            backdropFilter: "blur(4px)",
-            padding: "0.25rem 0.5rem",
-            borderRadius: "0.25rem",
-          }}
-        >
-          {product.num}
-        </div>
+        {/* SKU (solo si el producto tiene uno) */}
+        {product.num && (
+          <div
+            style={{
+              position: "absolute",
+              top: "0.75rem",
+              left: "0.75rem",
+              fontFamily: "var(--font-body)",
+              fontSize: "0.6rem",
+              letterSpacing: "0.08em",
+              color: "rgba(255,252,249,0.85)",
+              backgroundColor: "rgba(5,60,41,0.55)",
+              backdropFilter: "blur(4px)",
+              padding: "0.25rem 0.5rem",
+              borderRadius: "0.25rem",
+            }}
+          >
+            {product.num}
+          </div>
+        )}
 
         {/* Badge */}
         {badge && (
