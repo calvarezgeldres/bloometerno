@@ -16,6 +16,7 @@ import {
   LogOut,
   Printer,
   Tags,
+  FileUp,
 } from "lucide-react";
 import { useStore } from "../context/StoreContext";
 import { Product, Order, ProductVariant } from "../types/store";
@@ -26,6 +27,7 @@ import { CategoriesManager } from "../components/admin/CategoriesManager";
 import { ProductAttributesEditor } from "../components/admin/ProductAttributesEditor";
 import { ImageUploader } from "../components/admin/ImageUploader";
 import { IMAGE_RULES } from "../../lib/imageUpload";
+import { ProductImporter } from "../components/admin/ProductImporter";
 
 function formatCLP(amount: number): string {
   return `$${amount.toLocaleString("es-CL")}`;
@@ -89,6 +91,7 @@ export const AdminPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState("Todas");
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showImporter, setShowImporter] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | number | null>(null);
   const [etiquetaOrder, setEtiquetaOrder] = useState<Order | null>(null);
 
@@ -628,33 +631,63 @@ export const AdminPage: React.FC = () => {
                 </select>
               </div>
 
-              {/* Add Product Button */}
-              <button
-                onClick={() => {
-                  setShowAddForm(!showAddForm);
-                  setEditingProductId(null);
-                  resetProductForm();
-                }}
-                style={{
-                  backgroundColor: "var(--primary)",
-                  color: "var(--primary-foreground)",
-                  border: "none",
-                  padding: "0.65rem 1.4rem",
-                  borderRadius: "2rem",
-                  fontFamily: "var(--font-body)",
-                  fontSize: "0.82rem",
-                  fontWeight: 600,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  boxShadow: "0 4px 12px rgba(5, 60, 41, 0.25)",
-                }}
-              >
-                <Plus size={18} />
-                {showAddForm ? "Cerrar Formulario" : "➕ Cargar Nuevo Producto"}
-              </button>
+              <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+                {/* Carga masiva desde CSV */}
+                <button
+                  onClick={() => {
+                    setShowImporter(!showImporter);
+                    setShowAddForm(false);
+                  }}
+                  style={{
+                    backgroundColor: "var(--card)",
+                    color: "var(--foreground)",
+                    border: "1px solid var(--border)",
+                    padding: "0.65rem 1.2rem",
+                    borderRadius: "2rem",
+                    fontFamily: "var(--font-body)",
+                    fontSize: "0.82rem",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <FileUp size={17} />
+                  {showImporter ? "Cerrar importador" : "Importar productos"}
+                </button>
+
+                {/* Add Product Button */}
+                <button
+                  onClick={() => {
+                    setShowImporter(false);
+                    setShowAddForm(!showAddForm);
+                    setEditingProductId(null);
+                    resetProductForm();
+                  }}
+                  style={{
+                    backgroundColor: "var(--primary)",
+                    color: "var(--primary-foreground)",
+                    border: "none",
+                    padding: "0.65rem 1.4rem",
+                    borderRadius: "2rem",
+                    fontFamily: "var(--font-body)",
+                    fontSize: "0.82rem",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    boxShadow: "0 4px 12px rgba(5, 60, 41, 0.25)",
+                  }}
+                >
+                  <Plus size={18} />
+                  {showAddForm ? "Cerrar Formulario" : "➕ Cargar Nuevo Producto"}
+                </button>
+              </div>
             </div>
+
+            {showImporter && <ProductImporter onClose={() => setShowImporter(false)} />}
 
             {/* Formulario de Carga / Edición */}
             {showAddForm && (

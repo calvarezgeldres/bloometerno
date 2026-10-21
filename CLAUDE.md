@@ -35,13 +35,14 @@ src/
   app/context/StoreContext.tsx   Estado global: catálogo, carrito, pedidos, settings, auth admin
   app/pages/              StorePage (/), Productos, ProductoDetalle (/producto/:id), Nosotros, Contacto, Admin, PagoResultado, PagoError
   app/components/         Secciones de la landing, CartDrawer, CheckoutModal, EtiquetaDespachoModal
-  app/components/admin/   CategoriesManager, ProductAttributesEditor (variantes), ImageUploader
+  app/components/admin/   CategoriesManager, ProductAttributesEditor (variantes), ImageUploader, ProductImporter (carga masiva CSV)
   app/data/chileData.ts   Regiones/comunas de Chile y métodos de despacho (costos hardcodeados)
   app/types/store.ts      Tipos de dominio (Product, Category, ProductVariant, Order, StoreSettings…)
   lib/db.ts               Cliente HTTP del frontend hacia /api (fetch con credentials)
   lib/catalog.ts          Helpers de variantes (precio, etiqueta, stock)
   lib/imageUpload.ts      Valida, redimensiona y convierte a WebP en el navegador; luego sube a Blob
   lib/rut.ts              Validación (módulo 11) y formato del RUT chileno
+  lib/productImport.ts    Carga masiva: lee el CSV, arma productos/variantes y valida (lógica pura, sin React)
 neon/
   schema.sql              Esquema completo + seed (para una BD nueva)
   migration_*.sql         Migraciones incrementales idempotentes (para una BD existente)
@@ -75,6 +76,8 @@ logos/                    Archivos fuente del logo (no se sirven)
 **Imágenes.** `ImageUploader` valida el peso, las medidas mínimas y la proporción (las reglas están en `IMAGE_RULES`), achica y convierte a WebP en el navegador, y sube directo a Vercel Blob. `/api/upload` solo emite el token, con tipo y tamaño acotados.
 
 **Fallback a localStorage.** `StoreContext` persiste productos, carrito, pedidos y settings en `localStorage`. Si `/api` no responde, la tienda sigue funcionando con datos locales y semilla (`isCloudConnected = false`). Ojo: esto puede ocultar errores de API mientras se desarrolla.
+
+**Carga masiva (Inventario → Importar productos).** Planilla CSV con una fila por variante: las filas con el mismo nombre y categoría forman un producto, y cada característica de la categoría es una columna con su nombre. `lib/productImport.ts` detecta el separador (`;` de Excel en español, `,` de Google Sheets), valida por fila (categoría inexistente, producto ya existente, precios en CLP, variantes repetidas o incompletas) y arma los productos; `ProductImporter` muestra la vista previa y los crea uno a uno con `addProduct`, igual que el formulario. Sin foto, el producto queda con el isotipo como foto provisoria (la API exige imagen).
 
 ## Reglas importantes (aprendidas a golpes)
 
