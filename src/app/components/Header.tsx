@@ -6,7 +6,7 @@ import { HeaderSearch } from "./HeaderSearch";
 const navLinks = [
   { label: "Inicio", to: "/" },
   { label: "Productos", to: "/productos" },
-  { label: "Ocasión", to: "/productos" },
+  { label: "Ocasión", to: "/#ocasiones" },
   { label: "Nosotros", to: "/nosotros" },
   { label: "Contacto", to: "/contacto" },
 ];
@@ -20,7 +20,7 @@ const navLinks = [
 export function Header() {
   const { cartCount, setIsCartOpen } = useStore();
   const { pathname } = useLocation();
-  // Ocasión apunta al mismo catálogo que Productos: se marca solo el primero que calce
+  // La página actual queda marcada; "Ocasión" es una sección de la portada, no una página
   const activeLabel = navLinks.find((l) => l.to === pathname)?.label ?? (pathname.startsWith("/producto/") ? "Productos" : null);
 
   return (
