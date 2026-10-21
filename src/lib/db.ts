@@ -49,6 +49,7 @@ export interface DbVariant {
   stock: number;
   price: number | null;
   image: string | null;
+  sku: string | null;
   sort_order: number;
 }
 
@@ -59,6 +60,7 @@ export type DbVariantInput = {
   stock: number;
   price: number | null;
   image: string | null;
+  sku: string | null;
 };
 
 export type DbProductInput = Omit<DbProduct, "id" | "created_at" | "is_active" | "variants"> & {

@@ -68,6 +68,11 @@ export function productPath(product: Pick<Product, "id">, variant?: ProductVaria
   return variant ? `${base}?variante=${encodeURIComponent(variant.id)}` : base;
 }
 
+/** SKU a mostrar: el de la variante elegida si tiene uno propio; si no, el del producto. */
+export function productSku(product: Pick<Product, "num">, variant?: ProductVariant | null): string {
+  return variant?.sku || product.num;
+}
+
 /** Foto a mostrar: la de la variante elegida si tiene una propia; si no, la del producto. */
 export function variantImage(product: Product, variant?: ProductVariant | null): string {
   return variant?.image || product.image;

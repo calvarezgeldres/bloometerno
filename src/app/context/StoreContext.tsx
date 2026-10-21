@@ -171,6 +171,7 @@ function mapDbProduct(row: any): Product {
       stock: v.stock ?? 0,
       price: v.price ?? null,
       image: v.image ?? null,
+      sku: v.sku ?? null,
     })),
     badge: row.badge ?? null,
     badgeType: row.badge_type ?? null,
@@ -215,6 +216,7 @@ function toDbProductInput(p: Partial<Product>): Partial<DbProductInput> {
       stock: v.stock,
       price: v.price ?? null,
       image: v.image ?? null,
+      sku: v.sku ?? null,
     }));
   }
   return out;
@@ -580,7 +582,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Con la API conectada, el producto queda tal como lo devuelve el servidor
     // (ids reales de las variantes y stock recalculado); un error se propaga al panel.
     if (isCloudConnected) {
-      const { category: _ignored, num: _num, ...rest } = updates;
+      // num (el código/SKU del producto) sí se envía: la API permite cambiarlo
+      const { category: _ignored, ...rest } = updates;
       const updated = await db.products.update(String(id), toDbProductInput(rest));
       setProducts((prev) => prev.map((p) => (String(p.id) === String(id) ? mapDbProduct(updated) : p)));
       return;

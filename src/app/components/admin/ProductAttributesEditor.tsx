@@ -74,7 +74,7 @@ export const ProductAttributesEditor: React.FC<{
     onVariantsChange(
       combos.map(
         (options) =>
-          variants.find((v) => sameOptions(v.options, options)) ?? { id: newLocalId("var"), options, stock: 0, price: null, image: null }
+          variants.find((v) => sameOptions(v.options, options)) ?? { id: newLocalId("var"), options, stock: 0, price: null, image: null, sku: null }
       )
     );
   };
@@ -233,6 +233,7 @@ export const ProductAttributesEditor: React.FC<{
                     </th>
                   ))}
                   <th style={{ padding: "0.5rem 0.4rem" }}>Foto</th>
+                  <th style={{ padding: "0.5rem 0.4rem" }}>SKU</th>
                   <th style={{ padding: "0.5rem 0.4rem" }}>Stock</th>
                   <th style={{ padding: "0.5rem 0.4rem" }}>Precio CLP (opcional)</th>
                 </tr>
@@ -251,6 +252,16 @@ export const ProductAttributesEditor: React.FC<{
                         onChange={(image) => setVariant(v.id, { image })}
                         label={variantLabel(v, category)}
                         onUploadingChange={trackUpload}
+                      />
+                    </td>
+                    <td style={{ padding: "0.4rem" }}>
+                      <input
+                        type="text"
+                        value={v.sku ?? ""}
+                        maxLength={64}
+                        onChange={(e) => setVariant(v.id, { sku: e.target.value || null })}
+                        placeholder="Opcional"
+                        style={{ ...inputStyle, width: "130px", padding: "0.35rem 0.5rem" }}
                       />
                     </td>
                     <td style={{ padding: "0.4rem" }}>
@@ -279,7 +290,7 @@ export const ProductAttributesEditor: React.FC<{
               </tbody>
               <tfoot>
                 <tr>
-                  <td colSpan={variantAttrs.length + 1} style={{ padding: "0.5rem 0.4rem", fontWeight: 600, textAlign: "right" }}>
+                  <td colSpan={variantAttrs.length + 2} style={{ padding: "0.5rem 0.4rem", fontWeight: 600, textAlign: "right" }}>
                     Stock total:
                   </td>
                   <td colSpan={2} style={{ padding: "0.5rem 0.4rem", fontWeight: 700 }}>

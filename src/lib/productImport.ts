@@ -7,6 +7,11 @@
  * con su nombre ("Color", "Tamaño"...): las de variante arman las opciones y las
  * fijas se leen de la primera fila del producto.
  *
+ * SKU: en una fila de variante es el SKU de esa variante; en un producto sin
+ * variantes es el SKU del producto (se guarda como su "Código"). Productos con el
+ * mismo nombre pero distinto SKU y sin variantes son productos separados. Los SKU
+ * no se repiten (ni en la planilla ni con lo que ya existe).
+ *
  * Todo es lógica pura (sin React ni red) para poder probarla aparte; la pantalla
  * está en components/admin/ProductImporter.tsx.
  */
@@ -15,6 +20,7 @@ import { fixedAttributes, newLocalId, normalizeText, sameOptions, variantAttribu
 
 /** Columnas fijas de la plantilla (encabezado sugerido → clave interna). */
 export const COLUMNS = {
+  sku: "sku",
   nombre: "nombre",
   categoria: "categoria",
   precio: "precio",
@@ -42,6 +48,8 @@ export type ImportIssue = { row: number | null; product?: string; message: strin
 export type PlannedProduct = {
   key: string;
   rows: number[];
+  /** SKU del producto (solo si no tiene variantes); null = código correlativo */
+  sku: string | null;
   data: Omit<Product, "id" | "num" | "isActive">;
   usesPlaceholder: boolean;
   errors: string[];
@@ -129,10 +137,10 @@ export function buildTemplateCsv(categories: Category[]): string {
       foto: "",
     };
     if (vAttr) {
-      rows.push(fill({ ...base, stock: "10", [vAttr.name]: "Opción 1" }));
-      rows.push(fill({ nombre: base.nombre, categoria: base.categoria, stock: "5", precio_variante: "3290", [vAttr.name]: "Opción 2" }));
+      rows.push(fill({ ...base, sku: "EJ-001", stock: "10", [vAttr.name]: "Opción 1" }));
+      rows.push(fill({ nombre: base.nombre, categoria: base.categoria, sku: "EJ-002", stock: "5", precio_variante: "3290", [vAttr.name]: "Opción 2" }));
     } else {
-      rows.push(fill({ ...base, stock: "10" }));
+      rows.push(fill({ ...base, sku: "EJ-001", stock: "10" }));
     }
   }
   return "﻿" + [header, ...rows].map((r) => toCsvLine(r)).join("\r\n") + "\r\n";
@@ -196,16 +204,39 @@ export function buildImportPlan(table: string[][], categories: Category[], exist
 
   const cell = (row: string[], key: ColumnKey) => (colIndex[key] !== undefined ? (row[colIndex[key]!] ?? "").trim() : "");
 
-  // Agrupar filas por producto (nombre + categoría)
+  const colForAttr = (attrName: string) => attrColumns.find((c) => c.name === normalizeText(attrName))?.index;
+  const findCategory = (name: string) => categories.find((c) => normalizeText(c.name) === normalizeText(name));
+  /** ¿La fila trae valor en alguna característica de variante de su categoría? */
+  const rowHasVariant = (values: string[]) =>
+    variantAttributes(findCategory(cell(values, "categoria"))).some((a) => {
+      const idx = colForAttr(a.name);
+      return idx !== undefined && (values[idx] ?? "").trim() !== "";
+    });
+
+  // Agrupar filas por producto: nombre + categoría. Una fila sin variante pero con
+  // SKU es un producto propio, así dos productos homónimos con distinto SKU no se juntan.
   const groups = new Map<string, { rows: { n: number; values: string[] }[] }>();
   table.slice(1).forEach((values, i) => {
     const n = i + 2; // número de fila como se ve en Excel (la 1 es el encabezado)
-    const key = `${normalizeText(cell(values, "nombre"))}::${normalizeText(cell(values, "categoria"))}`;
+    let key = `${normalizeText(cell(values, "nombre"))}::${normalizeText(cell(values, "categoria"))}`;
+    if (cell(values, "sku") && !rowHasVariant(values)) key += `::${normalizeText(cell(values, "sku"))}`;
     if (!groups.has(key)) groups.set(key, { rows: [] });
     groups.get(key)!.rows.push({ n, values });
   });
 
   const existingKeys = new Set(existing.map((p) => `${normalizeText(p.name)}::${normalizeText(p.category)}`));
+  // SKU que ya existen en la tienda (de productos y de variantes) y los ya usados en la planilla
+  const existingSkus = new Set(
+    existing.flatMap((p) => [p.num, ...(p.variants ?? []).map((v) => v.sku ?? "")]).map((s) => normalizeText(s ?? "")).filter(Boolean)
+  );
+  const fileSkus = new Map<string, number>();
+  const checkSku = (raw: string, rowNum: number, errors: string[]) => {
+    const skuKey = normalizeText(raw);
+    if (!skuKey) return;
+    if (existingSkus.has(skuKey)) errors.push(`Fila ${rowNum}: el SKU «${raw}» ya existe en la tienda.`);
+    else if (fileSkus.has(skuKey)) errors.push(`Fila ${rowNum}: el SKU «${raw}» está repetido (también en la fila ${fileSkus.get(skuKey)}).`);
+    else fileSkus.set(skuKey, rowNum);
+  };
   const products: PlannedProduct[] = [];
 
   for (const [key, group] of groups) {
@@ -221,8 +252,10 @@ export function buildImportPlan(table: string[][], categories: Category[], exist
     const category = categories.find((c) => normalizeText(c.name) === normalizeText(catName));
     if (!catName) errors.push(`${at(first.n)}: falta la categoría.`);
     else if (!category) errors.push(`${at(first.n)}: la categoría «${catName}» no existe. Créala primero en la pestaña Categorías.`);
-    if (name && category && existingKeys.has(key)) {
-      errors.push(`Ya existe un producto «${name}» en ${category.name}; se omite para no duplicarlo.`);
+    // Sin ningún SKU, un producto con el mismo nombre en la categoría se considera duplicado
+    const anySku = group.rows.some((r) => cell(r.values, "sku"));
+    if (name && category && !anySku && existingKeys.has(`${normalizeText(name)}::${normalizeText(category.name)}`)) {
+      errors.push(`Ya existe un producto «${name}» en ${category.name}; se omite para no duplicarlo (si es otro producto, agrégale su SKU).`);
     }
 
     const price = parseCLP(cell(first.values, "precio"));
@@ -238,7 +271,7 @@ export function buildImportPlan(table: string[][], categories: Category[], exist
     // Columnas de características según la categoría del producto
     const vAttrs = variantAttributes(category);
     const fAttrs = fixedAttributes(category);
-    const colFor = (attrName: string) => attrColumns.find((c) => c.name === normalizeText(attrName))?.index;
+    const colFor = colForAttr;
 
     const attributes: Record<string, string> = {};
     for (const a of fAttrs) {
@@ -249,6 +282,9 @@ export function buildImportPlan(table: string[][], categories: Category[], exist
 
     const variants: ProductVariant[] = [];
     let rowsWithoutVariant = 0;
+    // Como en el formulario del panel, una característica de variante que el producto
+    // no usa puede quedar vacía; pero todas sus filas deben usar las mismas.
+    let usedAttrs: string[] | null = null;
     for (const r of group.rows) {
       const options: Record<string, string> = {};
       for (const a of vAttrs) {
@@ -262,11 +298,27 @@ export function buildImportPlan(table: string[][], categories: Category[], exist
         rowsWithoutVariant++;
         continue;
       }
-      const missing = vAttrs.filter((a) => !options[a.id]).map((a) => a.name);
-      if (missing.length > 0) errors.push(`${at(r.n)}: falta ${missing.map((m) => `«${m}»`).join(" y ")} para esta variante.`);
+      const rowAttrs = vAttrs.filter((a) => options[a.id]).map((a) => a.id);
+      if (usedAttrs === null) usedAttrs = rowAttrs;
+      else if (rowAttrs.join("|") !== usedAttrs.join("|")) {
+        const missing = vAttrs.filter((a) => usedAttrs!.includes(a.id) && !options[a.id]).map((a) => a.name);
+        const extra = vAttrs.filter((a) => !usedAttrs!.includes(a.id) && options[a.id]).map((a) => a.name);
+        errors.push(
+          `${at(r.n)}: ` +
+            [
+              missing.length ? `falta ${missing.map((m) => `«${m}»`).join(" y ")}` : "",
+              extra.length ? `trae ${extra.map((m) => `«${m}»`).join(" y ")}, que las otras filas del producto no tienen` : "",
+            ]
+              .filter(Boolean)
+              .join(" y ") +
+            ". Todas las filas de un producto deben usar las mismas características."
+        );
+      }
       if (variants.some((v) => sameOptions(v.options, options))) errors.push(`${at(r.n)}: esta variante está repetida.`);
       const vPrice = parseCLP(cell(r.values, "precio_variante"));
       if (vPrice !== null && Number.isNaN(vPrice)) errors.push(`${at(r.n)}: el precio_variante «${cell(r.values, "precio_variante")}» no es un monto válido.`);
+      const vSku = cell(r.values, "sku");
+      checkSku(vSku, r.n, errors);
       const vImage = cell(r.values, "foto_variante");
       if (vImage && !isImageUrl(vImage)) warnings.push(`${at(r.n)}: «foto_variante» no es un enlace (https://...); la variante queda sin foto propia.`);
       variants.push({
@@ -275,6 +327,7 @@ export function buildImportPlan(table: string[][], categories: Category[], exist
         stock: stock !== null && !Number.isNaN(stock) ? stock : 0,
         price: vPrice !== null && !Number.isNaN(vPrice) ? vPrice : null,
         image: vImage && isImageUrl(vImage) ? vImage : null,
+        sku: vSku ? vSku.slice(0, 64) : null,
       });
     }
     if (variants.length > 0 && rowsWithoutVariant > 0) {
@@ -297,10 +350,15 @@ export function buildImportPlan(table: string[][], categories: Category[], exist
     if (photo && !isImageUrl(photo)) warnings.push(`${at(first.n)}: «foto» no es un enlace (https://...); se usa la foto provisoria.`);
     if (usesPlaceholder) warnings.push("Sin foto: queda con el isotipo como foto provisoria. Súbela después desde Editar.");
 
+    // Sin variantes, el SKU de la fila es el del producto
+    const productSkuValue = variants.length === 0 ? cell(first.values, "sku") : "";
+    if (productSkuValue) checkSku(productSkuValue, first.n, errors);
+
     const firstStock = parseIntField(cell(first.values, "stock"));
     products.push({
       key,
       rows: rowNums,
+      sku: productSkuValue ? productSkuValue.slice(0, 64) : null,
       usesPlaceholder,
       errors,
       warnings,

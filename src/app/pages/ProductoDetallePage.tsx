@@ -7,7 +7,7 @@ import { useStore } from "../context/StoreContext";
 import { useVariantSelection } from "../hooks/useVariantSelection";
 import { SHIPPING_METHODS } from "../data/chileData";
 import { Category, Product, ProductVariant } from "../types/store";
-import { findCategory, fixedAttributes, variantAttributes, variantLabel } from "../../lib/catalog";
+import { findCategory, fixedAttributes, productSku, variantAttributes, variantLabel } from "../../lib/catalog";
 
 /**
  * Página de detalle de un producto (/producto/:id). Inspirada en las fichas de
@@ -165,9 +165,12 @@ function ProductDetail({
     : (product.badgeType && badgeConfig[product.badgeType]) ||
       (product.badge ? { label: product.badge, bg: "var(--gold)", color: "#fff" } : null);
 
-  // Tabla "Más información": código, categoría, características fijas y opciones disponibles
+  // SKU del color/opción elegido (cambia con la variante) o, si no tiene, el del producto
+  const sku = productSku(product, selectedVariant);
+
+  // Tabla "Más información": SKU, categoría, características fijas y opciones disponibles
   const infoRows: [string, string][] = [
-    ["Código", product.num],
+    ["SKU", sku],
     ["Categoría", product.category],
     ...fixedAttributes(category)
       .filter((a) => product.attributes?.[a.id])
@@ -326,7 +329,7 @@ function ProductDetail({
                 {product.name}
               </h1>
               <p style={{ fontSize: "0.72rem", letterSpacing: "0.06em", color: "var(--muted-foreground)", margin: "0.6rem 0 0" }}>
-                Código {product.num}
+                SKU {sku}
               </p>
             </div>
 
@@ -537,7 +540,7 @@ function ProductDetail({
                   <span>
                     ¿Dudas con este producto?{" "}
                     <a
-                      href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hola! Tengo una consulta sobre "${product.name}" (código ${product.num})`)}`}
+                      href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(`Hola! Tengo una consulta sobre "${product.name}" (SKU ${sku})`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{ color: "var(--primary)", fontWeight: 600 }}
