@@ -236,10 +236,11 @@ export const AdminPage: React.FC = () => {
     setIsSavingProduct(true);
     try {
       if (editingProductId) {
-        await updateProduct(editingProductId, sku ? { ...data, num: sku } : data);
+        // Se envía siempre: si se borró el SKU, el producto queda sin SKU
+        await updateProduct(editingProductId, { ...data, num: sku });
         setEditingProductId(null);
       } else {
-        await addProduct({ ...data, num: sku || String(products.length + 1).padStart(2, "0"), isActive: true });
+        await addProduct({ ...data, num: sku, isActive: true });
       }
       resetProductForm();
       setShowAddForm(false);
@@ -823,7 +824,7 @@ export const AdminPage: React.FC = () => {
                     style={{ width: "100%", padding: "0.6rem 0.8rem", borderRadius: "0.4rem", border: "1px solid var(--border)", fontSize: "0.85rem", boxSizing: "border-box" }}
                   />
                   <p style={{ fontSize: "0.7rem", color: "var(--muted-foreground)", margin: "0.3rem 0 0" }}>
-                    Si cada color tiene su propio SKU, cárgalo en la tabla de variantes. Sin SKU se usa un código correlativo.
+                    Si cada color tiene su propio SKU, cárgalo en la tabla de variantes. Si lo dejas vacío, el producto queda sin SKU.
                   </p>
                 </div>
 

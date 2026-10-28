@@ -32,6 +32,25 @@ export function variantPrice(product: Product, variant?: ProductVariant | null):
   return variant?.price != null ? variant.price : product.price;
 }
 
+/**
+ * Orden del catálogo: por categoría (en el orden definido en el panel; las que no
+ * están en el panel van al final) y, dentro de cada una, por nombre. Así el
+ * catálogo no depende del orden en que se fueron subiendo los productos.
+ * "numeric" ordena "Calibre 24" antes que "Calibre 26" y "Tamaño 2" antes que "Tamaño 10".
+ */
+export function sortByCategory(products: Product[], categories: Category[]): Product[] {
+  const rank = (p: Product) => {
+    const cat = findCategory(p, categories);
+    return cat ? cat.sortOrder : Number.MAX_SAFE_INTEGER;
+  };
+  return [...products].sort(
+    (a, b) =>
+      rank(a) - rank(b) ||
+      a.category.localeCompare(b.category, "es", { sensitivity: "base" }) ||
+      a.name.localeCompare(b.name, "es", { sensitivity: "base", numeric: true })
+  );
+}
+
 /** Texto en minúsculas y sin tildes, para buscar sin importar cómo se escriba ("lavanda" = "Lavanda"). */
 export function normalizeText(text: string): string {
   return text
@@ -68,7 +87,7 @@ export function productPath(product: Pick<Product, "id">, variant?: ProductVaria
   return variant ? `${base}?variante=${encodeURIComponent(variant.id)}` : base;
 }
 
-/** SKU a mostrar: el de la variante elegida si tiene uno propio; si no, el del producto. */
+/** SKU a mostrar: el de la variante elegida si tiene uno propio; si no, el del producto ("" = sin SKU). */
 export function productSku(product: Pick<Product, "num">, variant?: ProductVariant | null): string {
   return variant?.sku || product.num;
 }
