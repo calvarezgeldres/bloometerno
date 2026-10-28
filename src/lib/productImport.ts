@@ -7,6 +7,10 @@
  * con su nombre ("Color", "Tamaño"...): las de variante arman las opciones y las
  * fijas se leen de la primera fila del producto.
  *
+ * Fotos (columnas foto y foto_variante): un enlace https://... o el nombre de un
+ * archivo (ej: "seagreen.jpg") que se selecciona al importar; el importador sube
+ * esos archivos con el mismo proceso del panel (3:4, WebP) y los asocia por nombre.
+ *
  * SKU: en una fila de variante es el SKU de esa variante; en un producto sin
  * variantes es el SKU del producto (se guarda como su "Código"). Productos con el
  * mismo nombre pero distinto SKU y sin variantes son productos separados. Los SKU
@@ -45,9 +49,18 @@ const BADGES: Record<string, { badge: string; badgeType: Product["badgeType"] }>
 
 export type ImportIssue = { row: number | null; product?: string; message: string; level: "error" | "warning" };
 
+/** Fotos por nombre de archivo que hay que subir antes de crear el producto. */
+export type PlannedFiles = {
+  /** Archivo de la foto principal, o null si usa enlace / foto provisoria */
+  product: string | null;
+  /** Archivo de la foto de cada variante (por id local de la variante) */
+  variants: { variantId: string; file: string }[];
+};
+
 export type PlannedProduct = {
   key: string;
   rows: number[];
+  files: PlannedFiles;
   /** SKU del producto (solo si no tiene variantes); null = sin SKU */
   sku: string | null;
   data: Omit<Product, "id" | "num" | "isActive">;
@@ -165,6 +178,12 @@ function parseIntField(raw: string): number | null {
 
 const isImageUrl = (v: string) => /^https?:\/\/\S+$/i.test(v) || /^\/\S+$/.test(v);
 
+/** ¿Es el nombre de un archivo de imagen (sin carpeta)? ej: "Seagreen Mix.JPG" */
+export const isImageFileName = (v: string) => !/[\\/]/.test(v) && /\.(jpe?g|png|webp|gif|avif|heic|heif)$/i.test(v.trim());
+
+/** Clave para asociar un nombre de la planilla con un archivo seleccionado (sin mayúsculas ni tildes). */
+export const fileKey = (name: string) => normalizeText(name.split(/[\\/]/).pop() ?? name);
+
 /**
  * Convierte las filas del CSV en productos listos para crear, con los errores
  * (impiden crear ese producto) y avisos (se crea igual) de cada uno.
@@ -281,6 +300,7 @@ export function buildImportPlan(table: string[][], categories: Category[], exist
     }
 
     const variants: ProductVariant[] = [];
+    const files: PlannedFiles = { product: null, variants: [] };
     let rowsWithoutVariant = 0;
     // Como en el formulario del panel, una característica de variante que el producto
     // no usa puede quedar vacía; pero todas sus filas deben usar las mismas.
@@ -320,9 +340,14 @@ export function buildImportPlan(table: string[][], categories: Category[], exist
       const vSku = cell(r.values, "sku");
       checkSku(vSku, r.n, errors);
       const vImage = cell(r.values, "foto_variante");
-      if (vImage && !isImageUrl(vImage)) warnings.push(`${at(r.n)}: «foto_variante» no es un enlace (https://...); la variante queda sin foto propia.`);
+      const vFile = vImage && !isImageUrl(vImage) && isImageFileName(vImage) ? vImage : null;
+      if (vImage && !isImageUrl(vImage) && !vFile) {
+        warnings.push(`${at(r.n)}: «foto_variante» no es un enlace (https://...) ni un nombre de archivo de imagen (ej: color.jpg); la variante queda sin foto propia.`);
+      }
+      const variantId = newLocalId("var");
+      if (vFile) files.variants.push({ variantId, file: vFile });
       variants.push({
-        id: newLocalId("var"),
+        id: variantId,
         options,
         stock: stock !== null && !Number.isNaN(stock) ? stock : 0,
         price: vPrice !== null && !Number.isNaN(vPrice) ? vPrice : null,
@@ -346,8 +371,11 @@ export function buildImportPlan(table: string[][], categories: Category[], exist
     if (badgeRaw && !badge) warnings.push(`${at(first.n)}: la insignia «${badgeRaw}» no existe (usa Nuevo, Más vendido o Ed. Limitada); se ignora.`);
 
     const photo = cell(first.values, "foto");
-    const usesPlaceholder = !photo || !isImageUrl(photo);
-    if (photo && !isImageUrl(photo)) warnings.push(`${at(first.n)}: «foto» no es un enlace (https://...); se usa la foto provisoria.`);
+    if (photo && !isImageUrl(photo) && isImageFileName(photo)) files.product = photo;
+    const usesPlaceholder = !files.product && (!photo || !isImageUrl(photo));
+    if (photo && !isImageUrl(photo) && !files.product) {
+      warnings.push(`${at(first.n)}: «foto» no es un enlace (https://...) ni un nombre de archivo de imagen (ej: producto.jpg); se usa la foto provisoria.`);
+    }
     if (usesPlaceholder) warnings.push("Sin foto: queda con el isotipo como foto provisoria. Súbela después desde Editar.");
 
     // Sin variantes, el SKU de la fila es el del producto
@@ -358,6 +386,7 @@ export function buildImportPlan(table: string[][], categories: Category[], exist
     products.push({
       key,
       rows: rowNums,
+      files,
       sku: productSkuValue ? productSkuValue.slice(0, 64) : null,
       usesPlaceholder,
       errors,
@@ -372,7 +401,8 @@ export function buildImportPlan(table: string[][], categories: Category[], exist
         variants,
         badge: badge?.badge ?? null,
         badgeType: badge?.badgeType ?? null,
-        image: usesPlaceholder ? PLACEHOLDER_IMAGE : photo,
+        // Con archivo, la URL real se pone al subirlo (ver ProductImporter)
+        image: files.product || usesPlaceholder ? PLACEHOLDER_IMAGE : photo,
         alt: name,
         description: cell(first.values, "descripcion") || undefined,
       },
