@@ -1,10 +1,11 @@
 import React, { useRef, useState } from "react";
-import { AlertTriangle, CheckCircle2, Download, FileUp, Loader2, X, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Download, FileUp, ImagePlus, Loader2, X, XCircle } from "lucide-react";
 import { useStore } from "../../context/StoreContext";
-import { buildImportPlan, buildTemplateCsv, ImportPlan, parseCsv } from "../../../lib/productImport";
+import { buildImportPlan, buildTemplateCsv, fileKey, ImportPlan, parseCsv, PlannedProduct } from "../../../lib/productImport";
 import { variantLabel } from "../../../lib/catalog";
+import { ACCEPT_ATTR, IMAGE_RULES, uploadImage, validateImage } from "../../../lib/imageUpload";
 
-type Result = { name: string; ok: boolean; error?: string };
+type Result = { name: string; ok: boolean; error?: string; placeholder?: boolean };
 
 function formatCLP(n: number) {
   return `$${n.toLocaleString("es-CL")}`;
@@ -12,13 +13,20 @@ function formatCLP(n: number) {
 
 /**
  * Carga masiva de productos desde CSV: descargar plantilla → subir archivo →
- * vista previa con errores por fila → importar (crea uno a uno con addProduct,
- * igual que el formulario, así la API aplica las mismas reglas).
+ * (seleccionar las fotos nombradas en la planilla) → vista previa con errores por
+ * fila → importar. Las fotos se suben con uploadImage, igual que en el formulario
+ * (validación, ajuste a 3:4 y WebP), y los productos se crean uno a uno con
+ * addProduct, así la API aplica las mismas reglas.
  */
 export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const { products, categories, addProduct } = useStore();
   const inputRef = useRef<HTMLInputElement>(null);
+  const photosRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState("");
+  // Fotos elegidas del computador, por nombre (fileKey), y su error de validación si lo hay
+  const [photos, setPhotos] = useState<Map<string, File>>(new Map());
+  const [photoIssues, setPhotoIssues] = useState<Map<string, string>>(new Map());
+  const [checkingPhotos, setCheckingPhotos] = useState(false);
   const [plan, setPlan] = useState<ImportPlan | null>(null);
   const [importing, setImporting] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -43,8 +51,45 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  const ready = plan?.products.filter((p) => p.errors.length === 0) ?? [];
-  const withErrors = plan?.products.filter((p) => p.errors.length > 0) ?? [];
+  const selectPhotos = async (list: FileList | null) => {
+    if (!list || list.length === 0) return;
+    const added = Array.from(list);
+    setPhotos((prev) => {
+      const next = new Map(prev);
+      for (const f of added) next.set(fileKey(f.name), f);
+      return next;
+    });
+    if (photosRef.current) photosRef.current.value = "";
+    // Se validan al elegirlas (formato, peso, mínimo 600 px) para avisar antes de importar
+    setCheckingPhotos(true);
+    const issues = new Map(photoIssues);
+    for (const f of added) {
+      try {
+        await validateImage(f, IMAGE_RULES.product);
+        issues.delete(fileKey(f.name));
+      } catch (err: any) {
+        issues.set(fileKey(f.name), err?.message || "No se pudo leer la imagen");
+      }
+    }
+    setPhotoIssues(issues);
+    setCheckingPhotos(false);
+  };
+
+  /** Archivos que nombra el producto en la planilla */
+  const referencedFiles = (p: PlannedProduct) => [p.files.product, ...p.files.variants.map((v) => v.file)].filter((f): f is string => !!f);
+  /** Errores de fotos: nombradas en la planilla pero no elegidas, o elegidas pero inválidas */
+  const photoErrors = (p: PlannedProduct) =>
+    referencedFiles(p).flatMap((f) => {
+      const key = fileKey(f);
+      if (!photos.has(key)) return [`Falta seleccionar la foto «${f}».`];
+      const issue = photoIssues.get(key);
+      return issue ? [`Foto «${f}»: ${issue}`] : [];
+    });
+  const allReferenced = Array.from(new Set((plan?.products ?? []).flatMap((p) => referencedFiles(p).map(fileKey))));
+  const missingCount = allReferenced.filter((k) => !photos.has(k)).length;
+
+  const ready = plan?.products.filter((p) => p.errors.length === 0 && photoErrors(p).length === 0) ?? [];
+  const withErrors = plan?.products.filter((p) => p.errors.length > 0 || photoErrors(p).length > 0) ?? [];
   const generalErrors = plan?.general.filter((g) => g.level === "error") ?? [];
 
   const runImport = async () => {
@@ -52,11 +97,25 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
     setImporting(true);
     setProgress(0);
     const out: Result[] = [];
+    // Una foto usada por varias filas se sube una sola vez
+    const uploads = new Map<string, Promise<string>>();
+    const urlFor = (name: string) => {
+      const key = fileKey(name);
+      if (!uploads.has(key)) uploads.set(key, uploadImage(photos.get(key)!, "productos", IMAGE_RULES.product));
+      return uploads.get(key)!;
+    };
     for (const p of ready) {
       try {
+        const image = p.files.product ? await urlFor(p.files.product) : p.data.image;
+        const variants = await Promise.all(
+          (p.data.variants ?? []).map(async (v) => {
+            const file = p.files.variants.find((f) => f.variantId === v.id)?.file;
+            return file ? { ...v, image: await urlFor(file) } : v;
+          })
+        );
         // Sin SKU el producto queda sin código (no se asigna uno automático)
-        await addProduct({ ...p.data, num: p.sku ?? "", isActive: true });
-        out.push({ name: p.data.name, ok: true });
+        await addProduct({ ...p.data, image, variants, num: p.sku ?? "", isActive: true });
+        out.push({ name: p.data.name, ok: true, placeholder: p.usesPlaceholder });
       } catch (err: any) {
         out.push({ name: p.data.name, ok: false, error: err?.message || "Error desconocido" });
       }
@@ -97,8 +156,10 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
           <p style={{ fontSize: "0.82rem", color: "var(--muted-foreground)", margin: 0, maxWidth: "640px", lineHeight: 1.6 }}>
             Carga muchos productos de una vez desde una planilla. <strong>Una fila por variante:</strong> las filas con el mismo
             nombre y categoría forman un solo producto. Cada característica de la categoría (ej: Color) es una columna con su
-            nombre. La columna <strong>sku</strong> es el SKU de la variante de esa fila, o del producto si no tiene variantes. En Excel, guarda como <strong>CSV (delimitado por punto y coma)</strong>; en Google Sheets, Archivo →
-            Descargar → CSV.
+            nombre. La columna <strong>sku</strong> es el SKU de la variante de esa fila, o del producto si no tiene variantes. En{" "}
+            <strong>foto</strong> y <strong>foto_variante</strong> escribe el nombre del archivo (ej: seagreen.jpg) y luego
+            selecciona esas fotos aquí; también acepta un enlace https://. En Excel, guarda como{" "}
+            <strong>CSV (delimitado por punto y coma)</strong>; en Google Sheets, Archivo → Descargar → CSV.
           </p>
         </div>
         <button onClick={onClose} aria-label="Cerrar importador" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted-foreground)" }}>
@@ -116,6 +177,30 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
         </button>
         {fileName && <span style={{ fontSize: "0.8rem", color: "var(--muted-foreground)" }}>{fileName}</span>}
         <input ref={inputRef} type="file" accept=".csv,text/csv,.txt" onChange={(e) => readFile(e.target.files?.[0])} style={{ display: "none" }} />
+
+        <button type="button" onClick={() => photosRef.current?.click()} disabled={importing} style={buttonStyle(false)}>
+          <ImagePlus size={15} /> Seleccionar fotos
+        </button>
+        <span style={{ fontSize: "0.8rem", color: "var(--muted-foreground)" }}>
+          {checkingPhotos
+            ? "Revisando fotos…"
+            : photos.size === 0
+            ? "Puedes elegir varias a la vez"
+            : `${photos.size} foto${photos.size === 1 ? "" : "s"} seleccionada${photos.size === 1 ? "" : "s"}`}
+          {plan && allReferenced.length > 0 && !checkingPhotos && (
+            <>
+              {" · "}
+              {missingCount === 0 ? (
+                <span style={{ color: "var(--primary)" }}>todas las fotos de la planilla están</span>
+              ) : (
+                <span style={{ color: "var(--destructive)" }}>
+                  faltan {missingCount} de {allReferenced.length} nombradas en la planilla
+                </span>
+              )}
+            </>
+          )}
+        </span>
+        <input ref={photosRef} type="file" accept={ACCEPT_ATTR} multiple onChange={(e) => selectPhotos(e.target.files)} style={{ display: "none" }} />
       </div>
 
       {/* Paso 2: vista previa */}
@@ -156,7 +241,9 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
                   <tbody>
                     {plan.products.map((p) => {
                       const cat = categories.find((c) => c.id === p.data.categoryId);
-                      const ok = p.errors.length === 0;
+                      const errors = [...p.errors, ...photoErrors(p)];
+                      const ok = errors.length === 0;
+                      const nPhotos = referencedFiles(p).length;
                       return (
                         <tr key={p.key} style={{ borderTop: "1px solid var(--border)", verticalAlign: "top" }}>
                           <td style={{ padding: "0.6rem 0.75rem" }}>
@@ -182,7 +269,7 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
                           </td>
                           <td style={{ padding: "0.6rem 0.75rem", whiteSpace: "nowrap", color: "var(--muted-foreground)" }}>{p.rows.join(", ")}</td>
                           <td style={{ padding: "0.6rem 0.75rem", minWidth: "260px" }}>
-                            {p.errors.map((e, i) => (
+                            {errors.map((e, i) => (
                               <div key={`e${i}`} style={{ color: "var(--destructive)", marginBottom: "0.2rem" }}>
                                 {e}
                               </div>
@@ -192,7 +279,12 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
                                 {w}
                               </div>
                             ))}
-                            {ok && p.warnings.length === 0 && <span style={{ color: "var(--primary)" }}>Listo</span>}
+                            {ok && nPhotos > 0 && (
+                              <div style={{ color: "var(--primary)", marginBottom: "0.2rem" }}>
+                                {nPhotos === 1 ? "Foto lista para subir" : `${nPhotos} fotos listas para subir`}
+                              </div>
+                            )}
+                            {ok && p.warnings.length === 0 && nPhotos === 0 && <span style={{ color: "var(--primary)" }}>Listo</span>}
                           </td>
                         </tr>
                       );
@@ -204,7 +296,7 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", marginTop: "1.25rem", alignItems: "center" }}>
                 {importing && (
                   <span style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", color: "var(--muted-foreground)" }}>
-                    <Loader2 size={15} className="animate-spin" /> Importando {progress} de {ready.length}…
+                    <Loader2 size={15} className="animate-spin" /> Subiendo fotos y creando productos: {progress} de {ready.length}…
                   </span>
                 )}
                 <button type="button" onClick={runImport} disabled={ready.length === 0 || importing} style={{ ...buttonStyle(true), opacity: ready.length === 0 || importing ? 0.5 : 1 }}>
@@ -221,7 +313,8 @@ export const ProductImporter: React.FC<{ onClose: () => void }> = ({ onClose }) 
         <div>
           <Notice level={results.every((r) => r.ok) ? "ok" : "warning"}>
             Se importaron {results.filter((r) => r.ok).length} de {results.length} productos.
-            {results.some((r) => r.ok) && " Revisa en el inventario los que quedaron con foto provisoria y súbeles su foto desde Editar."}
+            {results.some((r) => r.ok && r.placeholder) &&
+              ` ${results.filter((r) => r.ok && r.placeholder).length} quedaron con foto provisoria: súbeles su foto desde Editar en el inventario.`}
           </Notice>
           {results
             .filter((r) => !r.ok)
