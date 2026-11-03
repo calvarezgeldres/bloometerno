@@ -3,14 +3,11 @@ import { MessageCircle, Instagram, Mail } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
 import { PageHeader } from "../components/PageHeader";
 import { CONTACT_EMAIL } from "../data/contact";
+import { useStore } from "../context/StoreContext";
+import { formatWhatsapp, whatsappLink } from "../../lib/whatsapp";
 
-const contactChannels = [
-  {
-    Icon: MessageCircle,
-    label: "WhatsApp",
-    value: "+56 9 1234 5678",
-    href: "https://wa.me/56912345678",
-  },
+// WhatsApp se agrega en el componente: sale de la configuración del panel
+const otherChannels = [
   {
     Icon: Instagram,
     label: "Instagram",
@@ -26,6 +23,17 @@ const contactChannels = [
 ];
 
 export const ContactoPage: React.FC = () => {
+  const { settings } = useStore();
+  const contactChannels = [
+    {
+      Icon: MessageCircle,
+      label: "WhatsApp",
+      value: formatWhatsapp(settings.whatsappNumber),
+      href: whatsappLink(settings.whatsappNumber),
+    },
+    ...otherChannels,
+  ];
+
   return (
     <PageLayout>
       <main>

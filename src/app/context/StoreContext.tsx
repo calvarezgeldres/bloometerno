@@ -105,7 +105,7 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   accountRut: "76.980.123-K",
   accountHolder: "Bloom Eterno SpA",
   contactEmail: "contacto@bloometerno.cl",
-  whatsappNumber: "+56912345678",
+  whatsappNumber: "+56961212115",
   freeShippingThreshold: 35000,
 };
 
