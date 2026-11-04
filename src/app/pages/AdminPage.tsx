@@ -277,7 +277,7 @@ export const AdminPage: React.FC = () => {
       accountHolder,
       contactEmail,
       whatsappNumber,
-      freeShippingThreshold: parseInt(freeShippingThreshold, 10) || 35000,
+      freeShippingThreshold: parseInt(freeShippingThreshold, 10) || 70000,
     });
     setSavedSettingsMsg(true);
     setTimeout(() => setSavedSettingsMsg(false), 2500);
