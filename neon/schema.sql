@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS store_settings (
     account_rut VARCHAR(20) NOT NULL DEFAULT '76.980.123-K',
     account_holder VARCHAR(255) NOT NULL DEFAULT 'Bloom Eterno SpA',
     contact_email VARCHAR(255) NOT NULL DEFAULT 'contacto@bloometerno.cl',
-    whatsapp_number VARCHAR(50) NOT NULL DEFAULT '+56912345678',
+    whatsapp_number VARCHAR(50) NOT NULL DEFAULT '+56961212115',
     free_shipping_threshold INTEGER NOT NULL DEFAULT 35000,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -79,7 +79,7 @@ VALUES (
     '76.980.123-K',
     'Bloom Eterno SpA',
     'contacto@bloometerno.cl',
-    '+56912345678',
+    '+56961212115',
     35000
 ) ON CONFLICT (id) DO NOTHING;
 

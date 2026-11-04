@@ -66,7 +66,7 @@ Requiere usuario y contraseña. Tiene 4 pestañas:
 ## Estado actual y pendientes conocidos (octubre 2026)
 
 - El sitio está desplegado en Vercel, pero tiene `noindex, nofollow` en `index.html`, así que **todavía no está abierto a buscadores**.
-- Los valores por defecto de `store_settings` en `neon/schema.sql` (banco, cuenta, RUT, WhatsApp `+56912345678`) son **de ejemplo**. Los reales se cargan desde el panel.
+- Los valores por defecto de `store_settings` en `neon/schema.sql` (banco, cuenta, RUT) son **de ejemplo**; el WhatsApp real es `+56961212115`. Los reales se cargan desde el panel.
 - Hay un formulario de newsletter que no está conectado a nada.
 - Las páginas de políticas (`/politica-de-envios`, `/cambios-y-devoluciones`, `/privacidad`) son una propuesta **sin revisión legal**; falta agregar razón social y RUT en privacidad.
 - Parte del catálogo semilla usa fotos de Unsplash. Las fotos reales se suben desde el panel.

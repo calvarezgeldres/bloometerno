@@ -928,7 +928,7 @@ export const AdminModal: React.FC = () => {
                       type="text"
                       value={whatsappNumber}
                       onChange={(e) => setWhatsappNumber(e.target.value)}
-                      placeholder="+56912345678"
+                      placeholder="+56961212115"
                       style={{ width: "100%", padding: "0.5rem", borderRadius: "0.3rem", border: "1px solid var(--border)", fontSize: "0.82rem", boxSizing: "border-box" }}
                     />
                   </div>

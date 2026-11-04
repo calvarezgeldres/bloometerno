@@ -2,6 +2,8 @@ import React from "react";
 import { Link } from "react-router";
 import { Instagram, MessageCircle, Mail } from "lucide-react";
 import { CONTACT_EMAIL } from "../data/contact";
+import { useStore } from "../context/StoreContext";
+import { formatWhatsapp, whatsappLink } from "../../lib/whatsapp";
 
 const navColumns = [
   {
@@ -23,11 +25,6 @@ const navColumns = [
   },
 ];
 
-const contactLinks = [
-  { Icon: MessageCircle, label: "WhatsApp: +56 9 1234 5678", href: "https://wa.me/56912345678" },
-  { Icon: Instagram, label: "@bloometernocl", href: "https://instagram.com/bloometernocl" },
-  { Icon: Mail, label: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
-];
 
 // Las 3 columnas comparten estilos para que títulos y filas queden a la misma altura
 const columnHeadingStyle: React.CSSProperties = {
@@ -65,6 +62,14 @@ const columnLinkStyle: React.CSSProperties = {
 };
 
 export function Footer() {
+  // El WhatsApp sale de la configuración del panel, igual que en el resto del sitio
+  const { settings } = useStore();
+  const contactLinks = [
+    { Icon: MessageCircle, label: `WhatsApp: ${formatWhatsapp(settings.whatsappNumber)}`, href: whatsappLink(settings.whatsappNumber) },
+    { Icon: Instagram, label: "@bloometernocl", href: "https://instagram.com/bloometernocl" },
+    { Icon: Mail, label: CONTACT_EMAIL, href: `mailto:${CONTACT_EMAIL}` },
+  ];
+
   return (
     <footer
       id="footer"

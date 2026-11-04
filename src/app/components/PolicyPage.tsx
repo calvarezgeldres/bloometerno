@@ -4,6 +4,7 @@ import type { LucideIcon } from "lucide-react";
 import { PageLayout } from "./PageLayout";
 import { PageHeader } from "./PageHeader";
 import { useStore } from "../context/StoreContext";
+import { formatWhatsapp } from "../../lib/whatsapp";
 import { CONTACT_EMAIL } from "../data/contact";
 
 export type PolicyHighlight = { icon: LucideIcon; title: string; text: ReactNode };
@@ -156,7 +157,7 @@ export function PolicyPage({
               <div style={{ display: "flex", justifyContent: "center", gap: "0.75rem", flexWrap: "wrap" }}>
                 {whatsapp && (
                   <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" style={contactButtonStyle}>
-                    <MessageCircle size={15} strokeWidth={1.75} /> WhatsApp {settings.whatsappNumber}
+                    <MessageCircle size={15} strokeWidth={1.75} /> WhatsApp {formatWhatsapp(settings.whatsappNumber)}
                   </a>
                 )}
                 <a href={`mailto:${CONTACT_EMAIL}`} style={contactButtonStyle}>
