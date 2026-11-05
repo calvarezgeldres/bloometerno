@@ -34,7 +34,7 @@ Las categorías se administran desde el panel. Estas son las iniciales:
    - **Despacho a domicilio en Santiago (RM):** $3.990, 24 a 48 h hábiles, con despachador privado.
    - **Otras regiones:** se coordina por WhatsApp y el costo **no** se cobra en la web.
    - **Retiro en el taller de Vitacura:** gratis, previo aviso.
-   - Hay un umbral de **despacho gratis** que se configura en el panel (por defecto $35.000).
+   - Hay un umbral de **despacho gratis** que se configura en el panel (hoy $70.000).
 4. Elige cómo **pagar**:
    - **Transferencia bancaria:** el pedido queda "Pendiente de transferencia". El cliente ve los datos bancarios y envía el comprobante por WhatsApp con un mensaje ya armado.
    - **Mercado Pago (Checkout Pro):** paga con tarjeta u otros medios. El pedido **solo se crea si el pago sale aprobado**, así que no quedan pedidos ni stock "fantasma" por pagos abandonados.

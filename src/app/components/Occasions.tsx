@@ -29,9 +29,9 @@ const OCCASIONS = [
   {
     title: "Para tu matrimonio",
     text: "Ramos de novia hechos a mano que te acompañan toda la vida.",
-    image: "/gallery/ramo-de-novia.webp",
-    alt: "Ramo de novia tejido en mostacillas con girasol y tulipanes",
-    focus: "center 35%",
+    image: "/gallery/ocasion-matrimonio.webp",
+    alt: "Ramo de novia y ramito a juego tejidos en mostacillas, envueltos en papel crema con el sello de Bloom Eterno",
+    focus: "center",
     message: "Hola! Me interesa un ramo para mi matrimonio",
   },
 ];

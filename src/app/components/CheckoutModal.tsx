@@ -40,7 +40,7 @@ export const CheckoutModal: React.FC = () => {
 
   const currentRegion = CHILE_REGIONS.find((r) => r.id === regionId) || CHILE_REGIONS[0];
   const isRM = regionId === "RM";
-  const freeShippingLimit = settings.freeShippingThreshold || 35000;
+  const freeShippingLimit = settings.freeShippingThreshold || 70000;
   const isFreeShipping = cartTotal >= freeShippingLimit;
 
   // Calcular costo de envío

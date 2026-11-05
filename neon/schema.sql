@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS store_settings (
     account_holder VARCHAR(255) NOT NULL DEFAULT 'Bloom Eterno SpA',
     contact_email VARCHAR(255) NOT NULL DEFAULT 'contacto@bloometerno.cl',
     whatsapp_number VARCHAR(50) NOT NULL DEFAULT '+56961212115',
-    free_shipping_threshold INTEGER NOT NULL DEFAULT 35000,
+    free_shipping_threshold INTEGER NOT NULL DEFAULT 70000,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
@@ -80,7 +80,7 @@ VALUES (
     'Bloom Eterno SpA',
     'contacto@bloometerno.cl',
     '+56961212115',
-    35000
+    70000
 ) ON CONFLICT (id) DO NOTHING;
 
 -- 5. Tabla de Usuarios Administradores (login del panel /admin)

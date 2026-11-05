@@ -22,7 +22,7 @@ export const CartDrawer: React.FC = () => {
 
   if (!isCartOpen) return null;
 
-  const freeShippingLimit = settings.freeShippingThreshold || 35000;
+  const freeShippingLimit = settings.freeShippingThreshold || 70000;
   const missingForFreeShipping = Math.max(0, freeShippingLimit - cartTotal);
   const progressPercent = Math.min(100, Math.round((cartTotal / freeShippingLimit) * 100));
 
@@ -157,12 +157,13 @@ export const CartDrawer: React.FC = () => {
             >
               {missingForFreeShipping > 0 ? (
                 <>
+                  {/* El despacho gratis aplica solo en Santiago (RM); regiones se coordinan por WhatsApp */}
                   Agrega <strong>{formatCLP(missingForFreeShipping)}</strong> para{" "}
-                  <span style={{ color: "var(--primary)", fontWeight: 600 }}>Envío Gratis</span> en Chile
+                  <span style={{ color: "var(--primary)", fontWeight: 600 }}>despacho gratis</span> en Santiago (RM)
                 </>
               ) : (
                 <span style={{ color: "var(--primary)", fontWeight: 600 }}>
-                  🎉 ¡Genial! Tu pedido califica para Envío Gratis
+                  🎉 ¡Genial! Tu pedido tiene despacho gratis en Santiago (RM)
                 </span>
               )}
             </p>

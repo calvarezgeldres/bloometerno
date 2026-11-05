@@ -106,7 +106,7 @@ export const DEFAULT_SETTINGS: StoreSettings = {
   accountHolder: "Bloom Eterno SpA",
   contactEmail: "contacto@bloometerno.cl",
   whatsappNumber: "+56961212115",
-  freeShippingThreshold: 35000,
+  freeShippingThreshold: 70000,
 };
 
 interface StoreContextType {
