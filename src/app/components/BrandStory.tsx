@@ -164,7 +164,7 @@ export function BrandStory() {
               margin: "0 0 2.5rem",
             }}
           >
-            Cada piedra, color y detalle está pensado para inspirar piezas únicas, personales y eternas. Creemos que cada pieza que nace de tus manos lleva parte de ti.
+            Cada mostacilla, color y detalle está pensado para inspirar piezas únicas, personales y eternas. Creemos que cada pieza que nace de tus manos lleva parte de ti.
           </p>
 
           {/* Stats row */}

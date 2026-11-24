@@ -246,7 +246,7 @@ export const CartDrawer: React.FC = () => {
                   margin: "0 0 1.5rem",
                 }}
               >
-                Descubre nuestra colección de piedras naturales, mostacillas y cristales.
+                Descubre nuestra colección de mostacillas, alambres y arreglos florales.
               </p>
               <button
                 onClick={() => {

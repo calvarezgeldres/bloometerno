@@ -9,7 +9,7 @@ const faqs = [
   },
   {
     q: "¿Puedo personalizar los colores de un ramo?",
-    a: "Sí. Escríbenos por WhatsApp o Instagram antes de comprar y te ayudamos a elegir la combinación de piedras y mostacillas que más te guste.",
+    a: "Sí. Escríbenos por WhatsApp o Instagram antes de comprar y te ayudamos a elegir la combinación de colores y mostacillas que más te guste.",
   },
   {
     q: "¿Qué cuidados necesitan las piezas?",
