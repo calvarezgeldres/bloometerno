@@ -7,7 +7,7 @@ export const NosotrosPage: React.FC = () => {
   return (
     <PageLayout>
       <main>
-        <PageHeader eyebrow="Nuestra historia" title="Sobre Bloom Eterno" />
+        <PageHeader eyebrow="Nosotros" title="Sobre Bloom Eterno" />
         <BrandStory />
       </main>
     </PageLayout>
