@@ -1,11 +1,11 @@
-import { Gem, Truck, MessageCircleHeart, Lightbulb } from "lucide-react";
+import { Gem, Truck, MessageCircleHeart } from "lucide-react";
 import { Accent, SectionHeading } from "./SectionHeading";
 
 const benefits = [
   {
     icon: Gem,
     title: "Materiales seleccionados",
-    description: "Cada piedra y mostacilla pasa por una cuidadosa selección de calidad, color y origen.",
+    description: "Cada mostacilla y alambre pasa por una cuidadosa selección de calidad, color y origen.",
   },
   {
     icon: Truck,
@@ -16,11 +16,6 @@ const benefits = [
     icon: MessageCircleHeart,
     title: "Atención personalizada",
     description: "Te ayudamos a elegir los materiales perfectos para tu proyecto creativo.",
-  },
-  {
-    icon: Lightbulb,
-    title: "Inspiración incluida",
-    description: "Guías de combinaciones y tutoriales para que nunca te falte inspiración.",
   },
 ];
 
@@ -40,15 +35,21 @@ export function Benefits() {
           Creado con <Accent>intención</Accent>
         </SectionHeading>
 
-        {/* Benefits grid */}
+        {/* Benefits grid: una columna por beneficio; en celular, uno debajo del otro */}
+        <style>{`
+          @media (max-width: 640px) {
+            .benefits-grid { grid-template-columns: 1fr !important; }
+            .benefits-grid .benefit-item { border-right: none !important; }
+          }
+        `}</style>
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
+            gridTemplateColumns: `repeat(${benefits.length}, 1fr)`,
             gap: "0",
             borderTop: "1px solid var(--border)",
           }}
-          className="max-lg:grid-cols-2"
+          className="benefits-grid"
         >
           {benefits.map((b, i) => {
             const Icon = b.icon;
@@ -61,7 +62,7 @@ export function Benefits() {
                   borderRight: !isLast ? "1px solid var(--border)" : "none",
                   borderBottom: "1px solid var(--border)",
                 }}
-                className={i >= 2 ? "max-lg:border-b-0" : ""}
+                className="benefit-item"
               >
                 <div
                   style={{
