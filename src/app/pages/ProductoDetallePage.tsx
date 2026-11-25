@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router";
-import { Check, ChevronRight, MessageCircle, Minus, Plus, ShoppingBag, Store, Truck } from "lucide-react";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router";
+import { ArrowLeft, Check, ChevronRight, MessageCircle, Minus, Plus, ShoppingBag, Store, Truck } from "lucide-react";
 import { PageLayout } from "../components/PageLayout";
 import { ProductCard, badgeConfig, formatCLP } from "../components/Products";
 import { useStore } from "../context/StoreContext";
@@ -103,6 +103,16 @@ function ProductDetail({
 }) {
   const { addToCart, settings } = useStore();
   const [, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // "Volver" regresa a la página anterior tal como estaba (filtro y posición),
+  // igual que el botón Atrás. Si se llegó directo al producto (link compartido),
+  // no hay página anterior del sitio: lleva al catálogo.
+  const goBack = () => {
+    const idx = (window.history.state as { idx?: number } | null)?.idx ?? 0;
+    if (idx > 0) navigate(-1);
+    else navigate("/productos");
+  };
   const {
     variants,
     withVariants,
@@ -190,6 +200,27 @@ function ProductDetail({
   return (
     <>
       <section style={{ maxWidth: "1180px", margin: "0 auto", padding: "1.75rem 2rem 4rem" }}>
+        <button
+          type="button"
+          onClick={goBack}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.4rem",
+            background: "none",
+            border: "none",
+            padding: 0,
+            marginBottom: "0.9rem",
+            cursor: "pointer",
+            fontFamily: "var(--font-body)",
+            fontSize: "0.78rem",
+            fontWeight: 600,
+            color: "var(--primary)",
+          }}
+        >
+          <ArrowLeft size={15} /> Volver
+        </button>
+
         {/* Migas de pan */}
         <nav
           aria-label="Ruta de navegación"

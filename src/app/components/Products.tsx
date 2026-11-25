@@ -16,16 +16,28 @@ export function formatCLP(n: number) {
   return `$${n.toLocaleString("es-CL")}`;
 }
 
-export function Products({ initialCategory }: { initialCategory?: string } = {}) {
+export function Products() {
   const { products, categories: storeCategories, addToCart } = useStore();
   const [searchParams, setSearchParams] = useSearchParams();
   // Búsqueda del encabezado (/productos?buscar=…): se combina con el filtro de categoría
   const searchTerm = (searchParams.get("buscar") ?? "").trim();
   const [wishlist, setWishlist] = useState<Set<string | number>>(new Set());
   const [added, setAdded] = useState<Set<string | number>>(new Set());
-  const [activeCategory, setActiveCategory] = useState(
-    initialCategory || searchParams.get("categoria") || "Todos"
-  );
+  // El filtro de categoría vive en la URL (?categoria=): al volver desde un producto
+  // sigue aplicado, y los links a una categoría desde otras secciones siempre lo
+  // aplican. Se reemplaza la entrada del historial para que "Atrás" no recorra
+  // cada filtro que se tocó.
+  const activeCategory = searchParams.get("categoria") || "Todos";
+  const setActiveCategory = (cat: string) =>
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (cat === "Todos") next.delete("categoria");
+        else next.set("categoria", cat);
+        return next;
+      },
+      { replace: true }
+    );
 
   const toggleWishlist = (id: string | number) =>
     setWishlist((prev) => {
@@ -123,7 +135,7 @@ export function Products({ initialCategory }: { initialCategory?: string } = {})
           {/* Filter pills */}
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
             {categories.map((cat) => {
-              const isSelected = activeCategory === cat;
+              const isSelected = activeCategory.toLowerCase() === cat.toLowerCase();
               return (
                 <button
                   key={cat}
