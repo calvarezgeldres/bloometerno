@@ -10,7 +10,7 @@ export const ProductosPage: React.FC = () => {
         <PageHeader
           eyebrow="Catálogo"
           title="Todos nuestros productos"
-          subtitle="Piedras, mostacillas, cristales y herramientas seleccionadas para tus creaciones."
+          subtitle="Mostacillas, alambres, arreglos florales y plantas seleccionados para tus creaciones."
         />
         <Products />
       </main>
