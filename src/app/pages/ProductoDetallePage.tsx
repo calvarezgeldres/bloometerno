@@ -8,6 +8,7 @@ import { useVariantSelection } from "../hooks/useVariantSelection";
 import { SHIPPING_METHODS } from "../data/chileData";
 import { Category, Product, ProductVariant } from "../types/store";
 import { findCategory, fixedAttributes, productSku, variantAttributes, variantLabel } from "../../lib/catalog";
+import { useNoIndex } from "../hooks/useNoIndex";
 
 /**
  * Página de detalle de un producto (/producto/:id). Inspirada en las fichas de
@@ -22,6 +23,8 @@ export const ProductoDetallePage: React.FC = () => {
   const { products, categories, isCatalogLoaded } = useStore();
 
   const product = products.find((p) => String(p.id) === id);
+  // "Producto no encontrado" responde 200 (el producto se busca desde el navegador): que no se indexe
+  useNoIndex(!product && isCatalogLoaded);
 
   return (
     <PageLayout>

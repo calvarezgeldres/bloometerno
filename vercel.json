@@ -1,11 +1,20 @@
 {
+  "trailingSlash": false,
   "rewrites": [
     {
       "source": "/api/(.*)",
       "destination": "/api/$1"
     },
     {
-      "source": "/(.*)",
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/:page(productos|nosotros|contacto|politica-de-envios|cambios-y-devoluciones|privacidad|admin|pago-resultado|pago-error)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/producto/:id",
       "destination": "/index.html"
     }
   ]
