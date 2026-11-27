@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es-CL">
+  <head>
+    <!-- Vercel la sirve con estado 404 a toda ruta que no esté en vercel.json ni en public/ -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Página no encontrada | Bloom Eterno</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" type="image/png" href="/logos/bloom-isotipo-favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@0;1&family=Jost:wght@300;500;600&display=swap" rel="stylesheet" />
+    <style>
+      html, body { margin: 0; min-height: 100%; }
+      body {
+        background: #fffcf3;
+        color: #1f2e1f;
+        font-family: "Jost", system-ui, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 2rem;
+        box-sizing: border-box;
+        text-align: center;
+      }
+      main { max-width: 520px; }
+      img { height: 72px; width: auto; margin-bottom: 1.75rem; }
+      .eyebrow { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: #d9a526; font-weight: 500; margin: 0 0 0.9rem; }
+      h1 { font-family: "Playfair Display", Georgia, serif; font-weight: 400; font-size: clamp(1.9rem, 5vw, 2.6rem); color: #053c29; margin: 0 0 1rem; line-height: 1.15; }
+      h1 em { color: #929f78; }
+      p { color: #6b7563; line-height: 1.7; margin: 0 0 2rem; font-weight: 300; }
+      .links { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+      a {
+        display: inline-block; padding: 0.85rem 1.6rem; border-radius: 2rem; text-decoration: none;
+        font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      }
+      .primary { background: #053c29; color: #fffcf3; }
+      .secondary { border: 1px solid rgba(31, 46, 31, 0.15); color: #053c29; background: #fff; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/logos/bloom-isotipo.png" alt="Bloom Eterno" />
+      <p class="eyebrow">Error 404</p>
+      <h1>Esta página <em>no existe</em></h1>
+      <p>Puede que el enlace esté incompleto o que la página ya no esté disponible.</p>
+      <div class="links">
+        <a class="primary" href="/">Ir al inicio</a>
+        <a class="secondary" href="/productos">Ver productos</a>
+      </div>
+    </main>
+  </body>
+</html>

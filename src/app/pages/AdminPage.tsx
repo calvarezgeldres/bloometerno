@@ -28,12 +28,15 @@ import { ProductAttributesEditor } from "../components/admin/ProductAttributesEd
 import { ImageUploader } from "../components/admin/ImageUploader";
 import { IMAGE_RULES } from "../../lib/imageUpload";
 import { ProductImporter } from "../components/admin/ProductImporter";
+import { useNoIndex } from "../hooks/useNoIndex";
 
 function formatCLP(amount: number): string {
   return `$${amount.toLocaleString("es-CL")}`;
 }
 
 export const AdminPage: React.FC = () => {
+  // El panel no debe aparecer en buscadores (además está bloqueado en robots.txt)
+  useNoIndex();
   const {
     products,
     categories: storeCategories,

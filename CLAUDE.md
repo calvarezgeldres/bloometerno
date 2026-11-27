@@ -112,4 +112,4 @@ No hay tests, linter ni CI configurados. Antes de hacer push, verifica al menos 
 - Commits en español con prefijo tipo Conventional Commits: `feat:`, `fix:`, `refactor:`.
 - Los comentarios explican el **porqué** (hay varios ejemplos largos en `api/mercadopago.ts` y `api/products.ts`). Mantén ese estilo.
 - Los componentes grandes (`AdminPage.tsx` ~1400 líneas, `CheckoutModal.tsx` ~950, `AdminModal.tsx` ~1000) están en un solo archivo. Si los tocas mucho, conviene extraer subcomponentes a `components/admin/`.
-- Las rutas nuevas de la SPA van en `src/app/App.tsx`. `vercel.json` ya reescribe todo lo que no es `/api` hacia `index.html`.
+- Las rutas nuevas de la SPA van en `src/app/App.tsx` **y también en `vercel.json`**: ahí solo las rutas reales se reescriben a `index.html` y cualquier otra responde 404 con `public/404.html` (en producción; `vercel dev` no lo emula y devuelve la app), para que los buscadores no indexen URLs inexistentes. Una ruta que falte en `vercel.json` da 404 al entrar directo o al recargar. `/sitemap.xml` lo genera `api/sitemap.ts` desde Neon.
